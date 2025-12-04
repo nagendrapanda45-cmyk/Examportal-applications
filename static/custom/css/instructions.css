@@ -1,0 +1,193 @@
+body {
+  background: linear-gradient(135deg, #dee0e6 0%, #d6cce0 100%);
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.instructions-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  margin: 30px auto;
+  max-width: 900px;
+}
+
+.header-section {
+  /* background: linear-gradient(135deg, #9a5ade 0%, #6767cf 100%); */
+  background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 20px 20px 0 0;
+  text-align: center;
+}
+
+.instructions-content {
+  padding: 40px;
+}
+
+.instruction-item {
+  background: #f8f9fa;
+  /* border-left: 4px solid #4facfe; */
+  border-left: 4px solid #ec407a;
+  margin: 15px 0;
+  padding: 20px;
+  border-radius: 0 10px 10px 0;
+  transition: transform 0.2s ease;
+}
+
+.instruction-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.instruction-icon {
+  /* color: #4facfe; */
+  color: #ec407a;
+  font-size: 1.5em;
+  margin-right: 15px;
+}
+
+.database-instruction {
+  background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+  border-left: 4px solid #28a745;
+  margin: 15px 0;
+  padding: 20px;
+  border-radius: 0 10px 10px 0;
+}
+
+.database-instruction h5 {
+  color: #155724;
+  margin-bottom: 10px;
+}
+
+.database-instruction .content {
+  color: #155724;
+  line-height: 1.6;
+}
+
+.exam-details {
+  background: linear-gradient(135deg, #7f8be6 0%, #c98bb5 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 30px 0;
+  color: #333;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.btn-start {
+  /* background: linear-gradient(135deg, #834eab 0%, #437caa 100%); */
+    background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2em;
+  font-weight: bold;
+  border-radius: 50px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(23, 20, 24, 0.685);
+  color: white;
+}
+
+.btn-logout {
+  /* background: linear-gradient(135deg, #a770cf 0%, #ac72d3 100%); */
+    background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.1em;
+  border-radius: 50px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+  color: white;
+}
+
+.user-info {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 15px 25px;
+  border-radius: 25px;
+  display: inline-block;
+}
+
+.warning-box {
+  /* background: linear-gradient(135deg, #9966c2 0%, #454d73 100%); */
+  background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  border: none;
+}
+
+.timer-info {
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+  background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.test-type-badge {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.navbar-custom {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.btn-logout {
+  /* background: linear-gradient(45deg, #dc3545, #c82333); */
+  background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  color: white;
+}
+.btn-logout:hover {
+  transform: translateY(-2px);
+  color: white;
+}
+.text-primary-custom {
+  /* color: #667eea !important; */
+  color: #ec407a !important;
+}
+
+.text-primary {
+  color: #ec407a !important;
+}
+.btn-secondary{
+    background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    color: white;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  color: white;
+}

@@ -1,0 +1,408 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+ 
+{% block title %} Final Result Statistics {% endblock %}
+ 
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-0 pb-0">
+          <h4 class="mb-0 text-dark">Final Result Statistics</h4>
+        </div>
+        <div class="card-body">
+          <!-- Count Cards for Overall Results -->
+          <div class="row mb-4">
+            <!-- Attended Card -->
+            <div class="col-md-4">
+              <div class="card shadow-sm">
+                <div class="card-body text-center">
+                  <h6 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Attended</h6>
+                  <h3 class="font-weight-bolder mb-0">{{ attended_count }}</h3>
+                </div>
+              </div>
+            </div>
+            <!-- Qualified Card -->
+            <div class="col-md-4">
+              <div class="card shadow-sm">
+                <div class="card-body text-center">
+                  <h6 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Qualified</h6>
+                  <h3 class="font-weight-bolder mb-0">{{ qualified_count }}</h3>
+                </div>
+              </div>
+            </div>
+            <!-- Not Qualified Card -->
+            <div class="col-md-4">
+              <div class="card shadow-sm">
+                <div class="card-body text-center">
+                  <h6 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Not Qualified</h6>
+                  <h3 class="font-weight-bolder mb-0">{{ not_qualified_count }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+ 
+          <!-- First Bar Graph (Attended vs Qualified vs Not Qualified) -->
+          <div class="chart-section">
+            <h5 class="mb-4 text-muted">Attended vs Qualified vs Not Qualified Candidates</h5>
+            <div class="chart-container" style="height: 300px;">
+              <canvas id="resultStatusChart"></canvas>
+            </div>
+          </div>
+ 
+          <!-- Second Graph: General Test (GT) Results -->
+          <div class="chart-section mt-6">
+            <h5 class="mb-4 text-muted">General Test (GT) Results</h5>
+ 
+            <!-- GT Count Cards -->
+            <div class="row mb-4">
+              <div class="col-md-4">
+                <div class="card shadow-sm">
+                  <div class="card-body text-center">
+                    <h6 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Attended</h6>
+                    <h3 class="font-weight-bolder mb-0">{{ gt_attended_count }}</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card shadow-sm">
+                  <div class="card-body text-center">
+                    <h6 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Qualified</h6>
+                    <h3 class="font-weight-bolder mb-0">{{ gt_qualified_count }}</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card shadow-sm">
+                  <div class="card-body text-center">
+                    <h6 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Not Qualified</h6>
+                    <h3 class="font-weight-bolder mb-0">{{ gt_not_qualified_count }}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+ 
+            <!-- GT Bar Graph -->
+            <div class="chart-container" style="height: 300px;">
+              <canvas id="gtResultsChart"></canvas>
+            </div>
+          </div>
+ 
+          <!-- Third Graph: Technical Test (TT) Results by Skill -->
+          <div class="chart-section mt-6">
+  <h5 class="mb-4 text-muted">Technical Test (TT) Results by Skill</h5>
+ 
+  <!-- TT Attended Count Card - Centered -->
+  <div class="row mb-4 justify-content-center">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h6 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Attended</h6>
+          <h3 class="font-weight-bolder mb-0">{{ tt_attended_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+            <!-- TT Skill-Wise Qualified/Not Qualified Cards -->
+            {% if tt_by_skill %}
+              <div class="row mb-4">
+                {% for skill, counts in tt_by_skill.items %}
+                  <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm small-card">
+                      <div class="card-body">
+                        <h6 class="text-muted mb-2">{{ skill }}</h6>
+                        <div class="row">
+                          <div class="col-6 text-center">
+                            <p class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 mb-1">Qualified</p>
+                            <h4 class="font-weight-bolder mb-0">{{ counts.qualified }}</h4>
+                          </div>
+                          <div class="col-6 text-center">
+                            <p class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 mb-1">Not Qualified</p>
+                            <h4 class="font-weight-bolder mb-0">{{ counts.not_qualified }}</h4>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% if forloop.counter|divisibleby:2 %}
+                    </div><div class="row mb-4">
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted">No Technical Test results available.</p>
+            {% endif %}
+ 
+            <!-- TT Bar Graph -->
+            <div class="chart-container" style="height: 300px;">
+              <canvas id="ttResultsChart"></canvas>
+            </div>
+          </div>
+ 
+          <div class="text-center mt-4">
+            <a href="{% url 'final_result_list' %}" class="btn btn-outline-primary px-4">Back to Final Results</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// First Chart: Attended vs Qualified vs Not Qualified
+document.addEventListener('DOMContentLoaded', function () {
+  const ctx1 = document.getElementById('resultStatusChart').getContext('2d');
+ 
+  new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: ['Attended', 'Qualified', 'Not Qualified'],
+      datasets: [{
+        data: [{{ attended_count }}, {{ qualified_count }}, {{ not_qualified_count }}],
+        backgroundColor: [
+          'rgba(54, 162, 235, 0.7)',  // Attended: Blue
+          'rgba(100, 200, 100, 0.7)',  // Qualified: Green
+          'rgba(250, 100, 100, 0.7)'   // Not Qualified: Red
+        ],
+        borderColor: [
+          'rgba(54, 162, 235, 1)',
+          'rgba(100, 200, 100, 1)',
+          'rgba(250, 100, 100, 1)'
+        ],
+        borderWidth: 1,
+        borderRadius: 6,
+        barThickness: 50
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
+          ticks: {
+            stepSize: 1,
+            precision: 0
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          bodyFont: {
+            size: 14
+          },
+          callbacks: {
+            label: function(context) {
+              return context.raw + ' candidate' + (context.raw !== 1 ? 's' : '');
+            }
+          }
+        }
+      }
+    }
+  });
+ 
+  // Second Chart: General Test (GT) Results
+  const ctx2 = document.getElementById('gtResultsChart').getContext('2d');
+ 
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['General Test (GT)'],
+      datasets: [
+        {
+          label: 'Qualified',
+          data: [{{ gt_qualified_count }}],
+          backgroundColor: 'rgba(100, 200, 100, 0.7)',  // Green
+          borderColor: 'rgba(100, 200, 100, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          barThickness: 30
+        },
+        {
+          label: 'Not Qualified',
+          data: [{{ gt_not_qualified_count }}],
+          backgroundColor: 'rgba(250, 100, 100, 0.7)',  // Red
+          borderColor: 'rgba(250, 100, 100, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          barThickness: 30
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
+          ticks: {
+            stepSize: 1,
+            precision: 0
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          bodyFont: {
+            size: 14
+          },
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + context.raw + ' candidate' + (context.raw !== 1 ? 's' : '');
+            }
+          }
+        }
+      }
+    }
+  });
+ 
+  // Third Chart: Technical Test (TT) Results by Skill
+  const ctx3 = document.getElementById('ttResultsChart').getContext('2d');
+ 
+  // Prepare data for TT chart
+  const ttLabels = [{% for skill in tt_by_skill.keys %}'{{ skill }}',{% endfor %}];
+  const ttQualifiedData = [{% for skill, counts in tt_by_skill.items %}{{ counts.qualified }},{% endfor %}];
+  const ttNotQualifiedData = [{% for skill, counts in tt_by_skill.items %}{{ counts.not_qualified }},{% endfor %}];
+ 
+  new Chart(ctx3, {
+    type: 'bar',
+    data: {
+      labels: ttLabels,
+      datasets: [
+        {
+          label: 'Qualified',
+          data: ttQualifiedData,
+          backgroundColor: 'rgba(100, 200, 100, 0.7)',  // Green
+          borderColor: 'rgba(100, 200, 100, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          barThickness: 30
+        },
+        {
+          label: 'Not Qualified',
+          data: ttNotQualifiedData,
+          backgroundColor: 'rgba(250, 100, 100, 0.7)',  // Red
+          borderColor: 'rgba(250, 100, 100, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          barThickness: 30
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
+          ticks: {
+            stepSize: 1,
+            precision: 0
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            autoSkip: false,
+            maxRotation: 45,
+            minRotation: 45
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          bodyFont: {
+            size: 14
+          },
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + context.raw + ' candidate' + (context.raw !== 1 ? 's' : '');
+            }
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+ 
+<style>
+  .card {
+    border-radius: 12px;
+  }
+  .chart-container {
+    position: relative;
+    margin: auto;
+  }
+  .chart-section {
+    margin-bottom: 3rem;  /* Additional spacing below each chart section */
+  }
+  /* Custom styling for smaller TT skill cards */
+  .small-card {
+    border-radius: 8px;
+  }
+  .small-card .card-body {
+    padding: 0.75rem;  /* Reduced padding */
+  }
+  .small-card h6 {
+    font-size: 0.7rem;  /* Slightly larger font for skill name */
+  }
+  .small-card p {
+    font-size: 0.6rem;  /* Smaller font size for labels */
+  }
+  .small-card h4 {
+    font-size: 1.25rem;  /* Smaller font size for counts */
+  }
+</style>
+{% endblock %}
+ 

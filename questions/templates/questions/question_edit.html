@@ -1,0 +1,81 @@
+{% extends "layouts/base.html" %} {% load static %} {% block title %} Edit
+Question {% endblock title %} {% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h4 class="font-weight-bolder">Edit Question</h4>
+          <p class="mb-0 text-sm">Please update the question details</p>
+        </div>
+        <div class="card-body pt-4">
+          {% if form.errors %}
+          <div class="alert alert-danger">
+            <ul>
+              {% for field in form %} {% for error in field.errors %}
+              <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+              {% endfor %} {% endfor %} {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-12 form-group">
+                {{ form.question_text.label_tag }} {{ form.question_text }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.option_a.label_tag }} {{ form.option_a }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.option_b.label_tag }} {{ form.option_b }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.option_c.label_tag }} {{ form.option_c }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.option_d.label_tag }} {{ form.option_d }}
+              </div>
+              <div class="col-md-12 form-group">
+                {{ form.technical_question_answer.label_tag }} {{form.technical_question_answer }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.correct_answer.label_tag }} {{ form.correct_answer }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.difficulty.label_tag }} {{ form.difficulty }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.test_type.label_tag }} {{ form.test_type }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.category_type.label_tag }} {{ form.category_type }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.specialisation_name.label_tag }} {{form.specialisation_name }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.is_active.label_tag }} {{ form.is_active }}
+              </div>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Update
+              </button>
+              <a
+                href="{% url 'question_list' %}"
+                class="btn bg-gradient-dark btn-lg"
+                >Cancel</a
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

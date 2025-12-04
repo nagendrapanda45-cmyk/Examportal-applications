@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "django"
+    static_configs:
+      - targets: ["13.232.128.222:8000"]
+
+# remote_write:
+#   - url: "https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom/push"
+#     basic_auth:
+#       username: "2666123"
+#       password: "glc_eyJvIjoiMTUyOTgzOCIsIm4iOiJzdGFjay0xMzcwOTQ0LWFsbG95LW15MXN0aG9zdCIsImsiOiI0MGtGNGxIMDJNS0hOczBJMlkxM3M4bXYiLCJtIjp7InIiOiJwcm9kLWFwLXNvdXRoLTEifX0="

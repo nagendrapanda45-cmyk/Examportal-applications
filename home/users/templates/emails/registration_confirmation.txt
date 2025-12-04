@@ -1,0 +1,13 @@
+Dear {{ first_name }},
+
+Greetings!
+
+We are glad to confirm your registration for the Fresher’s Drive - {{ config.current_year }} at TechRAQ.
+
+Here is your Registration ID: {{ registration_id }}, please keep it safe for all future correspondence.
+
+You will hear more details on Recruitment Drive between {{ config.recruitment_drive_dates }}.
+
+For any further assistance please write to us at resumes@techraq.com or call @ {{ config.contact_numbers }}.
+
+Thanks & Regards, HR Team www.techraq.com

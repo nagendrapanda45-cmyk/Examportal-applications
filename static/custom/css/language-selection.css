@@ -1,0 +1,14 @@
+/* language-selection.css */
+
+.hover-shadow {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    border-color: #ec407a;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+.form-check-input {
+    margin-top: 1.2rem;
+}

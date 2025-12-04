@@ -1,0 +1,214 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+ 
+{% block title %}View Test: {{ test.test_name }}{% endblock %}
+ 
+{% block head %}
+{{ block.super }}
+<!-- Add Prism.js for syntax highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-okaidia.min.css" rel="stylesheet" />
+<style>
+    /* Custom styles for code blocks */
+    .code-block {
+        background-color: #2d2d2d;
+        color: #f8f8f2;
+        border-radius: 5px;
+        padding: 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+    }
+    .code-block pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .question-container {
+        border-left: 4px solid #5e72e4;
+        padding-left: 1rem;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+ 
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header pb-0">
+                    <h4 class="mb-0">Test Details: {{ test.test_name }}</h4>
+                    {% if is_technical_test and request.user.is_staff %}
+                        <span class="badge bg-gradient-info">Technical Test - Admin Review Required</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <!-- User Information -->
+                    <h5 class="mb-3">User Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Registration ID:</strong> {{ test.user.registration_id|default:"N/A" }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Full Name:</strong> {{ test.user.get_full_name|default:test.user.first_name|add:" "|add:test.user.last_name|default:"N/A" }}
+                        </div>
+                    </div>
+ 
+                    <!-- Test Information -->
+                    <h5 class="mb-3">Test Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Test Name:</strong> {{ test.test_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Status:</strong>
+                            {% if test.is_submitted %}
+                                <span class="badge badge-sm bg-gradient-success">Submitted</span>
+                            {% else %}
+                                <span class="badge badge-sm bg-dark text-white">Not Submitted</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Submission Time:</strong> {{ test.submission_time|date:"Y-m-d H:i"|default:"Not Submitted" }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Type:</strong>
+                            <span class="badge badge-sm bg-gradient-{{ is_technical_test|yesno:'info,primary' }}">
+                                {{ test.get_test_type_display }}
+                            </span>
+                        </div>
+                    </div>
+ 
+                    <!-- Questions and Answers -->
+                    <h5 class="mb-3">Questions and Answers</h5>
+                    {% if question_answers %}
+                        {% if is_technical_test and request.user.is_staff %}
+                            <form method="post">
+                                {% csrf_token %}
+                        {% endif %}
+                       
+                        {% for qa in page_obj %}
+                            <div class="question-container">
+                                <h6>Question {{ forloop.counter|add:page_obj.start_index|add:-1 }}:</h6>
+                                <p>{{ qa.question.question_text }}</p>
+                               
+                                {% if qa.question.correct_answer %}
+                                    <!-- Multiple-choice question -->
+                                    <div class="ms-3 mt-2">
+                                        <p><strong>Options:</strong></p>
+                                        <ul class="list-unstyled">
+                                            <li>A: {{ qa.question.option_a|default:"N/A" }}</li>
+                                            <li>B: {{ qa.question.option_b|default:"N/A" }}</li>
+                                            <li>C: {{ qa.question.option_c|default:"N/A" }}</li>
+                                            <li>D: {{ qa.question.option_d|default:"N/A" }}</li>
+                                        </ul>
+                                        <p><strong>User Answer:</strong> {{ qa.user_answer|default:"Not Answered" }}</p>
+                                        <p><strong>Correct Answer:</strong> {{ qa.question.correct_answer }}</p>
+                                        <p><strong>Result:</strong>
+                                            <span class="badge badge-sm bg-gradient-{{ qa.is_correct|yesno:'success,danger' }}">
+                                                {{ qa.is_correct|yesno:"Correct,Incorrect" }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                {% else %}
+                                    <!-- Technical question -->
+                                    <div class="ms-3 mt-2">
+                                        <p><strong>User Answer:</strong></p>
+                                        <div class="code-block">
+                                            <pre><code class="language-python">{{ qa.user_answer|default:"Not Answered" }}</code></pre>
+                                        </div>
+                                       
+                                        {% if not is_technical_test %}
+                                            <p class="mt-3"><strong>Expected Answer:</strong></p>
+                                            <div class="code-block">
+                                                <pre><code class="language-python">{{ qa.question.technical_question_answer|default:"N/A" }}</code></pre>
+                                            </div>
+                                        {% endif %}
+                                       
+                                        {% if is_technical_test and request.user.is_staff %}
+                                            <div class="form-check form-switch mt-3">
+                                                <input class="form-check-input" type="checkbox"
+                                                       id="correct_{{ qa.attempt_id }}" name="correct_{{ qa.attempt_id }}"
+                                                       {% if qa.is_correct %}checked{% endif %}>
+                                                <label class="form-check-label" for="correct_{{ qa.attempt_id }}">
+                                                    Mark as Correct
+                                                </label>
+                                            </div>
+                                        {% else %}
+                                            <p class="mt-2"><strong>Result:</strong>
+                                                <span class="badge badge-sm bg-gradient-{{ qa.is_correct|yesno:'success,danger' }}">
+                                                    {{ qa.is_correct|yesno:"Correct,Incorrect" }}
+                                                </span>
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+ 
+                        {% if is_technical_test and request.user.is_staff %}
+                            <div class="text-end mt-4">
+                                <button type="submit" class="btn bg-gradient-success">Save Review</button>
+                            </div>
+                            </form>
+                        {% endif %}
+ 
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                            <nav aria-label="Questions pagination">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Previous</span>
+                                        </li>
+                                    {% endif %}
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Next</span>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-secondary">No answered questions found for this test.</p>
+                    {% endif %}
+ 
+                    <div class="text-end mt-4">
+                        <a href="{% url 'test_list' %}" class="btn bg-gradient-secondary">Back to Tests</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<!-- Load Prism.js at the end of the body -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+<!-- Add other language components as needed -->
+{% endblock %}
+ 
+ 

@@ -1,0 +1,149 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Add Question {% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-12">
+      
+      <div class="card">
+        <div class="card-header pb-0">
+          <h4 class="font-weight-bolder">Add Question</h4>
+          <p class="mb-0 text-sm">Please fill in the question details</p>
+        </div>
+        <div class="card-body pt-4">
+          {% if form.errors %}
+          <div class="alert alert-danger">
+            <ul>
+              {% for field in form %}
+                {% for error in field.errors %}
+                  <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-12 form-group">
+                {{ form.test_type.label_tag }} {{ form.test_type }}
+              </div>
+              <div class="col-md-12 form-group">
+                {{ form.question_text.label_tag }} {{ form.question_text }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.option_a.label_tag }} {{ form.option_a }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.option_b.label_tag }} {{ form.option_b }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.option_c.label_tag }} {{ form.option_c }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.option_d.label_tag }} {{ form.option_d }}
+              </div>
+              <div class="col-md-12 form-group">
+                {{ form.technical_question_answer.label_tag }} {{ form.technical_question_answer }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.correct_answer.label_tag }} {{ form.correct_answer }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.difficulty.label_tag }} {{ form.difficulty }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.category_type.label_tag }} {{ form.category_type }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.specialisation_name.label_tag }} {{ form.specialisation_name }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.is_multichoice.label_tag }} {{ form.is_multichoice }}
+              </div>
+              <div class="col-md-6 form-group">
+                {{ form.is_active.label_tag }} {{ form.is_active }}
+              </div>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary btn-lg">Add Question</button>
+              <a href="{% url 'question_list' %}" class="btn bg-gradient-dark btn-lg">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const testTypeSelect = document.querySelector('#id_test_type');
+  const optionA = document.querySelector('#id_option_a');
+  const optionB = document.querySelector('#id_option_b');
+  const optionC = document.querySelector('#id_option_c');
+  const optionD = document.querySelector('#id_option_d');
+  const technicalAnswer = document.querySelector('#id_technical_question_answer');
+  const correctAnswer = document.querySelector('#id_correct_answer');
+  const isMultichoice = document.querySelector('#id_is_multichoice');
+
+  function updateFields() {
+    const testType = testTypeSelect.value;
+    const isMultichoiceChecked = isMultichoice.checked;
+
+    if (testType === 'GT') {
+      // General Test: is_multichoice is True and disabled, enable options A-D and correct answer, disable technical answer
+      isMultichoice.checked = true;
+      isMultichoice.disabled = true;
+      optionA.disabled = false;
+      optionB.disabled = false;
+      optionC.disabled = false;
+      optionD.disabled = false;
+      correctAnswer.disabled = false;
+      technicalAnswer.disabled = true;
+      technicalAnswer.value = ''; // Clear technical answer
+    } else if (testType === 'TT') {
+      // Technical Test: Enable is_multichoice
+      isMultichoice.disabled = false;
+      if (isMultichoiceChecked) {
+        // If is_multichoice is checked, enable options A-D and correct answer
+        optionA.disabled = false;
+        optionB.disabled = false;
+        optionC.disabled = false;
+        optionD.disabled = false;
+        correctAnswer.disabled = false;
+        technicalAnswer.disabled = false; // Allow technical answer as optional
+      } else {
+        // If is_multichoice is not checked, enable technical answer, disable options A-D and correct answer
+        optionA.disabled = true;
+        optionB.disabled = true;
+        optionC.disabled = true;
+        optionD.disabled = true;
+        correctAnswer.disabled = true;
+        technicalAnswer.disabled = false;
+        optionA.value = ''; // Clear options
+        optionB.value = '';
+        optionC.value = '';
+        optionD.value = '';
+        correctAnswer.value = '';
+      }
+    }
+  }
+
+  // Run on page load
+  updateFields();
+
+  // Run on test type or is_multichoice change
+  testTypeSelect.addEventListener('change', updateFields);
+  isMultichoice.addEventListener('change', updateFields);
+});
+</script>
+{% endblock content %}

@@ -1,0 +1,618 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Exam Portal</title>
+    <link href="{% static 'custom/css/cdn-jsdelivr-bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'custom/css/cdnjs-fontausome.css' %}" rel="stylesheet" />
+    <link href="{% static 'custom/css/user-register.css' %}" rel="stylesheet" />    
+</head>
+<body class="registration-page">
+    <div class="container">
+        <div class="">
+            <div class="registration-container">
+                <section class="mb-4 header-section position-relative" style="background-color: #5a47b6;">
+                    <div class="logo-container">
+                        <img src="{% static 'img/logo.png' %}" alt="Exam Portal Logo" class="logo">
+                    </div>
+                    <h5 class="text-center mt-3 registration-header">User Registration Form</h5>
+                </section>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <section class="form-section">
+                    <div class="d-flex justify-content-end required-info">
+                        <p class="mb-0 text-sm text-center">Please fill all required (<span class="required">*</span>) details</p>
+                    </div> 
+
+                    <!-- Registration Form -->
+                    <form method="post" enctype="multipart/form-data" novalidate id="registrationForm">
+                        {% csrf_token %}
+
+                        <div class="form-container mb-3">
+                            <!-- Personal Information -->
+                            <div class="form-header mb-3">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">First Name <span class="required">*</span></label>
+                                        {{ form.first_name }}
+                                        <div class="text-danger small error-message" id="error-first_name"></div>
+                                        {% if form.first_name.errors %}
+                                            <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Last Name <span class="required">*</span></label>
+                                        {{ form.last_name }}
+                                        <div class="text-danger small error-message" id="error-last_name"></div>
+                                        {% if form.last_name.errors %}
+                                            <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+    
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Gender <span class="required">*</span></label>
+                                        {{ form.gender }}
+                                        <div class="text-danger small error-message" id="error-gender"></div>
+                                        {% if form.gender.errors %}
+                                            <div class="text-danger small">{{ form.gender.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Date of Birth <span class="required">*</span></label>
+                                        {{ form.dob }}
+                                        <div class="text-danger small error-message" id="error-dob"></div>
+                                        {% if form.dob.errors %}
+                                            <div class="text-danger small">{{ form.dob.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Aadhar Number <span class="required">*</span></label>
+                                        {{ form.aadhar_number }}
+                                        <div class="text-danger small error-message" id="error-aadhar_number"></div>
+                                        {% if form.aadhar_number.errors %}
+                                            <div class="text-danger small">{{ form.aadhar_number.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-container mb-3">
+                            <!-- Contact Information -->
+                            <div class="form-header mb-3">
+                                <i class="fas fa-phone me-2"></i>Contact Information
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Email <span class="required">*</span></label>
+                                        {{ form.email }}
+                                        <div class="text-danger small error-message" id="error-email"></div>
+                                        {% if form.email.errors %}
+                                            <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Mobile <span class="required">*</span></label>
+                                        {{ form.mobile }}
+                                        <div class="text-danger small error-message" id="error-mobile"></div>
+                                        {% if form.mobile.errors %}
+                                            <div class="text-danger small">{{ form.mobile.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Alternative Mobile</label>
+                                        {{ form.alternative_mobile }}
+                                        <div class="text-danger small error-message" id="error-alternative_mobile"></div>
+                                        {% if form.alternative_mobile.errors %}
+                                            <div class="text-danger small">{{ form.alternative_mobile.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Address <span class="required">*</span></label>
+                                        {{ form.address }}
+                                        <div class="text-danger small error-message" id="error-address"></div>
+                                        {% if form.address.errors %}
+                                            <div class="text-danger small">{{ form.address.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">City <span class="required">*</span></label>
+                                        {{ form.city }}
+                                        <div class="text-danger small error-message" id="error-city"></div>
+                                        {% if form.city.errors %}
+                                            <div class="text-danger small">{{ form.city.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Pincode <span class="required">*</span></label>
+                                        {{ form.pincode }}
+                                        <div class="text-danger small error-message" id="error-pincode"></div>
+                                        {% if form.pincode.errors %}
+                                            <div class="text-danger small">{{ form.pincode.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-container mb-3">
+                            <!-- Educational Information -->
+                            <div class="form-header mb-3">
+                                <i class="fas fa-graduation-cap me-2"></i>Educational Information
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Highest Qualification <span class="required">*</span></label>
+                                        {{ form.highest_qualification }}
+                                        <div class="text-danger small error-message" id="error-highest_qualification"></div>
+                                        {% if form.highest_qualification.errors %}
+                                            <div class="text-danger small">{{ form.highest_qualification.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Specific Qualification <span class="required">*</span></label>
+                                        {{ form.specific_qualification }}
+                                        <div class="text-danger small error-message" id="error-specific_qualification"></div>
+                                        {% if form.specific_qualification.errors %}
+                                            <div class="text-danger small">{{ form.specific_qualification.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Stream</label>
+                                        {{ form.stream }}
+                                        <div class="text-danger small error-message" id="error-stream"></div>
+                                        {% if form.stream.errors %}
+                                            <div class="text-danger small">{{ form.stream.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">College/University <span class="required">*</span></label>
+                                        {{ form.college_or_university }}
+                                        <div class="text-danger small error-message" id="error-college_or_university"></div>
+                                        {% if form.college_or_university.errors %}
+                                            <div class="text-danger small">{{ form.college_or_university.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Percentage <span class="required">*</span></label>
+                                        {{ form.highest_qualification_percentage }}
+                                        <div class="text-danger small error-message" id="error-highest_qualification_percentage"></div>
+                                        {% if form.highest_qualification_percentage.errors %}
+                                            <div class="text-danger small">{{ form.highest_qualification_percentage.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Primary Skills <span class="required">*</span></label>
+                                        {{ form.primary_skills }}
+                                        <div class="text-danger small error-message" id="error-primary_skills"></div>
+                                        {% if form.primary_skills.errors %}
+                                            <div class="text-danger small">{{ form.primary_skills.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 other-skills-container" style="display: none;">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Other Skills <span class="required">*</span></label>
+                                        {{ form.other_skills }}
+                                        <div class="text-danger small error-message" id="error-other_skills"></div>
+                                        {% if form.other_skills.errors %}
+                                            <div class="text-danger small">{{ form.other_skills.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-container mb-3">
+                            <!-- Training/Certification -->
+                            <div class="form-header mb-3">
+                                <i class="fas fa-certificate me-2"></i>Training & Certification
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Training/Certification Details (Optional)</label>
+                                        {{ form.training_certification }}
+                                        <div class="text-danger small error-message" id="error-training_certification"></div>
+                                        {% if form.training_certification.errors %}
+                                            <div class="text-danger small">{{ form.training_certification.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Certificate (Optional)</label>
+                                        {{ form.certificate }}
+                                        <small class="form-text input-info">
+                                            Upload certificate (PDF, DOC, DOCX) max {{certificate_size_mb}}MB
+                                        </small>
+                                        <div class="text-danger small error-message" id="error-certificate"></div>
+                                        {% if form.certificate.errors %}
+                                            <div class="text-danger small">{{ form.certificate.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-container mb-3">
+                            <!-- Documents Section -->
+                            <div class="form-header mb-3">
+                                <i class="fas fa-file-upload me-2"></i>Documents Upload
+                            </div>
+                            <div class="row mb-3">
+                                <!-- Resume Field -->
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Resume <span class="required">*</span></label>
+                                        {{ form.resume }}
+                                        <small class="form-text input-info">
+                                            Upload your resume (PDF, DOC, DOCX) max {{resume_size_mb}}MB
+                                        </small>
+                                        <div class="text-danger small error-message" id="error-resume"></div>
+                                        {% if form.resume.errors %}
+                                            <div class="text-danger small">{{ form.resume.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- ID Proof Field -->
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">ID Proof</label>
+                                        {{ form.id_proof }}
+                                        <small class="form-text input-info">
+                                            Upload ID proof (PDF, JPG, PNG, JPEG) max {{id_proof_size_kb}}KB
+                                        </small>
+                                        <div class="text-danger small error-message" id="error-id_proof"></div>
+                                        {% if form.id_proof.errors %}
+                                            <div class="text-danger small">{{ form.id_proof.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Photo Field -->
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Photo <span class="required">*</span></label>
+                                        {{ form.photo }}
+                                        <small class="form-text input-info">
+                                            Upload passport size photo (JPG, PNG, JPEG) max {{photo_size_kb}}KB
+                                        </small>
+                                        <div class="text-danger small error-message" id="error-photo"></div>
+                                        {% if form.photo.errors %}
+                                            <div class="text-danger small">{{ form.photo.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-container mb-3">
+                            <!-- Reference -->
+                            <div class="form-header mb-3">
+                                <i class="fas fa-users me-2"></i>Reference Information
+                            </div>
+                            <div class="row mb-3">
+                                <!-- Reference Field -->
+                                <div class="col-md-4">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Do You Have A Reference?<span class="required">*</span></label>
+                                        {{ form.reference }}
+                                        <div class="text-danger small error-message" id="error-reference"></div>
+                                        {% if form.reference.errors %}
+                                            <div class="text-danger small">{{ form.reference.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Referred By Field -->
+                                <div class="col-md-4 referred-by-container" style="display: none;">
+                                    <div class="form-item mt-3">
+                                        <label class="form-label">Referred By <span class="required">*</span></label>
+                                        {{ form.referred_by }}
+                                        <div class="text-danger small error-message" id="error-referred_by"></div>
+                                        {% if form.referred_by.errors %}
+                                            <div class="text-danger small">{{ form.referred_by.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- reCAPTCHA -->
+                                <div class="col-md-12">
+                                    <div class="mb-3 text-center mt-3">
+                                        <div class="g-recaptcha" data-sitekey="6LcgVYsrAAAAAJNq7RjXbB9SjXyVtwKZJAF-FYvH"></div>
+                                        <div class="text-danger small error-message" id="error-g-recaptcha"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+    
+                        <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+                            <button type="submit" class="btn register-btn" id="registerButton">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="{% static 'custom/js/cdn-jsdelivr-bootstrap.min.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registrationForm');
+            const referenceSelect = document.querySelector('select[name="reference"]');
+            const referredByContainer = document.querySelector('.referred-by-container');
+            const primarySkillsSelect = document.querySelector('select[name="primary_skills"]');
+            const otherSkillsContainer = document.querySelector('.other-skills-container');
+
+            // Configuration for file validations (matching backend)
+            const config = {
+                photo: {
+                    maxSizeKB: {{ photo_size_kb }},
+                    validExtensions: ['.jpg', '.jpeg', '.png']
+                },
+                resume: {
+                    maxSizeMB: {{ resume_size_mb }},
+                    validExtensions: ['.pdf', '.doc', '.docx']
+                },
+                id_proof: {
+                    maxSizeKB: {{ id_proof_size_kb }},
+                    validExtensions: ['.pdf', '.jpg', '.jpeg', '.png']
+                },
+                certificate: {
+                    maxSizeMB: {{ certificate_size_mb }},
+                    validExtensions: ['.pdf', '.doc', '.docx']
+                }
+            };
+
+            // Required fields configuration
+            const requiredFields = [
+                { name: 'first_name', validate: value => /^[a-zA-Z\s]+$/.test(value) && value.trim() !== '', errorMsg: 'First name is required and should contain only alphabets and spaces.' },
+                { name: 'last_name', validate: value => /^[a-zA-Z\s]+$/.test(value) && value.trim() !== '', errorMsg: 'Last name is required and should contain only alphabets and spaces.' },
+                { name: 'gender', validate: value => value !== '', errorMsg: 'Please select a gender.' },
+                { name: 'dob', validate: value => {
+                    if (!value) return false;
+                    const dob = new Date(value);
+                    const today = new Date();
+                    const age = today.getFullYear() - dob.getFullYear() - ((today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) ? 1 : 0);
+                    return dob <= today && age >= 18;
+                }, errorMsg: 'Date of birth is required and you must be at least 18 years old.' },
+                { name: 'aadhar_number', validate: value => /^\d{12}$/.test(value), errorMsg: 'Aadhar number must be only numbers and exactly 12 digits.' },
+                { name: 'email', validate: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), errorMsg: 'Please enter a valid email address.' },
+                { name: 'mobile', validate: value => /^\d{10}$/.test(value), errorMsg: 'Mobile number must be exactly 10 digits.' },
+                { name: 'address', validate: value => value.trim() !== '', errorMsg: 'Address is required.' },
+                { name: 'city', validate: value => value.trim() !== '', errorMsg: 'City is required.' },
+                { name: 'pincode', validate: value => /^\d{6}$/.test(value), errorMsg: 'Pincode must be exactly 6 digits.' },
+                { name: 'highest_qualification', validate: value => value !== '', errorMsg: 'Please select your highest qualification.' },
+                { name: 'specific_qualification', validate: value => value.trim() !== '', errorMsg: 'Specific qualification is required.' },
+                { name: 'college_or_university', validate: value => value.trim() !== '', errorMsg: 'College/University name is required.' },
+                { name: 'highest_qualification_percentage', validate: value => value >= 0 && value <= 100, errorMsg: 'Percentage must be between 0 and 100.' },
+                { name: 'primary_skills', validate: value => value !== '' && value !== 'Select your Primary Skills', errorMsg: 'Please select a primary skill.' },
+                { name: 'resume', validate: value => {
+                    if (!value) return false;
+                    const ext = value.name.split('.').pop().toLowerCase();
+                    return config.resume.validExtensions.includes('.' + ext) && value.size <= config.resume.maxSizeMB * 1024 * 1024;
+                }, errorMsg: `Resume must be a PDF or Word document and not exceed ${config.resume.maxSizeMB}MB.` },
+                { name: 'photo', validate: value => {
+                    if (!value) return false;
+                    const ext = value.name.split('.').pop().toLowerCase();
+                    return config.photo.validExtensions.includes('.' + ext) && value.size <= config.photo.maxSizeKB * 1024;
+                }, errorMsg: `Photo must be a JPG, JPEG, or PNG file and not exceed ${config.photo.maxSizeKB}KB.` },
+                { name: 'g-recaptcha-response', validate: value => value !== '', errorMsg: 'Please complete the reCAPTCHA verification.' }
+            ];
+
+            // Optional fields with validation
+            const optionalFields = [
+                { name: 'alternative_mobile', validate: value => !value || /^\d{10}$/.test(value), errorMsg: 'Alternative mobile number must be exactly 10 digits.' },
+                { name: 'certificate', validate: value => {
+                    if (!value) return true;
+                    const ext = value.name.split('.').pop().toLowerCase();
+                    return config.certificate.validExtensions.includes('.' + ext) && value.size <= config.certificate.maxSizeMB * 1024 * 1024;
+                }, errorMsg: `Certificate must be a PDF or Word document and not exceed ${config.certificate.maxSizeMB}MB.` },
+                { name: 'id_proof', validate: value => {
+                    if (!value) return true;
+                    const ext = value.name.split('.').pop().toLowerCase();
+                    return config.id_proof.validExtensions.includes('.' + ext) && value.size <= config.id_proof.maxSizeKB * 1024;
+                }, errorMsg: `ID proof must be a PDF, JPG, JPEG, or PNG file and not exceed ${config.id_proof_size_kb}KB.` }
+            ];
+
+            // Toggle referred-by field based on reference selection
+            referenceSelect.addEventListener('change', function() {
+                referredByContainer.style.display = this.value === 'Yes' ? 'block' : 'none';
+                const referredByField = requiredFields.find(field => field.name === 'referred_by');
+                if (this.value === 'Yes' && !referredByField) {
+                    requiredFields.push({
+                        name: 'referred_by',
+                        validate: value => value.trim() !== '',
+                        errorMsg: 'Referred by name is required when reference is selected.'
+                    });
+                } else if (this.value !== 'Yes' && referredByField) {
+                    requiredFields.splice(requiredFields.findIndex(field => field.name === 'referred_by'), 1);
+                    const referredByInput = document.querySelector('[name="referred_by"]');
+                    if (referredByInput) {
+                        referredByInput.value = '';
+                        document.getElementById('error-referred_by').textContent = '';
+                    }
+                }
+            });
+
+            // Toggle other-skills field based on primary skills selection
+            primarySkillsSelect.addEventListener('change', function() {
+                otherSkillsContainer.style.display = this.value === 'Others' ? 'block' : 'none';
+                const otherSkillsField = requiredFields.find(field => field.name === 'other_skills');
+                if (this.value === 'Others' && !otherSkillsField) {
+                    requiredFields.push({
+                        name: 'other_skills',
+                        validate: value => value.trim() !== '',
+                        errorMsg: "Other skills are required when 'Others' is selected."
+                    });
+                } else if (this.value !== 'Others' && otherSkillsField) {
+                    requiredFields.splice(requiredFields.findIndex(field => field.name === 'other_skills'), 1);
+                    const otherSkillsInput = document.querySelector('[name="other_skills"]');
+                    if (otherSkillsInput) {
+                        otherSkillsInput.value = '';
+                        document.getElementById('error-other_skills').textContent = '';
+                    }
+                }
+            });
+
+            // Initialize visibility and required fields based on initial values
+            if (referenceSelect.value === 'Yes') {
+                referredByContainer.style.display = 'block';
+                if (!requiredFields.find(field => field.name === 'referred_by')) {
+                    requiredFields.push({
+                        name: 'referred_by',
+                        validate: value => value.trim() !== '',
+                        errorMsg: 'Referred by name is required when reference is selected.'
+                    });
+                }
+            }
+            if (primarySkillsSelect.value === 'Others') {
+                otherSkillsContainer.style.display = 'block';
+                if (!requiredFields.find(field => field.name === 'other_skills')) {
+                    requiredFields.push({
+                        name: 'other_skills',
+                        validate: value => value.trim() !== '',
+                        errorMsg: "Other skills are required when 'Others' is selected."
+                    });
+                }
+            } else {
+                otherSkillsContainer.style.display = 'none';
+                const otherSkillsInput = document.querySelector('[name="other_skills"]');
+                if (otherSkillsInput) {
+                    otherSkillsInput.value = '';
+                    document.getElementById('error-other_skills').textContent = '';
+                }
+            }
+
+            // Validate form on submit
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let isValid = true;
+
+                // Clear previous error messages
+                document.querySelectorAll('.error-message').forEach(element => {
+                    element.textContent = '';
+                });
+
+                // Validate all required fields
+                for (const field of requiredFields) {
+                    const input = field.name === 'g-recaptcha-response' ? 
+                        { name: 'g-recaptcha-response', value: grecaptcha.getResponse() } : 
+                        form.querySelector(`[name="${field.name}"]`);
+                    if (!input) continue;
+                    const value = input.type === 'file' ? input.files[0] : (input.name === 'g-recaptcha-response' ? grecaptcha.getResponse() : input.value);
+                    if (!field.validate(value)) {
+                        document.getElementById(`error-${field.name}`).textContent = field.errorMsg;
+                        isValid = false;
+                    }
+                }
+
+                // Validate optional fields if they have values
+                for (const field of optionalFields) {
+                    const input = form.querySelector(`[name="${field.name}"]`);
+                    if (input && input.value) {
+                        const value = input.type === 'file' ? input.files[0] : input.value;
+                        if (!field.validate(value)) {
+                            document.getElementById(`error-${field.name}`).textContent = field.errorMsg;
+                            isValid = false;
+                        }
+                    }
+                }
+
+                if (isValid) {
+                    form.submit();
+                }
+            });
+
+            // Add reCAPTCHA callback
+            window.validateRecaptcha = function() {
+                const errorElement = document.getElementById('error-g-recaptcha');
+                if (grecaptcha.getResponse() === '') {
+                    errorElement.textContent = 'Please complete the reCAPTCHA verification.';
+                } else {
+                    errorElement.textContent = '';
+                }
+            };
+
+            // Bind reCAPTCHA callback
+            if (typeof grecaptcha !== 'undefined') {
+                grecaptcha.ready(function() {
+                    const recaptchaWidget = document.querySelector('.g-recaptcha');
+                    if (recaptchaWidget) {
+                        recaptchaWidget.setAttribute('data-callback', 'validateRecaptcha');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Submission - Exam Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .success-message {
+            color: green;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .result-details {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .result-status-pass {
+            color: green;
+            font-weight: bold;
+        }
+        .result-status-fail {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Submission</h1>
+    <p class="success-message">{{ message }}</p>
+
+    <h2>Your Test Results</h2>
+    <p class="result-details">Total Questions: {{ total_questions }}</p>
+    <p class="result-details">Attempted Questions: {{ total_attempted_questions }}</p>
+    <p class="result-details">Correct Answers: {{ total_correct_answers }}</p>
+    <p class="result-details">Percentage: {{ percentage }}%</p>
+    <p class="result-details">Cutoff Pass Score: {{ cutoff_pass_score }}%</p>
+    <p class="result-details">
+        Result Status:
+        <span class="{% if result_status == 'pass' %}result-status-pass{% else %}result-status-fail{% endif %}">
+            {{ result_status|title }}
+        </span>
+    </p>
+
+    <a href="{% url 'instructions' %}">Return to Instructions</a>
+</body>
+</html>

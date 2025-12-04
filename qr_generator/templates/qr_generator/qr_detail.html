@@ -1,0 +1,53 @@
+
+
+{% extends "layouts/base.html" %} {% load static %} {% block extrastyle %}
+{%load widget_tweaks %}
+<link
+  href="{% static 'custom/css/add-user-admin-side.css' %}"
+  rel="stylesheet"
+/>
+{% endblock %} {% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="registration-container">
+        {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        {% endif %}
+          <div class="section-header">
+            <i class="fas fa-user me-2"></i>QR Code Details
+          </div>
+          <div class="mb-3">
+            <label for="id_name" class="form-label">Name: &nbsp;&nbsp;</label>{{config.name}}
+
+          </div>
+
+          <div class="mb-3">
+            <label for="id_target_url" class="form-label">TargetUrl: &nbsp;&nbsp;</label><a href="{{ config.target_url }}">{{ config.target_url }}</a>
+          </div>
+
+          <div class="mb-3">
+                <img src="{{ config.qr_code.url }}" width="300" />
+          </div>
+
+          <div class="text-center mt-4">
+            <a href="{% url 'qr_generator:qr_regenerate' config.id %}" class="btn btn-primary btn-lg">
+            🔁 Re-generate QR
+            </a>
+          </div>
+
+          <div class="text-center mt-4">
+            <a href="{{ config.qr_code.url }}" download class="btn btn-success btn-lg">
+                ⬇️ Download QR-Code
+            </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

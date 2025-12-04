@@ -1,0 +1,146 @@
+{% extends 'layouts/base.html' %}
+{% load i18n static %}
+ 
+{% block title %} Manage Instructions {% endblock title %}
+ 
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-body px-0 pb-2">
+                    <div class="px-3 pt-3">
+                        <form method="GET" action="{% url 'instruction_list' %}">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-3 col-lg-3">
+                                    <input type="text" name="test_name_query" class="form-control" placeholder="Search by Test Name" value="{{ request.GET.test_name_query|default:'' }}">
+                                </div>
+                                <div class="col-md-3 col-lg-3">
+                                  <select name="test_type" class="form-control">
+                                    <option value="">All Test Types</option>
+                                    {% for value, display in test_type_choices %}
+                                      <option value="{{ value }}" {% if request.GET.test_type == value %}selected{% endif %}>{{ display }}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn bg-gradient-dark mb-0">Search</button>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="{% url 'instruction_list' %}" class="btn bg-gradient-secondary mb-0">Reset</a>
+                                </div>
+                                <div class="col text-end">
+                                    <a class="btn bg-gradient-dark mb-0" href="{% url 'instruction_add' %}">
+                                        <i class="material-symbols-rounded text-sm"></i>
+                                        Add Instruction
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+  <!-- Instruction List Card -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Instruction List</h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Test Type</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Title</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Display Order</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Created At</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for instruction in page_obj %}
+                <tr>
+                  <td>
+                    <h6 class="mb-0 text-sm">{{ instruction.test_name }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="mb-0 text-sm">{{ instruction.get_test_type_display }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="mb-0 text-sm">{{ instruction.title }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="mb-0 text-sm">{{ instruction.display_order }}</h6>
+                  </td>
+                  <td>
+                    <span class="badge badge-sm bg-gradient-{{ instruction.is_active|yesno:'success,secondary' }}">
+                      {{ instruction.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                  </td>
+                  <td>
+                    <h6 class="mb-0 text-sm">{{ instruction.created_at|date:"Y-m-d H:i" }}</h6>
+                  </td>
+                  <td class="align-middle">
+                    <a href="{% url 'instruction_edit' instruction.instruction_id %}" class="btn btn-sm btn-primary me-1 mb-0">Edit</a>
+                    <a href="{% url 'instruction_delete' instruction.instruction_id %}" class="btn btn-sm btn-dark mb-0" onclick="return confirm('Are you sure you want to delete {{ instruction.title }}?');">
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="7" class="text-center py-4">
+                    <h6 class="text-secondary">No instructions found.</h6>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+ 
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.test_name_query %}&test_name_query={{ request.GET.test_name_query }}{% endif %}{% if request.GET.test_type %}&test_type={{ request.GET.test_type }}{% endif %}">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              {% endif %}
+              {% for num in page_obj.paginator.page_range %}
+              <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.test_name_query %}&test_name_query={{ request.GET.test_name_query }}{% endif %}{% if request.GET.test_type %}&test_type={{ request.GET.test_type }}{% endif %}">{{ num }}</a>
+              </li>
+              {% endfor %}
+              {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.test_name_query %}&test_name_query={{ request.GET.test_name_query }}{% endif %}{% if request.GET.test_type %}&test_type={{ request.GET.test_type }}{% endif %}">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+ 
+  {% include 'includes/footer.html' %}
+</div>
+{% endblock %}

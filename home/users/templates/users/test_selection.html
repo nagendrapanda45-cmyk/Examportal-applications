@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{user.first_name}} - Exam Portal</title>
+    <link href="{% static 'custom/css/cdn-jsdelivr-bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'custom/css/cdnjs-cloudflare-font-awesome.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'custom/css/test-selection.css' %}" rel="stylesheet" />
+    <style>
+        .button-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .common-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+            color: white;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .common-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .common-btn i {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>Exam Portal
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user me-2"></i>Welcome {{ user.full_name }}
+                </span>
+                <a href="{% url 'user_logout' %}" class="btn btn-logout btn-sm">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- Message List after test submitted -->
+    {% if messages %}
+      <ul class="message-list">
+        {% for message in messages %}
+          <li class="message-item">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const msgList = document.querySelector('.message-list');
+          if (msgList) {
+            setTimeout(() => {
+              msgList.style.display = 'none';
+            }, 5000);
+          }
+        });
+      </script>
+      <style>
+        .message-list {
+          position: fixed;
+          top: 40px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 9999;
+          background: #9ae885;
+          border: 2px solid #8bf599;
+          border-radius: 12px;
+          padding: 24px 40px;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+          font-size: 2rem;
+          color: #241c05;
+          list-style: none;
+          text-align: center;
+          animation: fadeIn 0.5s;
+        }
+        .message-item {
+          margin: 0.5em 0;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      </style>
+    {% endif %}
+    
+    <div class="container-fluid">
+        <div class="selection-container">
+            <div class="header-section">
+                <h1><i class="fas fa-clipboard-list me-3"></i>Select Test Type</h1>
+                <div class="user-info">
+                    <i class="fas fa-user me-2"></i>Welcome, {{ user.first_name }}
+                </div>
+            </div>
+
+            <div class="selection-content" style="padding: 40px;">
+                <!-- General Test Card -->
+                <div class="test-card {% if general_test_completed %}completed{% endif %}" id="generalTestCard">
+                    {% if general_test_completed %}
+                        <div class="test-status status-completed">
+                            <i class="fas fa-check-circle me-1"></i>Completed
+                        </div>
+                        {# Review Instructions button removed to block re-access #}
+                    {% else %}
+                        <div class="test-status status-available">
+                            <i class="fas fa-play-circle me-1"></i>Available
+                        </div>
+                    {% endif %}
+                    <div class="test-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="test-title">General Test</div>
+                    <div class="test-description">
+                        General aptitude, reasoning.
+                    </div>
+                    {% if general_test_completed %}
+                        <div class="score-display">
+                            <i class="fas fa-star me-1"></i>General Test Completed
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Technical Test Card -->
+                {% if general_test_completed %}
+                    <div class="test-card {% if technical_test_completed %}completed{% endif %}" id="technicalTestCard">
+                        {% if technical_test_completed %}
+                            <div class="test-status status-completed">
+                                <i class="fas fa-check-circle me-1"></i>Completed
+                            </div>
+                            {# Review Instructions button also not shown here #}
+                        {% else %}
+                            <div class="test-status status-available">
+                                <i class="fas fa-play-circle me-1"></i>Available
+                            </div>
+                        {% endif %}
+                        <div class="test-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="test-title">Technical Test</div>
+                        <div class="test-description">
+                            Programming knowledge test in your preferred language.
+                        </div>
+                        {% if technical_test_completed %}
+                            <div class="score-display">
+                                <i class="fas fa-star me-1"></i>Technical Test Completed
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="button-group">
+                <a href="{% url 'user_dashboard' %}" class="btn common-btn">
+                    <i class="fas fa-arrow-left"></i>Back to Dashboard
+                </a>
+                {% if general_test_completed and not technical_test_completed %}
+                <button type="button" class="btn common-btn" id="proceedBtn">
+                    <i class="fas fa-arrow-right"></i>Continue
+                </button>
+                {% elif not general_test_completed %}
+                <button type="button" class="btn common-btn" id="proceedBtn" disabled>
+                    <i class="fas fa-arrow-right"></i>Proceed to Instructions
+                </button>
+                {% endif %}
+                <!-- <button type="button" class="btn common-btn" id="proceedBtn" disabled>
+                    <i class="fas fa-arrow-right"></i>Proceed to Instructions
+                </button> -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const generalCard = document.getElementById('generalTestCard');
+            const technicalCard = document.getElementById('technicalTestCard');
+            const proceedBtn = document.getElementById('proceedBtn');
+
+            // General Test selection
+            if (generalCard && !generalCard.classList.contains('completed')) {
+                generalCard.addEventListener('click', function () {
+                    document.querySelectorAll('.test-card').forEach(c => c.classList.remove('selected'));
+                    generalCard.classList.add('selected');
+                    proceedBtn.disabled = false;
+                    proceedBtn.onclick = function() {
+                        window.location.href = "{% url 'instructions_view' test_type='GT' %}";
+                    };
+                });
+            }
+
+            // Technical Test selection
+            if (technicalCard && !technicalCard.classList.contains('completed')) {
+                technicalCard.addEventListener('click', function () {
+                    document.querySelectorAll('.test-card').forEach(c => c.classList.remove('selected'));
+                    technicalCard.classList.add('selected');
+                    proceedBtn.disabled = false;
+                    proceedBtn.onclick = function() {
+                        // window.location.href = "{% url 'language_selection' %}";
+                        window.location.href = "/exam_dashboard/select_language/";
+                    };
+                });
+            }
+
+            proceedBtn.addEventListener('click', function() {
+                if (!this.disabled && this.onclick) {
+                    this.onclick();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

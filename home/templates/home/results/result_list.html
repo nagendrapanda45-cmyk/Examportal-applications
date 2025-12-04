@@ -1,0 +1,129 @@
+{% extends 'layouts/base.html' %}
+{% load i18n static %}
+ 
+{% block title %}View Results{% endblock title %}
+ 
+{% block content %}
+ 
+ 
+<div class="container-fluid py-4">
+ 
+  <!-- Search Form Card -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-3">
+          <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-4">
+              <input type="text" name="user_query" class="form-control" placeholder="Search by RegID,firstname, lastname, test.." value="{{ request.GET.user_query|default:'' }}">
+            </div>
+            <div class="col-md-3">
+              <select name="result_status" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="PASS" {% if request.GET.result_status == 'PASS' %}selected{% endif %}>Pass</option>
+                <option value="FAIL" {% if request.GET.result_status == 'FAIL' %}selected{% endif %}>Fail</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-center">
+              <button type="submit" class="btn bg-gradient-dark me-2 mb-0">Search</button>
+              <a href="{% url 'result_list' %}" class="btn bg-gradient-secondary mb-0">Reset</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Result List Card -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Test Result List</h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">RegistrationID</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">First Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Last Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total Questions</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Attempted</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Correct</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Cutoff Score</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                  <th class="text-uppercase opacity-7">Actions</th>
+                </tr>
+                <tbody>
+                {% for result in page_obj %}
+                <tr>
+                  <td><h6 class="mb-0 text-sm">{{ result.user.registration_id|default:"N/A" }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ result.user.first_name|capfirst|default:"N/A" }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ result.user.last_name|capfirst|default:"N/A" }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ result.test.test_name|capfirst|default:"N/A" }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ result.total_questions }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ result.total_attempted_questions }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ result.total_correct_answers }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ result.cutoff_pass_score|default:"N/A" }}</h6></td>
+                  <td>
+                    <span class="badge badge-sm bg-gradient-{% if result.result_status|lower == 'pass' %}success{% else %}danger{% endif %}">
+                      {{ result.result_status }}
+                    </span>
+                  </td>
+                  <td class="align-middle">
+                    <a href="{% url 'result_view' result.result_id %}" class="btn btn-sm btn-primary mb-0">View Results</a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center py-4">
+                    <h6 class="text-secondary">No results found.</h6>
+                  </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+ 
+          <!-- Pagination -->
+          {% if page_obj.has_other_pages %}
+          <div class="card-footer">
+            <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.result_status %}&result_status={{ request.GET.result_status }}{% endif %}">Previous</a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                  <a class="page-link" href="?page={{ num }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.result_status %}&result_status={{ request.GET.result_status }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.result_status %}&result_status={{ request.GET.result_status }}{% endif %}">Next</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  {% include 'includes/footer.html' %}
+</div>
+{% endblock %}
+ 
+ 
+ 
+ 

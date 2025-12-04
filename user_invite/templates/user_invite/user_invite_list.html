@@ -1,0 +1,473 @@
+{% extends "layouts/base.html" %}
+{% load i18n static %}
+
+{% block title %} User Invites {% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="px-3 pt-3">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-body px-0 pb-2">
+                    <div class="px-3 pt-3">
+                        <form method="GET" action="{% url 'user_invite_list' %}">
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <label for="mail_status_filter" class="form-label">{% trans 'Email Status' %}</label>
+                                    <select name="mail_status" id="mail_status_filter" class="form-control">
+                                        <option value="all" {% if mail_status_filter == 'all' %}selected{% endif %}>{% trans 'Select Email Status' %}</option>
+                                        <option value="sent" {% if mail_status_filter == 'sent' %}selected{% endif %}>{% trans 'Mail sent' %}</option>
+                                        <option value="not_sent" {% if mail_status_filter == 'not_sent' %}selected{% endif %}>{% trans 'Mail not sent' %}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="from_date" class="form-label">{% trans 'Invite Date From' %}</label>
+                                    <input type="text" name="from_date" id="from_date" class="form-control" placeholder="{% trans 'From Date' %}" value="{{ from_date|default_if_none:'' }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="to_date" class="form-label">{% trans 'Invite Date To' %}</label>
+                                    <input type="text" name="to_date" id="to_date" class="form-control" placeholder="{% trans 'To Date' %}" value="{{ to_date|default_if_none:'' }}">
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <label for="start_time" class="form-label">{% trans 'Start Time' %}</label>
+                                    <input type="text" name="start_time" id="start_time" class="form-control" placeholder="{% trans 'Start Time' %}" value="{{ start_time|default_if_none:'' }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="end_time" class="form-label">{% trans 'End Time' %}</label>
+                                    <input type="text" name="end_time" id="end_time" class="form-control" placeholder="{% trans 'End Time' %}" value="{{ end_time|default_if_none:' ' }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card user-count-card">
+                                        <div class="card-body text-center bg-gradient-light border border-primary rounded">
+                                            <h6 class="card-title text-primary font-weight-bold">{% trans 'Total Users' %}</h6>
+                                            <p class="card-text text-lg text-dark">{{ total_users_count }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card user-count-card">
+                                        <div class="card-body text-center bg-gradient-light border border-primary rounded">
+                                            <h6 class="card-title text-primary font-weight-bold">{% trans 'Users on This Page' %}</h6>
+                                            <p class="card-text text-lg text-dark">{{ page_obj.paginator.per_page }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <input type="text" name="q" class="form-control" placeholder="{% trans 'Name, Email, Mobile, Reg ID or Action Status' %}" value="{{ query|default_if_none:'' }}">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn bg-gradient-dark mb-0">{% trans 'Search' %}</button>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="{% url 'user_invite_list' %}" class="btn bg-gradient-secondary mb-0">{% trans 'Reset' %}</a>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn bg-gradient-dark mb-0" data-bs-toggle="modal" data-bs-target="#bulkEmailModal" onclick="return checkSelectedUsersBeforeModal()">
+                                        {% trans 'Send Bulk Email' %}
+                                    </button>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn bg-gradient-dark mb-0" onclick="downloadBulkPDFs()">
+                                        {% trans 'Download Bulk PDFs' %}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">{% trans 'User Invites List' %}</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"><input type="checkbox" id="select-all"></th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        <a href="{% url 'user_invite_list' %}?sort_reg_id={{ current_sort }}{% if query %}&q={{ query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if mail_status_filter != 'all' %}&mail_status={{ mail_status_filter }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if start_time %}&start_time={{ start_time }}{% endif %}{% if end_time %}&end_time={{ end_time }}{% endif %}">
+                                            Reg Id {% if sort_reg_id == 'asc' %}▼{% else %}▲{% endif %}
+                                        </a>
+                                    </th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">First Name</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Last Name</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Mobile</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Start Time</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">End Time</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Invited Date</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Action Status</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Mail Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in page_obj %}
+                                    <tr>
+                                        <td><input type="checkbox" name="selected_users" value="{{ user.user_id }}"></td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ user.registration_id }}</h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ user.first_name|capfirst }}</h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ user.last_name|capfirst }}</h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ user.email }}</h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ user.mobile }}</h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">
+                                                {% if user.userinvite and user.userinvite.start_time_slot %}
+                                                    {{ user.userinvite.start_time_slot|time:"h:i A" }}
+                                                {% else %}
+                                                    {% trans 'N/A' %}
+                                                {% endif %}
+                                            </h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">
+                                                {% if user.userinvite and user.userinvite.end_time_slot %}
+                                                    {{ user.userinvite.end_time_slot|time:"h:i A" }}
+                                                {% else %}
+                                                    {% trans 'N/A' %}
+                                                {% endif %}
+                                            </h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">
+                                                {% if user.userinvite and user.userinvite.invitation_date %}
+                                                    {{ user.userinvite.invitation_date|date:"d-m-Y" }}
+                                                {% else %}
+                                                    {% trans 'N/A' %}
+                                                {% endif %}
+                                            </h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ user.action_status|default:'N/A' }}</h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">
+                                                {% if user.userinvite.is_bulk_mail_sent %}
+                                                    mail sent
+                                                {% else %}
+                                                    mail not sent
+                                                {% endif %}
+                                            </h6>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="13" class="text-center">
+                                            {% trans 'No users found.' %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% url 'user_invite_list' %}?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if mail_status_filter != 'all' %}&mail_status={{ mail_status_filter }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if start_time %}&start_time={{ start_time }}{% endif %}{% if end_time %}&end_time={{ end_time }}{% endif %}{% if sort_reg_id %}&sort_reg_id={{ sort_reg_id }}{% endif %}">«</a>
+                    </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="{% url 'user_invite_list' %}?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if mail_status_filter != 'all' %}&mail_status={{ mail_status_filter }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if start_time %}&start_time={{ start_time }}{% endif %}{% if end_time %}&end_time={{ end_time }}{% endif %}{% if sort_reg_id %}&sort_reg_id={{ sort_reg_id }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% url 'user_invite_list' %}?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if mail_status_filter != 'all' %}&mail_status={{ mail_status_filter }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}{% if start_time %}&start_time={{ start_time }}{% endif %}{% if end_time %}&end_time={{ end_time }}{% endif %}{% if sort_reg_id %}&sort_reg_id={{ sort_reg_id }}{% endif %}">»</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+
+    {% include 'includes/footer.html' %}
+
+</div>
+
+<!-- Bulk Email Modal -->
+<div class="modal fade" id="bulkEmailModal" tabindex="-1" aria-labelledby="bulkEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkEmailModalLabel">{% trans 'Send Bulk Email Details' %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="bulk-email-form" method="post" action="{% url 'send_bulk_email' %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="selected_users" id="selected_users">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="email_template" class="form-label">{% trans 'Email Template' %}</label>
+                        <select class="form-control" id="email_template" name="email_template" required>
+                            <option value="">{% trans 'Select Template' %}</option>
+                            {% for template in email_templates %}
+                            <option value="{{ template.email_id }}">{{ template.email_template }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date_of_exam" class="form-label">{% trans 'Date of Exam (Optional)' %}</label>
+                        <input type="text" class="form-control" id="date_of_exam" name="date_of_exam">
+                    </div>
+                    <div class="mb-3">
+                        <label for="start_time_slot" class="form-label">{% trans 'Start Time Slot (Optional)' %}</label>
+                        <input type="text" class="form-control" id="start_time_slot" name="start_time_slot" placeholder="Select start time">
+                    </div>
+                    <div class="mb-3">
+                        <label for="end_time_slot" class="form-label">{% trans 'End Time Slot (Optional)' %}</label>
+                        <input type="text" class="form-control" id="end_time_slot" name="end_time_slot" placeholder="Select end time">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn bg-gradient-primary mb-0" id="send-emails-btn" onclick="populateSelectedUsers()">{% trans 'Send Emails' %}</button>
+                    <button type="button" class="btn bg-gradient-secondary mb-0" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Modal -->
+<div class="modal fade" id="processingModal" tabindex="-1" aria-labelledby="processingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title" id="processingModalLabel">{% trans 'Processing Emails' %}</h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p id="processing-message">{% trans 'Processing Batch 1...' %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-success text-white">
+                <h5 class="modal-title" id="successModalLabel">{% trans 'Email Sending Status' %}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="success-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn bg-gradient-secondary mb-0" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+function validateBulkEmailForm() {
+    const checkboxes = document.querySelectorAll('input[name="selected_users"]:checked');
+    if (checkboxes.length === 0) {
+        alert('Please select at least one user to send bulk email.');
+        return false;
+    }
+    
+    const template = document.getElementById('email_template').value;
+    if (!template) {
+        alert('Please select an email template.');
+        return false;
+    }
+    
+    // Time slots are now optional
+    const startTime = document.getElementById('start_time_slot').value;
+    const endTime = document.getElementById('end_time_slot').value;
+    
+    if (startTime && endTime) {
+        const startTimeObj = new Date(`2000-01-01 ${startTime}`);
+        const endTimeObj = new Date(`2000-01-01 ${endTime}`);
+        if (endTimeObj <= startTimeObj) {
+            alert('End time must be after start time.');
+            return false;
+        }
+    } else if (startTime || endTime) {
+        alert('Please provide both start and end time or leave both empty.');
+        return false;
+    }
+    
+    return true;
+}
+
+function checkSelectedUsersBeforeModal() {
+    const checkboxes = document.querySelectorAll('input[name="selected_users"]:checked');
+    if (checkboxes.length === 0) {
+        alert('Please select at least one user before sending bulk emails.');
+        window.location.href = "{% url 'user_invite_list' %}";
+        return false;
+    }
+    return true;
+}
+
+function populateSelectedUsers() {
+    const checkboxes = document.querySelectorAll('input[name="selected_users"]:checked');
+    const selectedUsers = Array.from(checkboxes).map(checkbox => checkbox.value).join(',');
+    document.getElementById('selected_users').value = selectedUsers;
+    return validateBulkEmailForm();
+}
+
+function downloadBulkPDFs() {
+    const checkboxes = document.querySelectorAll('input[name="selected_users"]:checked');
+    const selectedUsers = Array.from(checkboxes).map(checkbox => checkbox.value);
+    
+    // Create form dynamically
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{% url 'download_bulk_pdfs' %}";
+    
+    // Add CSRF token
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrfmiddlewaretoken';
+    csrf.value = '{{ csrf_token }}';
+    form.appendChild(csrf);
+    
+    // Add selected users
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'selected_users';
+    input.value = selectedUsers.join(',');
+    form.appendChild(input);
+    
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
+// Show processing modal on form submit
+document.getElementById('bulk-email-form').addEventListener('submit', function(e) {
+    if (!validateBulkEmailForm()) {
+        e.preventDefault();
+        return false;
+    }
+    const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+    processingModal.show();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    flatpickr("#from_date", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+        disableMobile: true,
+    });
+
+    flatpickr("#to_date", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+        disableMobile: true,
+    });
+
+    flatpickr("#start_time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
+        disableMobile: true,
+    });
+
+    flatpickr("#end_time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
+        disableMobile: true,
+    });
+
+    flatpickr("#date_of_exam", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        disableMobile: true,
+    });
+
+    flatpickr("#start_time_slot", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
+        disableMobile: true,
+    });
+
+    flatpickr("#end_time_slot", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
+        disableMobile: true,
+    });
+
+    document.getElementById('select-all').addEventListener('change', function() {
+        document.querySelectorAll('input[name="selected_users"]').forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+});
+
+// Handle page load to show success modal if messages exist
+document.addEventListener('DOMContentLoaded', function () {
+    if (document.querySelectorAll('.alert-success, .alert-info, .alert-error').length > 0) {
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        const messages = document.querySelectorAll('.alert');
+        let messageHtml = '';
+        messages.forEach(msg => {
+            messageHtml += `<p>${msg.textContent}</p>`;
+        });
+        document.getElementById('success-message').innerHTML = messageHtml;
+        successModal.show();
+    }
+});
+</script>
+
+<style>
+.user-count-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.user-count-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.user-count-card .card-body {
+    padding: 0.75rem; /* Reduced from 1.5rem */
+    background: linear-gradient(135deg, #f0f4f8, #ffffff);
+    border-radius: 10px;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'layouts/base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+ 
+{% block title %}
+  {% if form.instance.pk %}Edit{% else %}Add{% endif %} Configuration
+{% endblock title %}
+ 
+{% block content %}
+<div class="container-fluid py-4">
+<div class="row">
+<div class="col-lg-8 mx-auto">
+<div class="card">
+<div class="card-header pb-0">
+<div class="d-flex align-items-center">
+<h6 class="mb-0 text-capitalize">
+  {% if form.instance.pk %}Edit{% else %}Add{% endif %} Configuration
+</h6>
+<a href="{% url 'configuration_list' %}" class="btn btn-link ms-auto">
+<i class="fas fa-times"></i>
+</a>
+</div>
+</div>
+<div class="card-body">
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+ 
+  <div class="mb-3">
+    <label for="{{ form.key.id_for_label }}" class="form-label">Key</label>
+    {% render_field form.key class="form-control" %}
+    <div class="text-danger small">{{ form.key.errors }}</div>
+  </div>
+ 
+  <div class="mb-3">
+    <label for="{{ form.value.id_for_label }}" class="form-label">Value</label>
+    {% render_field form.value class="form-control" placeholder="Enter configuration value" %}
+    <div class="text-danger small">{{ form.value.errors }}</div>
+  </div>
+ 
+  <div class="form-check form-switch mb-3">
+    {% render_field form.deleted class="form-check-input" %}
+    <label class="form-check-label" for="{{ form.deleted.id_for_label }}">Mark as inactive</label>
+    <div class="text-danger small">{{ form.deleted.errors }}</div>
+  </div>
+ 
+  <div class="d-flex justify-content-end mt-4">
+    <button type="submit" class="btn bg-gradient-success me-2">
+      <i class="fas fa-save me-2"></i>Save
+    </button>
+    <a href="{% url 'configuration_list' %}" class="btn bg-gradient-secondary">
+      <i class="fas fa-times me-2"></i>Cancel
+    </a>
+  </div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
+ 
+{% block extra_js %}
+<script>
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+{% endblock %}
+ 

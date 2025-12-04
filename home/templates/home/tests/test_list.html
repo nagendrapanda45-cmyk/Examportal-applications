@@ -1,0 +1,129 @@
+{% extends 'layouts/base.html' %}
+{% load i18n static %}
+ 
+{% block title %}Manage Tests{% endblock title %}
+ 
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Search Form Card -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-3">
+          <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-4">
+              <input type="text" name="user_query" class="form-control" placeholder="Search by RegistrationID,FirstName, LastName.." value="{{ request.GET.user_query|default:'' }}">
+            </div>
+            <div class="col-md-3">
+              <select name="test_type" class="form-control">
+                <option value="">All Test Types</option>
+                <option value="GT" {% if request.GET.test_type == 'GT' %}selected{% endif %}>General Test</option>
+                <option value="TT" {% if request.GET.test_type == 'TT' %}selected{% endif %}>Technical Test</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-center">
+              <button type="submit" class="btn bg-gradient-dark me-2 mb-0">Search</button>
+              <a href="{% url 'test_list' %}" class="btn bg-gradient-secondary mb-0">Reset</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Test List Card -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Test List</h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">RegistrationID</th>
+                  {% comment %} <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test ID</th> {% endcomment %}
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">First Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Last Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test Type</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Submission Time</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                  <th class="text-secondary opacity-7">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for test in page_obj %}
+                <tr>
+                  <td><h6 class="mb-0 text-sm">{{ test.user.registration_id }}</h6></td>
+                  {% comment %} <td><h6 class="mb-0 text-sm">{{ test.test_id }}</h6></td> {% endcomment %}
+                  <td><h6 class="mb-0 text-sm">{{ test.user.first_name|capfirst|default:"N/A" }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ test.user.last_name|capfirst|default:"N/A" }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ test.test_name|capfirst }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ test.get_test_type_display }}</h6></td>
+                  <td><h6 class="mb-0 text-sm">{{ test.submission_time|date:"Y-m-d H:i"|default:"Not Submitted" }}</h6></td>
+                  <td>
+                    {% if test.is_submitted == 1 %}
+                      <span class="badge badge-sm bg-gradient-success">Submitted</span>
+                    {% else %}
+                      <span class="badge badge-sm bg-dark text-white">Not Submitted</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle">
+                    <a href="{% url 'test_view' test.test_id %}" class="btn btn-sm btn-primary mb-0">ReView</a>
+                    {% if request.user.is_staff %}
+                    <a href="{% url 'test_edit' test.test_id %}" class="btn btn-sm btn-secondary mb-0">Edit</a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center py-4">
+                    <h6 class="text-secondary">No tests found.</h6>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+ 
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.test_type %}&test_type={{ request.GET.test_type }}{% endif %}">
+                  <span aria-hidden="true">«</span>
+                </a>
+              </li>
+              {% endif %}
+              {% for num in page_obj.paginator.page_range %}
+              <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.test_type %}&test_type={{ request.GET.test_type }}{% endif %}">{{ num }}</a>
+              </li>
+              {% endfor %}
+              {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.test_type %}&test_type={{ request.GET.test_type }}{% endif %}">
+                  <span aria-hidden="true">»</span>
+                </a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+ 
+  {% include 'includes/footer.html' %}
+</div>
+{% endblock %}
+ 

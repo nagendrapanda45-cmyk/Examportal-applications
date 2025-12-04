@@ -1,0 +1,362 @@
+{% extends "layouts/base.html" %}
+{% load i18n static %}
+
+{% block title %} Admin Dashboard {% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Dashboard Cards -->
+  <div class="row">
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+      <div class="card">
+        <div class="card-header p-3 pt-2">
+          <div class="icon icon-lg icon-shape bg-gradient-primary shadow-primary text-center border-radius-xl mt-n4 position-absolute">
+            <i class="material-icons opacity-10">people</i>
+          </div>
+          <div class="text-end pt-1">
+            <p class="text-sm mb-0 text-capitalize">Total Users</p>
+            <h4 class="mb-0">{{ total_users }}</h4>
+          </div>
+        </div>
+        <hr class="dark horizontal my-0">
+        <div class="card-footer p-3"></div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+      <div class="card">
+        <div class="card-header p-3 pt-2">
+          <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+            <i class="material-icons opacity-10">question_answer</i>
+          </div>
+          <div class="text-end pt-1">
+            <p class="text-sm mb-0 text-capitalize">Total Questions</p>
+            <h4 class="mb-0">{{ total_questions }}</h4>
+          </div>
+        </div>
+        <hr class="dark horizontal my-0">
+        <div class="card-footer p-3"></div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+      <div class="card">
+        <div class="card-header p-3 pt-2">
+          <div class="icon icon-lg icon-shape bg-gradient-success shadow-success text-center border-radius-xl mt-n4 position-absolute">
+            <i class="material-icons opacity-10">assignment</i>
+          </div>
+          <div class="text-end pt-1">
+            <p class="text-sm mb-0 text-capitalize">Total Tests</p>
+            <h4 class="mb-0">{{ total_tests }}</h4>
+          </div>
+        </div>
+        <hr class="dark horizontal my-0">
+        <div class="card-footer p-3"></div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+      <div class="card">
+        <div class="card-header p-3 pt-2">
+          <div class="icon icon-lg icon-shape bg-gradient-info shadow-info text-center border-radius-xl mt-n4 position-absolute">
+            <i class="material-icons opacity-10">bar_chart</i>
+          </div>
+          <div class="text-end pt-1">
+            <p class="text-sm mb-0 text-capitalize">Pass Percentage</p>
+            <h4 class="mb-0">{{ pass_percentage }}%</h4>
+          </div>
+        </div>
+        <hr class="dark horizontal my-0">
+        <div class="card-footer p-3"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Graphs -->
+  <div class="row mt-5">
+    <!-- General Test Chart -->
+    <div class="col-lg-4 col-md-4 mb-4">
+      <div class="card z-index-2 h-100">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg py-3 px-3">
+            <div class="chart">
+              <canvas id="gt-chart" class="chart-canvas" height="150"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <h6 class="mb-0">General Test: Attended vs Qualified vs Not Qualified</h6>
+        </div>
+      </div>
+    </div>
+    <!-- Technical Test Chart -->
+    <div class="col-lg-4 col-md-4 mb-4">
+      <div class="card z-index-2 h-100">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+          <div class="bg-gradient-warning shadow-warning border-radius-lg py-3 px-3">
+            <div class="chart">
+              <canvas id="tt-chart" class="chart-canvas" height="150"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <h6 class="mb-0">Technical Test: Attended vs Qualified vs Not Qualified</h6>
+        </div>
+      </div>
+    </div>
+    <!-- Skills vs Qualified -->
+<div class="col-lg-4 col-md-4 mb-4">
+  <div class="card z-index-2 h-100">
+    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+      <div class="bg-gradient-success shadow-success border-radius-lg py-3 px-3">
+        
+        <!-- Dropdown & Chart Combined in one block -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-white mb-0"></h6>
+          <select id="specialisation-select" class="form-select form-select-sm w-auto bg-white text-dark">
+            <option value="">All</option>
+            {% for spec in specialisations %}
+              <option value="{{ spec }}">{{ spec }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Chart Canvas -->
+        <div class="chart">
+          <canvas id="skills-chart" class="chart-canvas" height="150"></canvas>
+        </div>
+
+      </div>
+    </div>
+    <!-- Chart Title Below -->
+    <div class="card-body pt-0">
+      
+      <h6 class="mb-0 text-center">Skills of Qualified Candidates</h6>
+    </div>
+ 
+  </div>
+</div>
+
+  {% include 'includes/footer.html' %}
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Parse data from Django template
+  const gtData = {
+    labels: {{ gt_data.labels|safe }},
+    data: {{ gt_data.data|safe }}
+  };
+  const ttData = {
+    labels: {{ tt_data.labels|safe }},
+    data: {{ tt_data.data|safe }}
+  };
+  const skillsData = {
+    labels: {{ skills_chart.labels|safe }} || ['No Skills Data'],
+    data: {{ skills_chart.data|safe }} || [0]
+  };
+
+  // Common options for bar charts
+  const barChartOptions = {
+    animation: false,
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    interaction: {
+      intersect: false,
+      mode: 'index'
+    },
+    scales: {
+      y: {
+        grid: {
+          drawBorder: false,
+          display: true,
+          drawOnChartArea: true,
+          drawTicks: false,
+          borderDash: [5, 5],
+          color: 'rgba(255, 255, 255, .2)'
+        },
+        ticks: {
+          suggestedMin: 0,
+          beginAtZero: true,
+          padding: 10,
+          font: {
+            size: 14,
+            weight: 300,
+            family: "Roboto",
+            style: 'normal',
+            lineHeight: 2
+          },
+          color: '#fff'
+        }
+      },
+      x: {
+        grid: {
+          drawBorder: false,
+          display: true,
+          drawOnChartArea: true,
+          drawTicks: false,
+          borderDash: [5, 5],
+          color: 'rgba(255, 255, 255, .2)'
+        },
+        ticks: {
+          display: true,
+          color: '#f8f9fa',
+          padding: 10,
+          font: {
+            size: 14,
+            weight: 300,
+            family: "Roboto",
+            style: 'normal',
+            lineHeight: 2
+          }
+        }
+      }
+    }
+  };
+
+  // Initialize General Test Chart (Bar)
+  const gtCtx = document.getElementById("gt-chart")?.getContext("2d");
+  if (gtCtx && gtData.labels?.length && gtData.data?.length) {
+    new Chart(gtCtx, {
+      type: "bar",
+      data: {
+        labels: gtData.labels,
+        datasets: [{
+          label: "General Test",
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: "rgba(255, 255, 255, .8)",
+          data: gtData.data,
+          maxBarThickness: 6
+        }]
+      },
+      options: {
+        ...barChartOptions,
+        scales: {
+          ...barChartOptions.scales,
+          x: { ...barChartOptions.scales.x, barThickness: 30 }
+        }
+      }
+    });
+  } else {
+    console.error("Invalid or missing data for General Test chart:", gtData);
+  }
+
+  // Initialize Technical Test Chart (Bar)
+  const ttCtx = document.getElementById("tt-chart")?.getContext("2d");
+  if (ttCtx && ttData.labels?.length && ttData.data?.length) {
+    new Chart(ttCtx, {
+      type: "bar",
+      data: {
+        labels: ttData.labels,
+        datasets: [{
+          label: "Technical Test",
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: "rgba(255, 255, 255, .8)",
+          data: ttData.data,
+          maxBarThickness: 6
+        }]
+      },
+      options: {
+        ...barChartOptions,
+        scales: {
+          ...barChartOptions.scales,
+          x: { ...barChartOptions.scales.x, barThickness: 30 }
+        }
+      }
+    });
+  } else {
+    console.error("Invalid or missing data for Technical Test chart:", ttData);
+  }
+
+  // Filter Skills Data to exclude 'Unspecified'
+  const filteredSkillsData = {
+    labels: [],
+    data: []
+  };
+
+  skillsData.labels.forEach((label, idx) => {
+    if (label && label.toLowerCase() !== 'unspecified') {
+      filteredSkillsData.labels.push(label);
+      filteredSkillsData.data.push(skillsData.data[idx]);
+    }
+  });
+
+  // Initialize Skills Chart (Bar) with filtered data
+  const skillsCtx = document.getElementById("skills-chart")?.getContext("2d");
+  if (skillsCtx && filteredSkillsData.labels.length) {
+    new Chart(skillsCtx, {
+      type: "bar",
+      data: {
+        labels: filteredSkillsData.labels,
+        datasets: [{
+          label: "Qualified Candidates",
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: "rgba(255, 255, 255, .8)",
+          data: filteredSkillsData.data,
+          maxBarThickness: 6
+        }]
+      },
+      options: {
+        ...barChartOptions,
+        plugins: {
+          ...barChartOptions.plugins,
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return `${context.dataset.label}: ${context.raw}`;
+              }
+            }
+          }
+        },
+        scales: {
+          ...barChartOptions.scales,
+          x: {
+            ...barChartOptions.scales.x,
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+  } else {
+    console.error("Skills chart canvas not found or data is empty after filtering");
+  }
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const select = document.getElementById("specialisation-select");
+
+  if (select) {
+    // Preselect current value
+    const selected = "{{ selected_specialisation|default:'' }}";
+    if (selected) {
+      select.value = selected;
+    }
+
+    // Trigger reload with selected specialisation
+    select.addEventListener("change", function () {
+      const selectedValue = this.value;
+      const params = new URLSearchParams(window.location.search);
+
+      if (selectedValue) {
+        params.set("specialisation", selectedValue);
+      } else {
+        params.delete("specialisation");
+      }
+
+      window.location.search = params.toString();
+    });
+  }
+});
+</script>
+{% endblock scripts %}

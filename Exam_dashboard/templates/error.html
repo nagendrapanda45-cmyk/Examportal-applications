@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Error - Exam Portal{% endblock %}
+{% block content %}
+<div class="navbar">
+    <div class="navbar-stats">
+        <div class="stat-item stat-attempted">
+            <div class="stat-color"></div>
+            <div class="stat-text">Attempted: <span id="attemptedCount">0</span> / 0</div>
+        </div>
+        <div class="stat-item stat-review">
+            <div class="stat-color"></div>
+            <div class="stat-text">Marked for Review: <span id="reviewCount">0</span></div>
+        </div>
+        <div class="stat-item stat-left">
+            <div class="stat-color"></div>
+            <div class="stat-text">Not Attempted: <span id="leftCount">0</span></div>
+        </div>
+    </div>
+</div>
+<div class="main-wrapper">
+    <main class="main-content">
+        <div class="test-header">
+            <h1 class="test-title">Error</h1>
+        </div>
+        <div class="question-section">
+            <div class="question-text text-red-600">
+                {{ message }}
+            </div>
+            <div class="bottom-section">
+                <div class="navigation-section">
+                    <a href="{% url 'test_selection' %}" class="nav-button primary">Back to Test Selection</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <aside class="sidebar">
+        <div class="timer-card" id="timerCard">
+            <div class="timer-display" id="timer">00:00.00</div>
+            <div class="timer-label">Time Remaining</div>
+        </div>
+        <div class="color-legend">
+            <div class="legend-item">
+                <div class="legend-color not-attempted"></div>
+                <div class="legend-text">Red: Not Attempted - No answer selected for the question</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color attempted"></div>
+                <div class="legend-text">Green: Attempted - An answer has been selected</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color review"></div>
+                <div class="legend-text">Black: Marked for Review - Question flagged for later review</div>
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}

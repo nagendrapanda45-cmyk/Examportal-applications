@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Exam Portal</title>
+    {% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> {% endcomment %}
+    {% comment %} <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"> {% endcomment %}
+
+    <link href="{% static 'custom/css/cdn-jsdelivr-bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'custom/css/cdnjs-cloudflare-font-awesome.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'custom/css/user-login.css' %}" rel="stylesheet" />
+     <style>
+        .divider {
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .divider::before,
+        .divider::after {
+            content: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="login-container">
+                    <div class="login-header">
+                        <div class="login-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h3 class="mb-0">{{ title }}</h3>
+                        <p class="mb-0 mt-2">Enter your credentials to access the exam portal</p>
+                    </div>
+                    
+                    <div class="login-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-id-card me-2"></i>Registration ID
+                                </label>
+                                {{ form.registration_id }}
+                                {% if form.registration_id.errors %}
+                                    <div class="text-danger small">{{ form.registration_id.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-2"></i>Date of Birth
+                                </label>
+                                {{ form.dob }}
+                                {% if form.dob.errors %}
+                                    <div class="text-danger small">{{ form.dob.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {% for error in form.non_field_errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <button type="submit" class="btn btn-login mb-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login to Exam Portal
+                            </button>
+                        </form>
+                        
+                        <!-- <div class="text-center mt-3">
+                        <label class="form-label fw-bold">Don't have an account?</label>
+                    </div> -->
+                        </div>
+                        
+                        <!-- <a href="{% url 'user_register' %}" class="btn btn-register mt-2">
+                        <i class="fas fa-user-plus me-2"></i>Register Now
+                    </a> -->
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <p class="text-white-50">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Secure exam portal with encrypted sessions
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if show_force_popup  %}
+<!-- Force Login Confirmation Modal -->
+<div class="modal fade" id="forceLoginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">Active Session Detected</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>You are already logged in on another browser/device.<br>
+        Do you want to logout there and continue here?</p>
+      </div>
+      <div class="modal-footer">
+        <form method="post" id="forceLoginForm">
+          {% csrf_token %}
+          <input type="hidden" name="registration_id" value="{{ form.registration_id.value }}">
+          <input type="hidden" name="dob" value="{{ form.dob.value }}">
+          <input type="hidden" name="force_login" value="true">
+          <button type="submit" class="btn btn-danger">Yes, Logout Others</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Stay Logged Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var modal = new bootstrap.Modal(document.getElementById('forceLoginModal'));
+    modal.show();
+});
+</script>
+{% endif %}
+
+   <script src="{% static 'custom/js/cdn-jsdelivr-bootstrap.min.js' %}"></script>
+</body>
+</html>

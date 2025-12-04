@@ -1,0 +1,112 @@
+<!-- Role_based_Access/templates/Role_based_Access/manage_employees.html -->
+{% extends "layouts/base.html" %}
+{% load i18n static %}
+
+{% block title %} Employee Management {% endblock title %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="px-3 pt-3">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-body px-0 pb-2">
+                    <div class="px-3 pt-3">
+                        <form method="GET" action="{% url 'manage_employees' %}">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-6">
+                                    <input type="text" name="search_query" class="form-control" placeholder="Search by name, email or username or department" value="{{ search_query|default_if_none:'' }}">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn bg-gradient-dark mb-0">Search</button>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="{% url 'manage_employees' %}" class="btn bg-gradient-secondary mb-0">Reset</a>
+                                </div>
+                                <div class="col text-end">
+                                    <a href="{% url 'add_employee' %}" class="btn bg-gradient-dark mb-0">
+                                        <i class="material-symbols-rounded text-sm"></i>
+                                        Add New Employee
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Employees List</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-white" style="background-image: linear-gradient(195deg, #66BB6A 0%, #43A047 100%);">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: brightness(0) invert(1);"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Username</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Department</th>
+                                    <th class="text-secondary opacity-7">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employee in employees %}
+                                <tr>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ employee.name }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ employee.user.username }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ employee.email }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ employee.department }}</h6>
+                                    </td>
+                                    <td class="align-middle">
+                                        <a href="{% url 'edit_employee' employee.id %}" class="btn btn-sm btn-primary mb-0" data-toggle="tooltip" data-original-title="Edit employee">Edit</a>
+                                        <form action="{% url 'delete_employee' employee.id %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger mb-0" onclick="return confirm('Are you sure you want to delete {{ employee.name }}?');" data-toggle="tooltip" data-original-title="Delete employee">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        {% if search_query %}
+                                            No employees match your search.
+                                        {% else %}
+                                            No employees available.
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'includes/footer.html' %}
+</div>
+{% endblock content %}

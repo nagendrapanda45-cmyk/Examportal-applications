@@ -1,0 +1,64 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+ 
+{% block title %} View Result {% endblock %}
+ 
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h4 class="mb-0">Result Details</h4>
+        </div>
+        <div class="card-body">
+          <h5 class="mb-3">User Information</h5>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <strong>User Name:</strong> {{ result.user.get_full_name|default:result.user.first_name|add:" "|add:result.user.last_name|default:"N/A" }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Registration ID:</strong> {{ result.user.registration_id }}
+            </div>
+          </div>
+ 
+          <h5 class="mb-3">Result Information</h5>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <strong>Test Name:</strong> {{ result.test.test_name|default:"N/A" }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Total Questions:</strong> {{ result.total_questions }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Attempted Questions:</strong> {{ result.total_attempted_questions }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Correct Answers:</strong> {{ result.total_correct_answers }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Cutoff Pass Score:</strong> {{ result.cutoff_pass_score|default:"N/A" }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Status:</strong>
+              <span class="badge badge-sm bg-gradient-{% if result.result_status|lower == 'pass' %}success{% else %}danger{% endif %}">
+  <strong>{{ result.result_status }}</strong>
+</span>
+ 
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Generated At:</strong> {{ result.generated_at|date:"d-F-Y" }}
+            </div>
+          </div>
+ 
+          <div class="text-end mt-4">
+            <a href="{% url 'result_list' %}" class="btn bg-gradient-secondary">Back to Results</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+ 
+ 

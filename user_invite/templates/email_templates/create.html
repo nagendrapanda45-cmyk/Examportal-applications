@@ -1,0 +1,103 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Create Email Template {% endblock title %}
+
+{% block content %}
+<!-- Ace editor CSS (optional, for basic styling) -->
+<style>
+  #editor {
+    height: 300px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+</style>
+
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h4 class="font-weight-bolder">Create Email Template</h4>
+          <p class="mb-0 text-sm">Please select the template details</p>
+        </div>
+        <div class="card-body pt-4">
+          {% if form.errors %}
+          <div class="alert alert-danger">
+            <ul>
+              {% for field in form %}
+              {% for error in field.errors %}
+              <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+              {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-12 form-group">
+                {{ form.email_template.label_tag }}
+                {{ form.email_template }}
+              </div>
+
+              <div class="col-md-12 form-group">
+                {{ form.subject.label_tag }}
+                {{ form.subject }}
+              </div>
+
+              <div class="col-md-12 form-group">
+                <label for="editor">Email Context</label>
+                <!-- Ace editor container -->
+                <div id="editor">{{ form.email_context.value|default_if_none:"" }}</div>
+                <!-- Hidden field -->
+                {{ form.email_context }}
+              </div>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary btn-lg">Save</button>
+              <a href="{% url 'email_template_list' %}" class="btn bg-gradient-dark btn-lg">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ace editor JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.0/ace.min.js"></script>
+
+<script>
+  // Initialize Ace editor
+  var editor = ace.edit("editor", {
+    mode: "ace/mode/html", // Set syntax highlighting for HTML
+    theme: "ace/theme/monokai", // Optional: Choose a theme
+    tabSize: 2,
+    useSoftTabs: true,
+    wrap: true // Enable word wrapping
+  });
+
+  // If editing an existing template, pre-fill content
+  var existingContent = document.getElementById('email_context').value;
+  if (existingContent) {
+    editor.setValue(existingContent, -1); // -1 to move cursor to start
+  }
+
+  // Copy Ace content to hidden input on change
+  editor.session.on('change', function () {
+    document.getElementById('email_context').value = editor.getValue();
+  });
+
+  // Ensure content is synced on form submission
+  document.querySelector('form').onsubmit = function () {
+    document.getElementById('email_context').value = editor.getValue();
+  };
+</script>
+{% endblock content %}

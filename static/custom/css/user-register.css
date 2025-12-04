@@ -1,0 +1,187 @@
+body {
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+  background: linear-gradient(135deg, #dee0e6 0%, #d6cce0 100%);
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.registration-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.form-control {
+  border-radius: 8px;
+  border: 2px solid #e3e6f0;
+  padding: 0.75rem 1rem;
+}
+.form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+.btn-primary {
+  /* background: linear-gradient(45deg, #667eea, #764ba2); */
+  background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+.section-header {
+  /* background: linear-gradient(45deg, #667eea, #764ba2); */
+  background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0 1rem 0;
+}
+.required {
+  color: #e74c3c;
+}
+
+.already-account {
+  background: transparent;
+  border: 2px solid #ec407a;
+  border-radius: 10px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  color: #ec407a;
+  transition: all 0.3s ease;
+}
+.already-account:hover {
+  background: #ec407a;
+  color: white;
+  transform: translateY(-2px);
+  border: 2px solid #ec407a;
+  box-shadow: 0 8px 25px #ec407a;
+}
+
+
+
+/* registration page css  */
+
+.registration-page {
+  background-color: #f2f2f2;
+}
+.registration-page .registration-container {
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  /* box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px; */
+  overflow: hidden;
+  padding: 0px;
+}
+.registration-page .registration-container .header-section {
+  padding: 1rem;
+  box-shadow: 0px 4px 8px 0px #a3a3a3;
+}
+.registration-page .registration-container .header-section .logo-container img {
+  width: 170px;
+  height: auto;
+  /* margin-bottom: 1rem; */
+}
+.registration-page .required-info p {
+  background-color: #ffffff29;
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+.registration-page .registration-header {
+  position: absolute;
+  background-color: #fff;
+  display: block;
+  padding: 5px 10px;
+  /* box-shadow: 0px 4px 8px 0px #dcdcdc; */
+  border-radius: 2px;
+  right: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 264px;
+  color: #5a47b6;
+  font-size: 18px;
+  box-shadow: rgba(0, 0, 0, 0.1) -4px 9px 25px -6px;
+}
+.registration-page .form-header {
+  border-left: 4px solid #5a47b6;
+  padding: 5px 10px;
+  color: #5a47b6;
+  font-weight: 600;
+  background-color: #e2e7fb;
+}
+.registration-page .form-section {
+  padding: 1rem;
+}
+.registration-page .form-section .form-item {
+  position: relative;
+}
+.registration-page .form-section .form-item label.form-label {
+  position: absolute;
+  background-color: #fff;
+  top: -8px;
+  left: 13px;
+  padding: 0px 7px;
+  color: #5a47b6;
+  font-size: 12px;
+  font-weight: 600;
+  z-index:100;
+}
+
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-wrapper::after {
+    content: "▼";
+    position: absolute;
+    top: 50%;
+    right: 23px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color:rgb(8, 6, 93);
+    font-size: 0.8rem;
+}
+
+.registration-page .form-item .form-control {
+  border-radius: 5px;
+  border: 1px solid #5a47b65e;
+  padding: 0.75rem 1rem;
+}
+.registration-page .form-container {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  /* box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px; */
+  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+}
+.registration-page .form-container .form-item .form-control[type=file]{
+  padding-top: 1.5rem;
+}
+.registration-page .form-container .input-info {
+  color: #5a47b6 !important;
+  font-weight: 500;
+  font-size: 12px;
+}
+.registration-page .register-btn {
+  background-color: #5a47b6;
+  color: #fff;
+  padding: 5px 1rem;
+  border: 1px solid #5a47b6;
+}
+.registration-page .register-btn:hover {
+  background-color: #fff;
+  color: #5a47b6;
+}
+.registration-page .already-account-btn {
+  background-color: #fff;
+  color: #5a47b6;
+  padding: 5px 1rem;
+  border: 1px solid #5a47b6;
+}
+.registration-page .already-account-btn:hover {
+  background-color: #5a47b6;
+  color: #fff;
+}

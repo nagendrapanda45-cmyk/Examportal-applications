@@ -1,0 +1,258 @@
+/* Reset default margins and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Ensure the body and html take full height */
+html,
+body {
+  height: 100%;
+  overflow: hidden; /* Prevent body scrolling */
+}
+
+/* Container for the entire layout */
+.container {
+  display: flex;
+  height: 100vh; /* Full viewport height */
+  width: 100%;
+}
+
+/* Main content area */
+.main-content {
+  flex: 1; /* Take remaining space */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  height: 100vh; /* Ensure it takes full height */
+}
+
+/* Test header */
+.test-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.test-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.question-counter {
+  font-size: 18px;
+}
+
+/* Question section */
+.question-section {
+  flex: 1; /* Take remaining space in main-content */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.question-text {
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 10px; /* Reduced from 20px to 10px to decrease the gap */
+  padding: 10px;
+  border-left: 4px solid #667eea;
+  background: #f7fafc;
+}
+
+/* Options container */
+.options-container {
+  margin-bottom: 60px;
+  margin-top: 0px; /* Ensure no extra top margin */
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.option-item:hover {
+  background: #edf2f7;
+}
+
+.option-item.selected {
+  background: #e6fffa;
+  border-color: #48bb78;
+}
+
+.option-radio {
+  display: none; /* Hide the default radio button */
+}
+
+.option-label {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.option-text {
+  font-size: 16px;
+}
+
+/* Bottom section (Mark for Review and Buttons) */
+.bottom-section {
+  position: sticky;
+  bottom: 0;
+  background: #fff; /* Ensure background is visible */
+  padding: 10px 0;
+  border-top: 1px solid #e2e8f0;
+  z-index: 10; /* Ensure it stays above other content */
+}
+
+.review-checkbox-container {
+  margin-bottom: 10px;
+}
+
+.review-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.review-checkbox input {
+  margin-right: 5px;
+}
+
+.navigation-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.nav-button.secondary {
+  background: #edf2f7;
+  color: #2d3748;
+}
+
+.nav-button.primary {
+  background: #667eea;
+  color: white;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 300px;
+  padding: 20px;
+  background: #f7fafc;
+  border-left: 1px solid #e2e8f0;
+  overflow-y: auto; /* Allow sidebar to scroll if needed */
+  height: 100vh; /* Full height */
+}
+
+.timer-card {
+  text-align: center;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.timer-display {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.timer-label {
+  font-size: 14px;
+}
+
+.timer-warning {
+  background: linear-gradient(135deg, #f6e05e, #d69e2e);
+}
+
+.timer-critical {
+  background: linear-gradient(135deg, #f56565, #c53030);
+}
+
+.submit-card {
+  margin-bottom: 20px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  background: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background: #c53030;
+}
+
+.question-grid {
+  margin-top: 20px;
+}
+
+.grid-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.questions-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.question-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50%;
+  text-decoration: none;
+  color: #2d3748;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.question-number.current {
+  border-color: #667eea;
+  background: #667eea;
+  color: white;
+  transform: scale(1.1);
+}
+
+.question-number.attempted {
+  background: #48bb78;
+  border-color: #48bb78;
+  color: white;
+}
+
+.question-number.review {
+  background: #2d3748;
+  border-color: #2d3748;
+  color: white;
+}
+
+.question-number.unanswered {
+  background: #e53e3e;
+  border-color: #e53e3e;
+  color: white;
+}

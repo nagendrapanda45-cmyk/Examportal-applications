@@ -1,0 +1,111 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+ 
+{% block title %} View Final Result {% endblock %}
+ 
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-10 col-md-12 mx-auto">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h4 class="mb-0">Final Result Details</h4>
+        </div>
+        <div class="card-body">
+          <h5 class="mb-3">User Information</h5>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <strong>User Name:</strong> {{ final_result.user.full_name|default:final_result.user.first_name|add:" "|add:final_result.user.last_name|default:"N/A" }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Registration ID:</strong> {{ final_result.user.registration_id|default:"N/A" }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Mobile Number:</strong> {{ final_result.user.mobile|default:"N/A" }}
+            </div>
+          </div>
+ 
+          <h5 class="mb-3">Final Result Information</h5>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <strong>Status:</strong>
+              <span class="badge badge-sm bg-gradient-{% if final_result.result_status|lower == 'pass' %}success{% else %}danger{% endif %}">
+                <strong>{{ final_result.result_status|capfirst }}</strong>
+              </span>
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Generated At:</strong> {{ final_result.generated_at|date:"d-F-Y" }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Updated At:</strong> {{ final_result.updated_at|date:"d-F-Y" }}
+            </div>
+          </div>
+ 
+          <h5 class="mb-3">Test Results</h5>
+          <div class="row">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th style="width: 15%;">Test Type</th>
+                      <th style="width: 15%;">Total Questions</th>
+                      <th style="width: 15%;">Correct Answers</th>
+                      <th style="width: 15%;">Cutoff Pass Score</th>
+                      <th style="width: 25%;">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if gt_result %}
+                    <tr>
+                      <td>General Test</td>
+                      <td>{{ gt_result.total_questions }}</td>
+                      <td>{{ gt_result.total_correct_answers }}</td>
+                      <td>{{ gt_result.cutoff_pass_score|default:"N/A" }}</td>
+                      <td>
+                        <span class="badge badge-sm bg-gradient-{% if gt_result.result_status|lower == 'pass' %}success{% else %}danger{% endif %}">
+                          {{ gt_result.result_status|capfirst }}
+                        </span>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td>General Test</td>
+                      <td colspan="4">No result available</td>
+                    </tr>
+                    {% endif %}
+                    {% if tt_result %}
+                    <tr>
+                      <td>Technical Test</td>
+                      <td>{{ tt_result.total_questions }}</td>
+                      <td>{{ tt_result.total_correct_answers }}</td>
+                      <td>{{ tt_result.cutoff_pass_score|default:"N/A" }}</td>
+                      <td>
+                        <span class="badge badge-sm bg-gradient-{% if tt_result.result_status|lower == 'pass' %}success{% else %}danger{% endif %}">
+                          {{ tt_result.result_status|capfirst }}
+                        </span>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td>Technical Test</td>
+                      <td colspan="4">No result available</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+ 
+          <div class="text-end mt-4">
+            <a href="{% url 'final_result_edit' final_result.final_result_id %}" class="btn btn-sm btn-primary">Edit Result</a>
+            <a href="{% url 'final_result_list' %}" class="btn bg-gradient-secondary">Back to Final Results</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+ 

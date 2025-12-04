@@ -1,0 +1,74 @@
+
+
+{% extends 'layouts/base.html' %}
+{% load widget_tweaks %}
+
+{% load static %}
+
+
+{% block title %}
+  {% if form.instance.pk %} Edit {% else %} Add {% endif %} Instruction
+{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h6 class="mb-0 text-capitalize">
+            {% if form.instance.pk %} Edit {% else %} Add {% endif %} Instruction
+          </h6>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="mb-3">
+              <label for="id_test_name" class="form-label">Test Name</label>
+              {{ form.test_name|add_class:"form-control" }}
+              <div class="text-danger small">{{ form.test_name.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_test_type" class="form-label">Test Type</label>
+              {{ form.test_type|add_class:"form-select" }}
+              <div class="text-danger small">{{ form.test_type.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_title" class="form-label">Title</label>
+              {{ form.title|add_class:"form-control" }}
+              <div class="text-danger small">{{ form.title.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_content" class="form-label">Content</label>
+              {{ form.content|add_class:"form-control" }}
+              <div class="text-danger small">{{ form.content.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_display_order" class="form-label">Display Order</label>
+              {{ form.display_order|add_class:"form-control" }}
+              <div class="text-danger small">{{ form.display_order.errors }}</div>
+            </div>
+
+            <div class="form-check mb-3">
+              {{ form.is_active }}
+              <label class="form-check-label" for="id_is_active">Is Active</label>
+              <div class="text-danger small">{{ form.is_active.errors }}</div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn bg-gradient-success me-2">Save</button>
+              <a href="{% url 'instruction_list' %}" class="btn bg-gradient-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

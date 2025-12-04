@@ -1,0 +1,572 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.full_name }} - Exam Portal</title>
+    <link href="{% static 'custom/css/cdn-jsdelivr-bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'custom/css/cdnjs-cloudflare-font-awesome.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'custom/css/instructions.css' %}" rel="stylesheet" />
+    <style>
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .camera-modal .modal-content {
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .camera-modal .modal-header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 10px 15px;
+        }
+        .camera-modal .modal-body {
+            padding: 0;
+        }
+        #cameraFeed {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #f8f9fa;
+        }
+        .test-results {
+            padding: 15px;
+        }
+        .test-case {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+        }
+        .test-status {
+            margin-left: auto;
+            font-weight: bold;
+        }
+        .test-pass {
+            color: #198754;
+        }
+        .test-fail {
+            color: #dc3545;
+        }
+        .test-pending {
+            color: #6c757d;
+        }
+        #cameraTestBtn {
+            margin-right: 10px;
+        }
+        .modal-footer {
+            padding: 10px 15px;
+        }
+        .test-progress {
+            height: 5px;
+            margin-top: 5px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #0d6efd;
+            transition: width 0.5s ease;
+        }
+        .notification {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .instructions-content .database-instruction:nth-child(5),
+.instructions-content .database-instruction:nth-child(6) {
+  border: 4px solid #ec407a;
+  
+  animation: blink-border 1s step-start infinite;
+}
+ 
+@keyframes blink-border {
+  0%, 100% {
+    /* border-color: #3498db; visible */
+    border-color: #ec407a;
+  }
+  50% {
+    border-color: transparent; /* hidden */
+  }
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>Exam Portal
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user me-2"></i>Welcome {{ user.full_name }}
+                </span>
+                <a href="{% url 'user_logout' %}" class="btn btn-logout btn-sm">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="instructions-container">
+            <div class="header-section">
+                <h1><i class="fas fa-clipboard-list me-3"></i>{{ test_type_display }} Instructions</h1>
+                <div class="user-info">
+                    <i class="fas fa-user me-2"></i>Welcome {{ user.full_name }}
+                </div>
+                <div class="test-type-badge">
+                    <i class="fas fa-tag me-1"></i>{{ test_type_display }}
+                </div>
+            </div>
+            
+            <div class="instructions-content">
+                <div class="notification">
+                    <p>You can only start the test between <strong>{{ start_time_display }}</strong> and <strong>{{ end_time_display }}</strong> on <strong>{{ exam_date_display }}</strong>.</p>
+                </div>
+
+                {% if has_database_instructions %}
+                <h3 class="mb-4"><i class="fas fa-database me-2"></i>Test Instructions</h3>
+                
+                {% for instruction in instructions %}
+                <div class="database-instruction">
+                    <h5><i class="fas fa-chevron-right me-2"></i>{{ instruction.title }}</h5>
+                    <div class="content">
+                        {{ instruction.content|safe }}
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                
+                <div class="mt-4 p-3 border border-primary rounded">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="declaration" required>
+                        <label class="form-check-label" for="declaration">
+                            <strong>I have read and understood all the instructions above. I agree to abide by the exam rules and regulations.</strong>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="{% url 'test_selection' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Change Test Type
+                    </a>
+                    <button class="btn btn-info" id="cameraTestBtn">
+                        <i class="fas fa-camera me-2"></i>Test Camera
+                    </button>
+                    <button class="btn btn-start" 
+                            id="startExamBtn" disabled>Start Test</button>
+                    <a href="{% url 'user_logout' %}" class="btn btn-logout">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade camera-modal" id="cameraTestModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-camera me-2"></i>Camera Test</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <video id="cameraFeed" autoplay playsinline></video>
+                    <div class="test-results">
+                        <h6>Running Camera Tests:</h6>
+                        <div class="test-case">
+                            <span><i class="fas fa-user-check me-2"></i>Person detected</span>
+                            <span class="test-status test-pending" id="test1Status">Testing...</span>
+                            <div class="test-progress"><div class="progress-bar" id="test1Progress"></div></div>
+                        </div>
+                        <div class="test-case">
+                            <span><i class="fas fa-user-times me-2"></i>Only one person detected</span>
+                            <span class="test-status test-pending" id="test2Status">Testing...</span>
+                            <div class="test-progress"><div class="progress-bar" id="test2Progress"></div></div>
+                        </div>
+                        <div class="test-case">
+                            <span><i class="fas fa-camera me-2"></i>Camera quality and focus</span>
+                            <span class="test-status test-pending" id="test3Status">Testing...</span>
+                            <div class="test-progress"><div class="progress-bar" id="test3Progress"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="retestBtn" style="display: none;">
+                        <i class="fas fa-sync-alt me-2"></i>Test Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/tf.min.js"></script>
+    <script src="/static/js/blazeface.min.js"></script>
+    <script src="{% static 'custom/js/cdn-jsdelivr-bootstrap.min.js' %}"></script>
+    <script>
+        let cameraTestsPassed = false;
+        let isWithinTimeWindow = false;
+        
+        // Time window validation
+        function checkTimeWindow() {
+            const startTime = new Date('{{ start_time_iso }}');
+            const endTime = new Date('{{ end_time_iso }}');
+            const now = new Date();
+            
+            isWithinTimeWindow = now >= startTime && now <= endTime;
+            updateStartButtonState();
+        }
+
+        document.getElementById('declaration').addEventListener('change', function() {
+            updateStartButtonState();
+        });
+     
+        function updateStartButtonState() {
+            const startBtn = document.getElementById('startExamBtn');
+            const declarationChecked = document.getElementById('declaration').checked;
+
+            if (declarationChecked && cameraTestsPassed && isWithinTimeWindow) {
+                startBtn.disabled = false;
+                startBtn.onclick = function () {
+                    if (confirm('Are you sure you want to start the Exam? The timer will begin immediately.')) {
+                        // Call start_test first
+                        fetch("{% url 'start_test' %}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({})
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                alert(data.error);
+                            } else {
+                                // Now redirect to test page
+                                window.location.href = "{% url 'test_page' %}";
+                            }
+                        })
+                        .catch(err => {
+                            alert("Error starting test: " + err);
+                        });
+                    }
+                };
+            } else {
+                startBtn.disabled = true;
+                startBtn.onclick = null;
+            }
+        }
+        
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function(event) {
+            window.history.go(1);
+        };
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const cameraTestBtn = document.getElementById('cameraTestBtn');
+            const cameraModal = new bootstrap.Modal(document.getElementById('cameraTestModal'));
+            const cameraFeed = document.getElementById('cameraFeed');
+            const retestBtn = document.getElementById('retestBtn');
+            let stream = null;
+            let model = null;
+            
+            checkTimeWindow();
+            setInterval(checkTimeWindow, 60000); // Check every minute
+            
+            async function loadFaceDetectionModel() {
+                try {
+                    model = await blazeface.load();
+                    console.log("Face detection model loaded");
+                } catch (error) {
+                    console.error("Error loading face detection model:", error);
+                }
+            }
+            
+            loadFaceDetectionModel();
+            
+            cameraTestBtn.addEventListener('click', function() {
+                cameraModal.show();
+                startCameraTest();
+            });
+            
+            retestBtn.addEventListener('click', function() {
+                resetTests();
+                startCameraTest();
+            });
+            
+            document.getElementById('cameraTestModal').addEventListener('hidden.bs.modal', function() {
+                stopCamera();
+            });
+            
+            function startCameraTest() {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        } 
+                    })
+                    .then(function(mediaStream) {
+                        stream = mediaStream;
+                        cameraFeed.srcObject = mediaStream; 
+                        setTimeout(runCameraTests, 1000);
+                    })
+                    .catch(function(error) {
+                        console.error('Camera error:', error);
+                        document.getElementById('test1Status').textContent = 'Failed: Camera access denied';
+                        document.getElementById('test1Status').className = 'test-status test-fail';
+                        document.getElementById('test2Status').textContent = 'Failed: Camera not available';
+                        document.getElementById('test2Status').className = 'test-status test-fail';
+                        document.getElementById('test3Status').textContent = 'Failed: Camera not available';
+                        document.getElementById('test3Status').className = 'test-status test-fail';
+                        retestBtn.style.display = 'block';
+                    });
+                } else {
+                    alert('Your browser does not support camera access.');
+                }
+            }
+            
+            function stopCamera() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    cameraFeed.srcObject = null;
+                }
+            }
+            
+            function resetTests() {
+                document.getElementById('test1Status').textContent = 'Testing...';
+                document.getElementById('test1Status').className = 'test-status test-pending';
+                document.getElementById('test2Status').textContent = 'Testing...';
+                document.getElementById('test2Status').className = 'test-status test-pending';
+                document.getElementById('test3Status').textContent = 'Testing...';
+                document.getElementById('test3Status').className = 'test-status test-pending';
+                
+                document.getElementById('test1Progress').style.width = '0%';
+                document.getElementById('test2Progress').style.width = '0%';
+                document.getElementById('test3Progress').style.width = '0%';
+                
+                retestBtn.style.display = 'none';
+                cameraTestsPassed = false;
+                updateStartButtonState();
+                document.getElementById('capture-status').textContent = '';
+            }
+            
+            async function runCameraTests() {
+                await runTest1();
+                if (document.getElementById('test1Status').textContent === 'Pass') {
+                    await runTest2();
+                } else {
+                    document.getElementById('test2Status').textContent = 'Skipped';
+                    document.getElementById('test2Status').className = 'test-status test-fail';
+                    document.getElementById('test2Progress').style.width = '100%';
+                }
+                await runTest3();
+                
+                const test1Pass = document.getElementById('test1Status').textContent === 'Pass';
+                const test2Pass = document.getElementById('test2Status').textContent === 'Pass';
+                const test3Pass = document.getElementById('test3Status').textContent === 'Pass';
+                
+                if (test1Pass && test2Pass && test3Pass) {
+                    cameraTestsPassed = true;
+                    updateStartButtonState();
+                }
+                
+                retestBtn.style.display = 'block';
+            }
+            
+            async function runTest1() {
+                return new Promise(async (resolve) => {
+                    const test1Progress = document.getElementById('test1Progress');
+                    let detectionCount = 0;
+                    const maxChecks = 5;
+                    
+                    for (let i = 0; i < maxChecks; i++) {
+                        test1Progress.style.width = `${(i / maxChecks) * 100}%`;
+                        const faces = await detectFaces();
+                        if (faces && faces.length > 0) {
+                            detectionCount++;
+                        }
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                    
+                    test1Progress.style.width = '100%';
+                    if (detectionCount >= 3) {
+                        document.getElementById('test1Status').textContent = 'Pass';
+                        document.getElementById('test1Status').className = 'test-status test-pass';
+                    } else {
+                        document.getElementById('test1Status').textContent = 'Fail: No person detected';
+                        document.getElementById('test1Status').className = 'test-status test-fail';
+                    }
+                    resolve();
+                });
+            }
+            
+            async function runTest2() {
+                return new Promise(async (resolve) => {
+                    const test2Progress = document.getElementById('test2Progress');
+                    let singlePersonCount = 0;
+                    const maxChecks = 5;
+                    
+                    for (let i = 0; i < maxChecks; i++) {
+                        test2Progress.style.width = `${(i / maxChecks) * 100}%`;
+                        const faces = await detectFaces();
+                        if (faces && faces.length === 1) {
+                            singlePersonCount++;
+                        }
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                    
+                    test2Progress.style.width = '100%';
+                    if (singlePersonCount >= 4) {
+                        document.getElementById('test2Status').textContent = 'Pass';
+                        document.getElementById('test2Status').className = 'test-status test-pass';
+                   // Capture screenshot and send to server
+                    const canvas = document.createElement('canvas');
+                    canvas.width = cameraFeed.videoWidth;
+                    canvas.height = cameraFeed.videoHeight;
+                    canvas.getContext('2d').drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+
+                    const imageData = canvas.toDataURL('image/jpeg');
+
+                    fetch('{% url "capture_photo" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: new URLSearchParams({ 'image': imageData })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('capture-status').textContent = 'Screenshot captured automatically!';
+                        } else {
+                            document.getElementById('capture-status').textContent = 'Failed to capture: ' + data.error;
+                        }
+                    })
+                    .catch(err => {
+                        document.getElementById('capture-status').textContent = 'Error capturing screenshot.';
+                    });
+                    } else {
+                        document.getElementById('test2Status').textContent = 'Fail: Multiple persons detected';
+                        document.getElementById('test2Status').className = 'test-status test-fail';
+                    }
+                    resolve();
+                });
+            }
+            
+            async function runTest3() {
+                return new Promise(async (resolve) => {
+                    const test3Progress = document.getElementById('test3Progress');
+                    let qualityPassCount = 0;
+                    const maxChecks = 5;
+                    
+                    for (let i = 0; i < maxChecks; i++) {
+                        test3Progress.style.width = `${(i / maxChecks) * 100}%`;
+                        const isGoodQuality = await checkCameraQuality();
+                        if (isGoodQuality) {
+                            qualityPassCount++;
+                        }
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                    
+                    test3Progress.style.width = '100%';
+                    if (qualityPassCount >= 4) {
+                        document.getElementById('test3Status').textContent = 'Pass';
+                        document.getElementById('test3Status').className = 'test-status test-pass';
+                    } else {
+                        document.getElementById('test3Status').textContent = 'Fail: Poor camera quality';
+                        document.getElementById('test3Status').className = 'test-status test-fail';
+                    }
+                    resolve();
+                });
+            }
+            
+            async function detectFaces() {
+                if (!model) {
+                    console.error("Face detection model not loaded");
+                    return null;
+                }
+                try {
+                    const predictions = await model.estimateFaces(cameraFeed, false);
+                    return predictions;
+                } catch (error) {
+                    console.error("Error detecting faces:", error);
+                    return null;
+                }
+            }
+            
+            async function checkCameraQuality() {
+                return new Promise((resolve) => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = 160;
+                    canvas.height = 120;
+                    context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    let focusMeasure = 0;
+                    for (let i = 0; i < data.length; i += 4) {
+                        if (i + 4 < data.length) {
+                            const diff = Math.abs(data[i] - data[i + 4]) + 
+                                        Math.abs(data[i + 1] - data[i + 5]) + 
+                                        Math.abs(data[i + 2] - data[i + 6]);
+                            focusMeasure += diff;
+                        }
+                    }
+                    focusMeasure = focusMeasure / (canvas.width * canvas.height);
+                    const isGoodQuality = focusMeasure > 5;
+                    resolve(isGoodQuality);
+                });
+            }
+        });
+    </script>
+    <script>
+function sendLocationToServer(lat, lng) {
+    fetch("{% url 'update_location' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({ latitude: lat, longitude: lng })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Location saved!");
+        } else {
+            console.log("Location save failed:", data.error);
+        }
+    });
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            sendLocationToServer(position.coords.latitude, position.coords.longitude);
+        }, function(error) {
+            console.log("Location error:", error);
+        });
+    } else {
+        console.log("Geolocation not supported.");
+    }
+}
+
+document.addEventListener('DOMContentLoaded', getLocation);
+</script>
+</body>
+</html>

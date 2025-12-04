@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful</title>
+    <style>
+        .success-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #e6ffed;
+            border: 2px solid #34c759;
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .success-icon {
+            font-size: 50px;
+            color: #34c759;
+            margin-bottom: 10px;
+        }
+
+        .success-message {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .registration-id {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #1b5e20;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">&#10004;</div> <!-- Tick mark -->
+        <div class="success-message">Registration Successful!</div>
+        <p class="registration-id">Your Registration ID: {{ registration_id }}</p>
+        <p>Thank you for registering with TechRAQ Info Solutions Pvt. Ltd.</p>
+        <p>You will receive a confirmation email with further details.</p>
+    </div>
+</body>
+</html>

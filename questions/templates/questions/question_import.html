@@ -1,0 +1,61 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Import Questions {% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="font-weight-bolder">Import Questions</h4>
+            <p class="mb-0 text-sm">Upload a CSV or Excel file containing questions</p>
+          </div>
+          <div>
+            <a href="{% url 'download_reference_excel' %}" class="btn bg-gradient-secondary mb-0">Download Reference</a>
+            <p class="mb-0 text-sm">* Download reference Excel file for questions</p>
+          </div>
+        </div>
+        <div class="card-body pt-4">
+          {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-12 form-group">
+                <label for="file">Select CSV or Excel File</label>
+                <input type="file" name="file" id="file" class="form-control" accept=".csv,.xlsx,.xls" required>
+                <div class="mt-2 mb-0 text-sm">
+                  <strong>Note:</strong>
+                  <pre class="mb-0">
+difficulty => easy, medium, hard
+test_type => GT, TT
+(GT - General Test, TT - Technical Test)
+category_type => Aptitude, Coding, Reasoning
+specialisation_name => Python, Java, C, C++, .NET, Java Script, Not Applicable
+correct_answer => A, B, C, D
+(must be capital)
+is_multichoice => True for GT, True/False for TT (True enables multiple-choice options)
+is_active => yes
+deleted => False
+                  </pre>
+                </div>
+              </div>
+            </div>
+            <div class="text-end">
+              <button type="submit" class="btn bg-gradient-dark mb-0">Import</button>
+              <a href="{% url 'question_list' %}" class="btn bg-gradient-secondary mb-0">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

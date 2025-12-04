@@ -1,0 +1,382 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-12">
+
+      <!-- Search Form -->
+      <div class="card mb-5 shadow-sm">
+        <div class="card-body p-4">
+          <form method="get" action="{% url 'generate_test' %}" class="mb-0">
+            <input type="hidden" name="test_type" value="{{ test_type }}">
+            <div class="row">
+              <div class="col-md-10">
+                <input type="text" name="search" class="form-control form-control-lg"
+                       placeholder="Search by set name..." value="{{ search_query }}">
+              </div>
+              <div class="col-md-2">
+                <button class="btn bg-gradient-dark mb-0 btn-md w-100" type="submit">
+                  <i class="fas fa-search"></i> Search
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Main Card -->
+      <div class="card shadow-sm">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3 mb-0">
+              {% if test_type == 'gt' %}
+                  Generate General Test Sets
+              {% else %}
+                  Generate Technical Test Sets
+              {% endif %}
+            </h6>
+          </div>
+        </div>
+        <div class="card-body p-4">
+
+          {% if messages %}
+            <div class="alert alert-info" id="message-box">
+              {% for message in messages %}
+                {{ message }}
+              {% endfor %}
+            </div>
+            <script>
+              setTimeout(function() {
+                var msgBox = document.getElementById('message-box');
+                if (msgBox) {
+                  msgBox.style.display = 'none';
+                }
+              }, 5000); // Increased timeout for better readability
+            </script>
+          {% endif %}
+          <!-- Generation Form -->
+          <div class="row mb-5">
+            <div class="col-12">
+              <div class="bg-light p-4 rounded">
+              <form method="post" action="{% url 'generate_test' %}?test_type={{ test_type }}" id="testGenerationForm">
+                  {% csrf_token %}
+                  {{ form.non_field_errors }}
+                  <input type="hidden" name="test_type" value="{{ test_type }}">
+                  <!-- Hidden inputs for custom difficulty -->
+                  <input type="hidden" name="num_easy" id="id_num_easy">
+                  <input type="hidden" name="num_medium" id="id_num_medium">
+                  <input type="hidden" name="num_hard" id="id_num_hard">
+
+
+                  <div class="row align-items-end">
+                    <!-- Number of Sets -->
+                    <div class="col-md-2 mb-3">
+                      <label for="{{ form.num_sets.id_for_label }}" class="form-label font-weight-bold">Number of Sets:</label>
+                      {% render_field form.num_sets class="form-control form-control-lg" %}
+                      <div class="text-danger small">{{ form.num_sets.errors }}</div>
+                    </div>
+
+                    <!-- Test Generation by Difficulty -->
+                    <div class="col-md-3 mb-3">
+                      <label for="generateByDifficulty" class="form-label font-weight-bold">Proceed by configurations ?</label>
+                      <select class="form-control form-control-lg" id="generateByDifficulty" name="generate_by_difficulty">
+                        <option value="yes" selected>Yes (Proceed by configurations)</option>
+                        <option value="no">No (Set Manually)</option>
+                      </select>
+                    </div>
+
+                    <!-- Programming Language (only for TT) -->
+                    {% if test_type == 'tt' %}
+                    <div class="col-md-3 mb-3">
+                      <label for="{{ form.programming_language.id_for_label }}" class="form-label font-weight-bold">Programming Language:</label>
+                      {% render_field form.programming_language class="form-control form-control-lg" %}
+                      <div class="text-danger small">{{ form.programming_language.errors }}</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Generate Button -->
+                    <div class="col-md-{% if test_type == 'tt' %}4{% else %}7{% endif %} mb-3 d-flex align-items-end">
+                      <button type="submit" class="btn btn-primary btn-md px-4 w-100">
+                        <i class="fas fa-plus-circle mr-2"></i> Generate Enhanced Sets
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Custom Difficulty Selection Box -->
+                  <div id="customDifficultyBox" class="mt-4 p-4 border rounded bg-white" style="display: none;">
+                    <h6 class="font-weight-bolder">Select Questions Difficulty</h6>
+                    <p class="text-sm">Choose the number of questions for each difficulty. Each must be between 1 and 15.</p>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="easy_questions" class="form-label">Easy</label>
+                            <input type="number" id="easy_questions" class="form-control difficulty-input" min="1" max="15">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="medium_questions" class="form-label">Medium</label>
+                            <input type="number" id="medium_questions" class="form-control difficulty-input" min="1" max="15">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="hard_questions" class="form-label">Hard</label>
+                            <input type="number" id="hard_questions" class="form-control difficulty-input" min="1" max="15">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div id="totalQuestionsDisplay" class="font-weight-bold p-2 w-100 text-center border rounded">
+                                Total: 0 / {{ configured_total|default:"0" }}
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-5">
+
+          <!-- Header with Download Buttons -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5 class="mb-0">Available Test Sets</h5>
+              <small class="text-muted">Sets are named using the enhanced naming convention for better organization</small>
+            </div>
+            <div class="col-md-6 text-end">
+              {% if test_type == 'gt' %}
+              <a href="{% url 'download_test_sets_zip' %}?test_type=gt" class="btn btn-outline-primary me-2">
+                <i class="fas fa-file-archive me-2"></i> GT Sets Zip
+              </a>
+              {% else %}
+              <a href="{% url 'download_test_sets_zip' %}?test_type=tt" class="btn btn-outline-primary me-2">
+                <i class="fas fa-file-archive me-2"></i> TT Sets Zip
+              </a>
+              {% endif %}
+              <a href="{% url 'download_test_sets_zip' %}" class="btn btn-primary">
+                <i class="fas fa-file-archive me-2"></i> All Sets Zip
+              </a>
+            </div>
+          </div>
+
+          {% if page_obj %}
+            <!-- Test Sets Table -->
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="thead-light">
+                  <tr>
+                    <th style="width: 45%">Enhanced Set Name</th>
+                    <th style="width: 35%">Created At</th>
+                    <th style="width: 20%" class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for set in page_obj %}
+                    <tr>
+                      <td class="align-middle">
+                        <div class="d-flex flex-column">
+                          <span class="font-weight-bold">{{ set.formatted_name }}</span>
+                          <small class="text-muted">
+                            {% if set.test_type == 'GT' %}
+                              <i class="fas fa-graduation-cap me-1"></i>General Test
+                            {% else %}
+                              <i class="fas fa-code me-1"></i>Technical Test
+                            {% endif %}
+                          </small>
+                        </div>
+                      </td>
+                      <td class="align-middle">
+                        <span>{{ set.created_at|date:"Y-m-d" }}</span>
+                        <br>
+                        <small class="text-muted">{{ set.created_at|date:"H-i-s" }}</small>
+                      </td>
+                      <td class="text-center align-middle">
+                        <a href="{{ set.pdf_file.url }}" class="btn btn-sm btn-dark" download>
+                          <i class="fas fa-file-pdf me-1"></i> PDF
+                        </a>
+                        {% if set.test_type == 'GT' %}
+                          <a href="{% url 'generate_answer_pdf' set.id %}" class="btn btn-sm btn-info" target="_blank">
+                            <i class="fas fa-key me-1"></i> Answers
+                          </a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="3" class="text-center py-5">
+                        <i class="fas fa-folder-open fa-2x mb-3 text-muted"></i>
+                        <p class="text-muted">No {{ test_type|upper }} Test sets available</p>
+                        <p class="text-muted small">Generate new sets using the enhanced naming convention above</p>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="row">
+              <div class="col-12">
+                <nav aria-label="{{ test_type|upper }} Test pagination" class="d-flex justify-content-center">
+                  <ul class="pagination pagination-rounded">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                      <a class="page-link" href="{% url 'generate_test' %}?test_type={{ test_type }}{% if search_query %}&search={{ search_query }}{% endif %}&page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">«</span>
+                      </a>
+                    </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                      {% if page_obj.number == num %}
+                        <li class="page-item active">
+                          <a class="page-link" href="{% url 'generate_test' %}?test_type={{ test_type }}{% if search_query %}&search={{ search_query }}{% endif %}&page={{ num }}">{{ num }}</a>
+                        </li>
+                      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                          <a class="page-link" href="{% url 'generate_test' %}?test_type={{ test_type }}{% if search_query %}&search={{ search_query }}{% endif %}&page={{ num }}">{{ num }}</a>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                      <a class="page-link" href="{% url 'generate_test' %}?test_type={{ test_type }}{% if search_query %}&search={{ search_query }}{% endif %}&page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">»</span>
+                      </a>
+                    </li>
+                    {% endif %}
+                  </ul>
+                </nav>
+              </div>
+            </div>
+            {% endif %}
+          {% else %}
+            <div class="row">
+              <div class="col-12 text-center py-5">
+                <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
+                <h5 class="text-muted">No {{ test_type|upper }} test sets available</h5>
+                <p class="text-muted">Generate new sets using the enhanced naming convention above</p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const testType = '{{ test_type }}';
+    const form = document.getElementById('testGenerationForm');
+    const difficultySelect = document.getElementById('generateByDifficulty');
+    const customDifficultyBox = document.getElementById('customDifficultyBox');
+
+    const easyInput = document.getElementById('easy_questions');
+    const mediumInput = document.getElementById('medium_questions');
+    const hardInput = document.getElementById('hard_questions');
+    const difficultyInputs = [easyInput, mediumInput, hardInput];
+
+    const hiddenEasy = document.getElementById('id_num_easy');
+    const hiddenMedium = document.getElementById('id_num_medium');
+    const hiddenHard = document.getElementById('id_num_hard');
+
+    const totalDisplay = document.getElementById('totalQuestionsDisplay');
+
+    // Get configured values from Django context
+    const CONFIGURED_TOTAL = parseInt('{{ configured_total|default:"0" }}');
+    const MIN_DIFFICULTY = 1;
+    const MAX_DIFFICULTY = 15;
+    const testName = testType === 'gt' ? 'General Test' : 'Technical Test';
+
+    // Function to update hidden fields and the total display
+    function updateAndValidate() {
+        let total = 0;
+        difficultyInputs.forEach(input => {
+            let value = parseInt(input.value) || 0;
+            if (value < 0) input.value = 0; // Prevent negative numbers
+            total += value;
+        });
+
+        // Update the display text and color
+        totalDisplay.textContent = `Total: ${total} / ${CONFIGURED_TOTAL}`;
+        if (total === CONFIGURED_TOTAL) {
+            totalDisplay.classList.remove('border-danger', 'text-danger');
+            totalDisplay.classList.add('border-success', 'text-success');
+        } else {
+            totalDisplay.classList.remove('border-success', 'text-success');
+            totalDisplay.classList.add('border-danger', 'text-danger');
+        }
+
+        // Update hidden form fields for submission
+        hiddenEasy.value = easyInput.value || 0;
+        hiddenMedium.value = mediumInput.value || 0;
+        hiddenHard.value = hardInput.value || 0;
+    }
+
+    // Event listener for the dropdown to show/hide the manual input box
+    difficultySelect.addEventListener('change', function() {
+        if (this.value === 'no') { // "Set Manually" is selected
+            customDifficultyBox.style.display = 'block';
+            easyInput.value = '';
+            mediumInput.value = '';
+            hardInput.value = '';
+            updateAndValidate();
+        } else { // "Proceed by configurations" is selected
+            customDifficultyBox.style.display = 'none';
+            easyInput.value = '';
+            mediumInput.value = '';
+            hardInput.value = '';
+            updateAndValidate();
+        }
+    });
+
+    // Add live validation feedback on manual input fields
+    difficultyInputs.forEach(input => {
+        input.addEventListener('input', updateAndValidate);
+    });
+
+    // Add validation on form submission
+    form.addEventListener('submit', function(event) {
+        // Only validate if in "Set Manually" mode
+        if (difficultySelect.value === 'no') {
+            const easyVal = parseInt(easyInput.value) || 0;
+            const mediumVal = parseInt(mediumInput.value) || 0;
+            const hardVal = parseInt(hardInput.value) || 0;
+            const finalTotal = easyVal + mediumVal + hardVal;
+
+            // Check 1: Individual difficulty ranges
+            const invalidInputs = [];
+            if (easyVal < MIN_DIFFICULTY || easyVal > MAX_DIFFICULTY) {
+                invalidInputs.push('Easy');
+            }
+            if (mediumVal < MIN_DIFFICULTY || mediumVal > MAX_DIFFICULTY) {
+                invalidInputs.push('Medium');
+            }
+            if (hardVal < MIN_DIFFICULTY || hardVal > MAX_DIFFICULTY) {
+                invalidInputs.push('Hard');
+            }
+
+            if (invalidInputs.length > 0) {
+                event.preventDefault();
+                alert(`Error: The value for ${invalidInputs.join(', ')} must be between ${MIN_DIFFICULTY} and ${MAX_DIFFICULTY}.`);
+                return;
+            }
+
+            // Check 2: Sum of difficulties must match configured total
+            if (finalTotal !== CONFIGURED_TOTAL) {
+                event.preventDefault();
+                alert(`Error: The sum of questions (${finalTotal}) must equal the configured total of ${CONFIGURED_TOTAL} for a ${testName}.`);
+                return;
+            }
+        }
+    });
+
+    // Initial setup on page load
+    if (difficultySelect.value === 'no') {
+        customDifficultyBox.style.display = 'block';
+    }
+    updateAndValidate();
+});
+</script>
+{% endblock %}

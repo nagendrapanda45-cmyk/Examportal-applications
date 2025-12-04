@@ -1,0 +1,86 @@
+{% load i18n static admin_material %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_direction as direction %}
+{% get_admin_setting as admin_setting %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/apple-icon.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>
+    Material Dashboard - {% block title %}{% endblock %}
+  </title>
+  <!-- Fonts and icons -->
+  {% comment %} <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900|Roboto+Slab:400,700" /> {% endcomment %}
+  <link href="{% static 'custom/css/fonts-googleapis-com.css' %}" type="text/css" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="{% static 'css/nucleo-icons.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/nucleo-svg.css' %}" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  {% comment %} <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script> {% endcomment %}
+  <script src="{% static 'custom/js/42d5adcbca.js' %}" crossorigin="anonymous"></script>
+  <!-- Material Icons -->
+  {% comment %} <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"> {% endcomment %}
+  <link href="{% static 'custom/css/icon.css' %}" rel="stylesheet" />
+  <!-- SweetAlert2 CSS -->
+  {% comment %} <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet"> {% endcomment %}
+  <link href="{% static 'custom/css/sweetalert2.min.css' %}" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="{% static 'css/material-dashboard-custom.css' %}" rel="stylesheet" />
+  {% block extrastyle %}{% endblock extrastyle %}
+</head>
+
+<body class="g-sidenav-show bg-gray-200">
+  {% include "includes/sidebar.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    {% include "includes/navigation.html" %}
+    {% block content %}{% endblock content %}
+  </main>
+  <!-- APP Configurator -->
+  {% include "includes/fixed-plugin.html" %}
+
+  <!-- Core JS Files -->
+  {% include 'includes/scripts.html' %}
+  <!-- SweetAlert2 JS -->
+  {% comment %} <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> {% endcomment %}
+  <script src="{% static 'custom/js/sweetalert2@11.js' %}" crossorigin="anonymous"></script>
+  <!-- Display messages as popups -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      {% if messages %}
+        {% for message in messages %}
+          Swal.fire({
+            icon: '{{ message.tags }}',
+            title: '{{ message.tags|capfirst }}',
+            text: '{{ message }}',
+            showConfirmButton: true,
+            timer: 3000
+          });
+        {% endfor %}
+      {% endif %}
+    });
+  </script>
+  {% block scripts %}{% endblock scripts %}
+
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+  </script>
+  <!-- Github buttons -->
+  {% comment %} <script async defer src="https://buttons.github.io/buttons.js"></script> {% endcomment %}
+  <script src="{% static 'custom/js/buttons.js' %}" crossorigin="anonymous"></script>
+  <!-- Material Dashboard JS -->
+  <script src="{% static 'js/material-dashboard.min.js' %}"></script>
+</body>
+</html>

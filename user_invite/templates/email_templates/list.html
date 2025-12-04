@@ -1,0 +1,62 @@
+{% extends "layouts/base.html" %}
+{% load i18n static %}
+
+{% block title %} Email Templates {% endblock title %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Email Templates</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="px-3 pt-3" style="display: flex; justify-content: flex-end;">
+                        <a href="{% url 'email_template_create' %}" class="btn bg-gradient-dark mb-0">
+                            <i class="material-symbols-rounded text-sm"></i>
+                            Add New Template
+                        </a>
+                    </div>
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Template Type</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for template in templates %}
+                                <tr>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ template.email_id }}</h6>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm">{{ template.email_template }}</h6>
+                                    </td>
+                                    <td class="align-middle">
+                                        <a href="{% url 'email_template_edit' template.email_id %}" class="btn btn-sm btn-primary me-1 mb-0" data-toggle="tooltip" data-original-title="Edit template">Edit</a>
+                                        <a href="{% url 'email_template_delete' template.email_id %}" class="btn btn-sm btn-danger mb-0" onclick="return confirm('Are you sure?')" data-toggle="tooltip" data-original-title="Delete template">Delete</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">
+                                        No templates available.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'includes/footer.html' %}
+</div>
+{% endblock content %}

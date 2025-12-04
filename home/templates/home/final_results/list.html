@@ -1,0 +1,160 @@
+{% extends 'layouts/base.html' %}
+{% load i18n static %}
+ 
+{% block title %}Final Results{% endblock title %}
+ 
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- View Graphs Button Above Filter Card -->
+  <div class="row mb-3">
+    <div class="col-12 text-end">
+      <a href="{% url 'final_result_graphs' %}" class="btn bg-gradient-info mb-0">View Graphs</a>
+    </div>
+  </div>
+ 
+  <!-- Search Form Card -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-3">
+          <form method="get">
+            <!-- Filter Fields Row -->
+            <div class="row g-3 align-items-end mb-3">
+              <div class="col-md-3">
+                <label for="user_query" class="form-label text-sm font-weight-bold">Search User</label>
+                <input type="text" id="user_query" name="user_query" class="form-control" placeholder="RegID, First name, last name..." value="{{ request.GET.user_query|default:'' }}">
+              </div>
+              <div class="col-md-2">
+                <label for="result_status" class="form-label text-sm font-weight-bold">Result Status</label>
+                <select id="result_status" name="result_status" class="form-control">
+                  <option value="">All Statuses</option>
+                  <option value="pass" {% if request.GET.result_status == 'pass' %}selected{% endif %}>Pass</option>
+                  <option value="fail" {% if request.GET.result_status == 'fail' %}selected{% endif %}>Fail</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="technical_skill" class="form-label text-sm font-weight-bold">Technical Skill</label>
+                <select id="technical_skill" name="technical_skill" class="form-control">
+                  <option value="">All Skills</option>
+                  {% for skill in technical_skills %}
+                  <option value="{{ skill }}" {% if request.GET.technical_skill == skill %}selected{% endif %}>{{ skill }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="is_published" class="form-label text-sm font-weight-bold">Published Status</label>
+                <select id="is_published" name="is_published" class="form-control">
+                  <option value="">All</option>
+                  <option value="true" {% if request.GET.is_published == 'true' %}selected{% endif %}>Published</option>
+                  <option value="false" {% if request.GET.is_published == 'false' %}selected{% endif %}>Not Published</option>
+                </select>
+              </div>
+              <div class="col-md-3 d-flex align-items-end justify-content-end">
+                <button type="submit" class="btn bg-gradient-dark me-2 mb-0">Search</button>
+                <a href="{% url 'final_result_list' %}" class="btn bg-gradient-secondary mb-0">Reset</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Final Result List Card -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Final Result List</h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0 table-hover" style="table-layout: auto;">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3" style="width: 12%;">RegistrationID</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3" style="width: 12%;">First Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3" style="width: 12%;">Last Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3" style="width: 14%;">General Test Score</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3" style="width: 12%;">Technical Test Skill</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3" style="width: 14%;">Technical Test Score</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3" style="width: 10%;">Result Status</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3" style="width: 12%;">Is Result Published</th>
+                  <th class="text-uppercase opacity-7 ps-3" style="width: 14%;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in results_with_scores %}
+                {% with result=item.result gt_correct=item.gt_correct tt_correct=item.tt_correct tt_skill=item.tt_skill %}
+                <tr>
+                  <td class="ps-3"><h6 class="mb-0 text-sm">{{ result.user.registration_id|default:"N/A" }}</h6></td>
+                  <td class="ps-3"><h6 class="mb-0 text-sm">{{ result.user.first_name|capfirst|default:"N/A" }}</h6></td>
+                  <td class="ps-3"><h6 class="mb-0 text-sm">{{ result.user.last_name|capfirst|default:"N/A" }}</h6></td>
+                  <td class="ps-3"><h6 class="mb-0 text-sm">{{ gt_correct }}</h6></td>
+                  <td class="ps-3"><h6 class="mb-0 text-sm">{{ tt_skill }}</h6></td>
+                  <td class="ps-3"><h6 class="mb-0 text-sm">{{ tt_correct }}</h6></td>
+                  <td class="ps-3">
+                    <span class="badge badge-sm bg-gradient-{% if result.result_status|lower == 'pass' %}success{% else %}danger{% endif %}">
+                      {{ result.result_status|capfirst }}
+                    </span>
+                  </td>
+                  <td class="ps-3">
+                    <span class="badge badge-sm bg-gradient-{% if result.is_result_published %}success{% else %}warning{% endif %}">
+                      {{ result.is_result_published|yesno:"Published,Not Published" }}
+                    </span>
+                  </td>
+                  <td class="align-middle ps-3">
+                    <div class="d-flex flex-column">
+                      <a href="{% url 'final_result_view' result.final_result_id %}" class="btn btn-sm btn-primary mb-1">View Details</a>
+                      <a href="{% url 'final_result_edit' result.final_result_id %}" class="btn btn-sm btn-secondary mb-1">Edit</a>
+                      <a href="{% url 'send_result_email' result.final_result_id %}" class="btn btn-sm btn-info mb-1">Send Email</a>
+                    </div>
+                  </td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center py-4">
+                    <h6 class="text-secondary">No final results found.</h6>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+ 
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.result_status %}&result_status={{ request.GET.result_status }}{% endif %}{% if request.GET.technical_skill %}&technical_skill={{ request.GET.technical_skill }}{% endif %}{% if request.GET.is_published %}&is_published={{ request.GET.is_published }}{% endif %}">Previous</a>
+              </li>
+              {% endif %}
+              {% for num in page_obj.paginator.page_range %}
+              <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.result_status %}&result_status={{ request.GET.result_status }}{% endif %}{% if request.GET.technical_skill %}&technical_skill={{ request.GET.technical_skill }}{% endif %}{% if request.GET.is_published %}&is_published={{ request.GET.is_published }}{% endif %}">{{ num }}</a>
+              </li>
+              {% endfor %}
+              {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.user_query %}&user_query={{ request.GET.user_query }}{% endif %}{% if request.GET.result_status %}&result_status={{ request.GET.result_status }}{% endif %}{% if request.GET.technical_skill %}&technical_skill={{ request.GET.technical_skill }}{% endif %}{% if request.GET.is_published %}&is_published={{ request.GET.is_published }}{% endif %}">Next</a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+ 
+  {% include 'includes/footer.html' %}
+</div>
+{% endblock %}
+ 

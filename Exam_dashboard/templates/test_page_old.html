@@ -1,0 +1,718 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'custom/css/cdnjs-cloudflare-font-awesome.min.css' %}" rel="stylesheet" />
+    <title>Test Page - Exam Portal</title>
+    <link href="{% static 'custom/css/exam.css' %}" rel="stylesheet" />
+    <style>
+        .navigation-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .option-radio {
+            display: none;
+        }
+        .option-label {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            margin-right: 10px;
+            text-align: center;
+            line-height: 16px;
+            font-size: 16px;
+        }
+        .option-item.selected .option-label {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+        }
+        .option-text {
+            flex: 1;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 70%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .close {
+            color: #aaa;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .instruction-item {
+            margin-bottom: 15px;
+        }
+        .instruction-item h3 {
+            font-size: 1.2rem;
+            margin: 0 0 5px 0;
+        }
+        .instruction-item p {
+            margin: 0;
+            font-size: 1rem;
+            color: #333;
+        }
+        #video-container {
+            position: relative;
+            margin: 0 auto;
+            width: 300px;
+            height: 220px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #webcam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+        #status {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .alert-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        .alert-show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="alertContainer" class="alert-message" style="display: none;"></div>
+    <div class="container">
+        <div class="navbar">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>Exam Portal
+            </a>
+            <div class="navbar-stats">
+                <div class="stat-item stat-attempted">
+                    <div class="stat-color"></div>
+                    <div class="stat-text">Attempted: <span id="attemptedCount">0</span> / {{ total_questions }}</div>
+                </div>
+                <div class="stat-item stat-left">
+                    <div class="stat-color"></div>
+                    <div class="stat-text">Not Attempted: <span id="leftCount">{{ total_questions }}</span></div>
+                </div>
+            </div>
+            <div class="navbar-actions">
+                <span class="navbar-text">
+                    <i class="fas fa-user"></i>
+                    Welcome {{ user.first_name }}
+                </span>
+                <button type="button" class="btn btn-logout" onclick="showInstructions()">
+                    <i class="fas fa-info-circle"></i>
+                    Instructions
+                </button>
+            </div>
+        </div>
+        <div id="instructionsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Test Instructions</h2>
+                    <span class="close" onclick="hideInstructions()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    {% for instruction in instructions %}
+                        <div class="instruction-item">
+                            <h3>{{ instruction.title }}</h3>
+                            <div class="content">
+                                {{ instruction.content|safe }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="main-wrapper">
+            <main class="main-content">
+                <div class="test-header">
+                    <h1 class="test-title">General Test</h1>
+                    <div class="question-counter">Q.{{ current_index|add:1 }}/{{ total_questions }}</div>
+                </div>
+                <div class="question-section">
+                    <div class="question-text">
+                        {{ question.question_text }}
+                    </div>
+                    <form method="post" id="testForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="question_index" value="{{ current_index }}">
+                        <div class="options-container">
+                            {% for option_value, option_text in shuffled_options %}
+                                <div class="option-item" onclick="selectOption(this, '{{ option_value }}')">
+                                    <input type="radio" name="answer" value="{{ option_value }}" class="option-radio" id="option-{{ option_value|lower }}"
+                                           {% if answers and current_index|stringformat:"s" in answers and answers|get_item:current_index|stringformat:"s" == option_value %}checked{% endif %}>
+                                    <span class="option-label">○</span>
+                                    <span class="option-text">{{ option_text }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="bottom-section">
+                            <div class="navigation-section">
+                                {% if current_index < total_questions|add:-1 %}
+                                    <button type="submit" class="nav-button primary" name="action" value="next">Save and Next</button>
+                                {% else %}
+                                    <!-- <button type="submit" class="nav-button primary save" name="action" onclick="submitTest()" value="save">Save and Submit</button> -->
+                                     <button type="submit" class="nav-button primary" name="action" value="next">Save and Submit</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </main>
+            <aside class="sidebar">
+                <div class="timer-card" id="timerCard">
+                    <div class="timer-display" id="timer">29:42</div>
+                    <div class="timer-label">Time Remaining</div>
+                </div>
+                <div class="submit-card">
+                    <button class="submit-btn" type="button" onclick="submitTest()">SUBMIT</button>
+                </div>
+                <div id="tab-switch-warning" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #ff4d4d; color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;">
+                    Warning: Switching tabs is not allowed. The next switch will auto-submit your test.
+                </div>
+                <p>Status: <span id="status">Recording...</span></p>
+                <p>Suspicious Activities: <span id="suspiciousCount">{{ test.suspicious_activity_count|default:0 }}</span></p>
+                <p>Resolution Mismatches: <span id="resolutionMismatchCount">{{ test.resolution_mismatch_count|default:0 }}</span></p>
+                <div id="video-container">
+                    <video id="webcam" autoplay muted></video>
+                    <canvas id="canvas"></canvas>
+                </div>
+            </aside>
+        </div>
+<!-- Freeze Popup -->
+<div id="freezePopup" style="
+    display:none; 
+    position:fixed; 
+    top:0; left:0; 
+    width:100%; height:100%; 
+    background:rgba(0,0,0,0.85); 
+    z-index:9999; 
+    color:white; 
+    font-size:20px; 
+    text-align:center; 
+    padding-top:5%;">
+    <div style="background:#f8d7da; padding:30px; border-radius:12px; display:inline-block; max-width:700px;">
+        <h2 style="color:#f70505;">⚠ Warning</h2>
+        <p style="color:#842029;">Our system has detected multiple faces during your exam session. Please ensure that only <strong>you</strong> are visible on the screen.</p>
+        <ul style="text-align:left; margin:20px auto; max-width:600px; line-height:1.6;color:#842029;">
+            <li>Sit in front of a plain background with enough lighting for facial recognition.</li>
+            <li>Make sure there are no mirrors, posters, images, or pictures behind you.</li>
+            <li>Ensure no one else enters the camera’s view.</li>
+            <li>Ensure the camera is <strong>not blocked</strong> and has a clear view of your face.</li>
+        </ul>
+        <p style="color:#f70505; font-weight:bold;">If multiple faces are detected again, your exam will be terminated immediately.</p>
+        
+        <!-- Close Button -->
+        <button id="freezeCloseBtn" style="
+            margin-top:20px; 
+            padding:10px 20px; 
+            background:#ffd001; 
+            color:#000; 
+            font-size:18px; 
+            border:none; 
+            border-radius:8px; 
+            cursor:pointer;">
+            Close
+        </button>
+    </div>
+    </div>
+    <script>
+        let tabSwitchCount = 0;
+        const csrfToken = '{{ csrf_token }}';
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') {
+                tabSwitchCount++;
+                if (tabSwitchCount >= 1 && tabSwitchCount < 3) {
+                    const warningDiv = document.getElementById('tab-switch-warning');
+                    warningDiv.style.display = 'block';
+                    setTimeout(() => {
+                        warningDiv.style.display = 'none';
+                    }, 5000);
+                } else if (tabSwitchCount >= 3) {
+                    fetch("{% url 'update_suspicious_activity' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: 'person_count=0'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            document.getElementById('suspiciousCount').innerText = data.suspicious_activity_count;
+                            window.location.href = "{% url 'submit_test' %}";
+                        } else {
+                            window.location.href = "{% url 'submit_test' %}";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating suspicious activity:', error);
+                        window.location.href = "{% url 'submit_test' %}";
+                    });
+                }
+            }
+        });
+
+        let alertDuration = {{ alert_duration }};
+
+        function showAlert(message, type = 'error') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.textContent = message;
+            alertContainer.className = `alert-message alert-${type}`;
+            alertContainer.style.display = 'block';
+            setTimeout(() => {
+                alertContainer.classList.add('alert-show');
+            }, 10);
+            setTimeout(() => {
+                alertContainer.classList.remove('alert-show');
+                setTimeout(() => {
+                    alertContainer.style.display = 'none';
+                }, 500);
+            }, alertDuration);
+        }
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showAlert("Right-click is disabled during the test.", "error");
+        });
+
+        document.addEventListener('cut', function(e) {
+            e.preventDefault();
+            showAlert("Cut action is disabled during the test.", "error");
+        });
+
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            showAlert("Copy action is disabled during the test.", "error");
+        });
+
+        document.addEventListener('paste', function(e) {
+            e.preventDefault();
+            showAlert("Paste action is disabled during the test.", "error");
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                (e.key === 'F12')
+            ) {
+                e.preventDefault();
+                showAlert("Opening developer tools is disabled during the test.", "error");
+            }
+        });
+
+        const questionStatus = {};
+        const totalQuestions = {{ total_questions }};
+        {% for i in question_range %}
+            questionStatus[{{ i }}] = {
+                attempted: {% if i|stringformat:"s" in answers and answers|get_item:i|stringformat:"s" %}true{% else %}false{% endif %}
+            };
+        {% endfor %}
+
+        function updateNavbarStats() {
+            const attemptedCount = Object.values(questionStatus).filter(q => q.attempted).length;
+            const leftCount = totalQuestions - attemptedCount;
+            document.getElementById('attemptedCount').textContent = attemptedCount;
+            document.getElementById('leftCount').textContent = leftCount;
+        }
+
+        let timeLeft = {{ remaining_time }} || 1799;
+        const timerElement = document.getElementById('timer');
+        const timerCard = document.getElementById('timerCard');
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        function updateTimer() {
+            timerElement.textContent = formatTime(timeLeft);
+            if (timeLeft <= 60) {
+                timerCard.classList.add('timer-critical');
+            } else if (timeLeft <= 300) {
+                timerCard.classList.add('timer-warning');
+            }
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                submitTest(true);
+            }
+        }
+
+        const timerInterval = setInterval(() => {
+            timeLeft -= 1;
+            updateTimer();
+        }, 1000);
+        updateTimer();
+
+        function selectOption(element, value) {
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            document.getElementById(`option-${value.toLowerCase()}`).checked = true;
+            questionStatus[{{ current_index }}].attempted = true;
+            updateNavbarStats();
+        }
+
+        function saveCurrentAnswer() {
+            const form = document.getElementById('testForm');
+            const formData = new FormData(form);
+            const answer = formData.get('answer');
+            questionStatus[{{ current_index }}].attempted = !!answer;
+            updateNavbarStats();
+        }
+
+        function submitTest(autoSubmit = false) {
+            const attemptedCount = Object.values(questionStatus).filter(q => q.attempted).length;
+            const suspiciousCount = parseInt(document.getElementById('suspiciousCount').textContent);
+            const resolutionMismatchCount = parseInt(document.getElementById('resolutionMismatchCount').textContent);
+            let proceed = autoSubmit;
+            if (!autoSubmit) {
+                const confirmMsg = `Are you sure you want to submit the test?\n\nAttempted: ${attemptedCount}/${totalQuestions}\nSuspicious Activities: ${suspiciousCount}\nResolution Mismatches: ${resolutionMismatchCount}`;
+                proceed = confirm(confirmMsg);
+            }
+            if (proceed) {
+                saveCurrentAnswer();
+                const form = document.getElementById('testForm');
+                form.action = "{% url 'submit_test' %}";
+                form.method = 'POST';
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'submit';
+                const suspiciousInput = document.createElement('input');
+                suspiciousInput.type = 'hidden';
+                suspiciousInput.name = 'suspicious_activity_count';
+                suspiciousInput.value = suspiciousCount;
+                const resolutionInput = document.createElement('input');
+                resolutionInput.type = 'hidden';
+                resolutionInput.name = 'resolution_mismatch_count';
+                resolutionInput.value = resolutionMismatchCount;
+                form.appendChild(actionInput);
+                form.appendChild(suspiciousInput);
+                form.appendChild(resolutionInput);
+                form.submit();
+            }
+        }
+
+        function confirmLogout() {
+            const attemptedCount = Object.values(questionStatus).filter(q => q.attempted).length;
+            const suspiciousCount = parseInt(document.getElementById('suspiciousCount').textContent);
+            const resolutionMismatchCount = parseInt(document.getElementById('resolutionMismatchCount').textContent);
+            const confirmMsg = `You have an active test in progress!\n\nAttempted: ${attemptedCount}/${totalQuestions}\nSuspicious Activities: ${suspiciousCount}\nResolution Mismatches: ${resolutionMismatchCount}\n\nDo you want to submit the test and logout?`;
+            if (confirm(confirmMsg)) {
+                saveCurrentAnswer();
+                const form = document.getElementById('testForm');
+                form.action = "{% url 'submit_test' %}";
+                form.method = 'POST';
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'submit_and_logout';
+                const suspiciousInput = document.createElement('input');
+                suspiciousInput.type = 'hidden';
+                suspiciousInput.name = 'suspicious_activity_count';
+                suspiciousInput.value = suspiciousCount;
+                const resolutionInput = document.createElement('input');
+                resolutionInput.type = 'hidden';
+                resolutionInput.name = 'resolution_mismatch_count';
+                resolutionInput.value = resolutionMismatchCount;
+                form.appendChild(actionInput);
+                form.appendChild(suspiciousInput);
+                form.appendChild(resolutionInput);
+                form.submit();
+            }
+        }
+
+        function showInstructions() {
+            const modal = document.getElementById('instructionsModal');
+            modal.style.display = 'block';
+        }
+
+        function hideInstructions() {
+            const modal = document.getElementById('instructionsModal');
+            modal.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkedOption = document.querySelector('input[name="answer"]:checked');
+            if (checkedOption) {
+                checkedOption.closest('.option-item').classList.add('selected');
+            }
+            updateNavbarStats();
+        });
+    // Cam Code
+    const video = document.getElementById('webcam');
+    const statusEl = document.getElementById('status');
+    const suspiciousCountEl = document.getElementById('suspiciousCount');
+    const resolutionMismatchCountEl = document.getElementById('resolutionMismatchCount');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let model;
+    let lastAlertTime = 0;
+    const alertCooldown = {{ alert_cooldown }}; // default; // 15 seconds cooldown between alerts
+    let modelPaused = false; // pause detection when popup shows
+
+
+    // Show Freeze Popup with dynamic timer
+    function showFreezePopup(timeLeft) {
+        modelPaused = true;
+        const popup = document.getElementById('freezePopup');
+        const timerEl = document.getElementById('freezeTimer');
+        popup.style.display = "block";
+
+        timerEl.textContent = timeLeft;
+
+        let countdown = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                popup.style.display = "none";
+                modelPaused = false;
+            }
+        }, 1000);
+    }
+
+    document.getElementById("freezeCloseBtn").addEventListener("click", () => {
+    document.getElementById("freezePopup").style.display = "none";
+    modelPaused = false; // resume detection when closed
+    });
+    // Setup webcam
+    async function setupWebcam() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            return new Promise((resolve) => {
+                video.onloadeddata = () => resolve();
+            });
+        } catch (error) {
+            console.error("Error accessing the webcam:", error);
+            statusEl.textContent = "Error: Could not access webcam. Please ensure you're on a secure context (HTTPS or localhost) and have granted permission.";
+
+        }
+    }
+
+        async function detectFrame() {
+            if (modelPaused) {
+                requestAnimationFrame(detectFrame);
+                return;
+            }
+
+            const predictions = await model.detect(video);
+            let personCount = 0;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (const prediction of predictions) {
+                if (prediction.class === 'person' && prediction.score > 0.5) {
+                    personCount++;
+                    const [x, y, width, height] = prediction.bbox;
+                    ctx.beginPath();
+                    ctx.rect(x, y, width, height);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#00FF00';
+                    ctx.fillStyle = '#00FF00';
+                    ctx.stroke();
+                    ctx.fillText('Person', x, y > 10 ? y - 5 : y + 10);
+                }
+            }
+
+            const currentTime = Date.now();
+            if ((personCount === 0 || personCount > 1) && currentTime - lastAlertTime > alertCooldown) {
+                lastAlertTime = currentTime;
+
+                const formData = new FormData();
+                formData.append('person_count', personCount);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                fetch("{% url 'update_suspicious_activity' %}", {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        suspiciousCountEl.textContent = data.suspicious_activity_count;
+                        if (data.auto_submit) {
+                            submitTest(true);
+                        } else if (data.freeze_popup) {
+                            showFreezePopup(data.freeze_timer);
+                        } else if (personCount === 0) {
+                            showAlert("No person detected! Please ensure you are visible in the webcam.");
+                            statusEl.textContent = "No Person Detected";
+                            statusEl.style.color = "red";
+                        } else if (personCount > 1) {
+                            showAlert("Multiple persons detected! Only one person should be visible during the test.");
+                            statusEl.textContent = "Multiple Persons Detected";
+                            statusEl.style.color = "red";
+                        }
+                    } else {
+                        console.error('Failed to update suspicious activity:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error updating suspicious activity:', error));
+            } else if (personCount === 1) {
+                statusEl.textContent = "Person Detected!";
+                statusEl.style.color = "green";
+            } else {
+                statusEl.textContent = "No Person Detected";
+                statusEl.style.color = "red";
+            }
+
+            requestAnimationFrame(detectFrame);
+        }
+
+        function isBrowserMaximized() {
+            const availWidth = window.screen.availWidth;
+            const availHeight = window.screen.availHeight;
+            const browserWidth = window.innerWidth;
+            const browserHeight = window.innerHeight;
+            const heightDiff = availHeight - browserHeight;
+            const widthDiff = availWidth - browserWidth;
+            const isMaximized = widthDiff <= 5 && heightDiff >= 80 && heightDiff <= 150;
+
+            if (isMaximized) {
+                console.log("✅ Browser looks maximized");
+            } else {
+                console.log("❌ Browser is not maximized");
+                console.log(`Avail: ${availWidth}x${availHeight}, Browser: ${browserWidth}x${browserHeight}, diff=${heightDiff}px`);
+
+                fetch("{% url 'update_resolution_mismatch' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: ''
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        resolutionMismatchCountEl.textContent = data.resolution_mismatch_count;
+                        if (data.resolution_mismatch_count < 3) {
+                            const remaining = 3 - data.resolution_mismatch_count;
+                            showAlert(
+                                `Browser window is not maximized. Please maximize the window. The test will auto-submit after ${remaining} more mismatch${remaining > 1 ? 'es' : ''}.`,
+                                "error"
+                            );
+                            setTimeout(() => {
+                                if (typeof hideAlert === "function") {
+                                    hideAlert();
+                                }
+                            }, 5000);
+                        } else if (data.resolution_mismatch_count >= 3) {
+                            submitTest(true);
+                        }
+                    } else {
+                        console.error('Failed to update resolution mismatch:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking resolution mismatch:', error);
+                });
+            }
+        }
+
+        isBrowserMaximized();
+        setInterval(isBrowserMaximized, 10000);// Every 10 seconds
+
+        async function init() {
+            await setupWebcam();
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            statusEl.textContent = "Recording...";
+            model = await cocoSsd.load();
+            statusEl.textContent = "Recording. Starting detection...";
+            video.play();
+            detectFrame();
+        }
+
+        init();
+    </script>
+    <script src="/static/js/tenserflow.js"></script>
+    <script src="/static/js/coco-ssd.js"></script>
+</body>
+</html>

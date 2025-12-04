@@ -1,0 +1,111 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block extrastyle %}
+    <link href="{% static 'custom/css/add-user-admin-side.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h4 class="font-weight-bolder">Add New Employee</h4>
+          <p class="mb-0 text-sm">Please fill all required (<span class="required">*</span>) details</p>
+        </div>
+        <div class="card-body pt-4">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="add_employee" value="1">
+            
+            <!-- Personal Information -->
+            <div class="section-header">
+              <i class="fas fa-user me-2"></i>Personal Information
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Name <span class="required">*</span></label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                  <div class="text-danger small">{{ form.name.errors.0 }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Username <span class="required">*</span></label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                  <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="section-header">
+              <i class="fas fa-lock me-2"></i>Account Information
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Email <span class="required">*</span></label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                  <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                {% endif %}
+              </div>
+             
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Password <span class="required">*</span></label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                  <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Confirm Password <span class="required">*</span></label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                  <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <!-- Department Information -->
+            <div class="section-header">
+              <i class="fas fa-building me-2"></i>Department Information
+            </div>
+              <div class="col-md-6">
+                <label class="form-label">Department <span class="required">*</span></label>
+                {{ form.department }}
+                {% if form.department.errors %}
+                  <div class="text-danger small">{{ form.department.errors.0 }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary btn-lg">Add Employee</button>
+              <a href="{% url 'manage_employees' %}" class="btn bg-gradient-dark btn-lg">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'custom/css/language-selection.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Choose a Programming Language for Technical Test</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            {% for lang in programming_languages %}
+            <div class="col-md-5 mb-3">
+                <div class="form-check p-3 border rounded shadow-sm bg-white hover-shadow">
+                    <input class="form-check-input" type="radio" name="programming_language" 
+                           id="lang_{{ lang.language_id }}" value="{{ lang.language_id }}" required>
+                    <label class="form-check-label w-100" for="lang_{{ lang.language_id }}">
+                        <div class="d-flex align-items-center">
+                            <i class="{{ lang.icon_class }} fa-2x me-3 text-primary"></i>
+                            <div>
+                                <h5 class="mb-1">{{ lang.display_name }}</h5>
+                                <small class="text-muted">{{ lang.description }}</small>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-4 py-2">
+                <i class="fas fa-arrow-right me-2"></i>Proceed to Instructions
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

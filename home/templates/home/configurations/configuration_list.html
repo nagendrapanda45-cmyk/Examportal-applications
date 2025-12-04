@@ -1,0 +1,133 @@
+{% extends 'layouts/base.html' %}
+{% load i18n static %}
+ 
+{% block title %} Manage Configurations {% endblock title %}
+ 
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-body px-0 pb-2">
+                    <div class="px-3 pt-3">
+                        <form method="GET" action="{% url 'configuration_list' %}">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-6 col-lg-6">
+                                    <input type="text" name="key_query" class="form-control" placeholder="Search by Key" value="{{ request.GET.key_query|default:'' }}">
+                                </div>
+                               
+                                <div class="col-auto">
+                                    <button type="submit" class="btn bg-gradient-dark mb-0">Search</button>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="{% url 'configuration_list' %}" class="btn bg-gradient-secondary mb-0">Reset</a>
+                                </div>
+                                <div class="col text-end">
+                                    <a class="btn bg-gradient-dark mb-0" href="{% url 'configuration_add' %}">
+                                        <i class="material-symbols-rounded text-sm"></i>
+                                        Add Configuration
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+  <!-- Configuration Table -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Configuration List</h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Key</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Value</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Created</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Updated</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for config in page_obj %}
+                <tr>
+                  <td><h6 class="mb-0 text-sm">{{ config.display_key }}</h6></td>
+                  <td><p class="text-xs font-weight-bold mb-0">{{ config.value|truncatechars:30 }}</p></td>
+                  <td>
+                    <span class="badge badge-sm bg-gradient-{{ config.deleted|yesno:'secondary,success' }}">
+                      {{ config.deleted|yesno:"Inactive,Active" }}
+                    </span>
+                  </td>
+                  <td><p class="text-xs font-weight-bold mb-0">{{ config.created_date|date:"M d, Y" }}</p></td>
+                  <td><p class="text-xs font-weight-bold mb-0">{{ config.updated_date|date:"M d, Y" }}</p></td>
+                  <td class="align-middle">
+                    <a href="{% url 'configuration_edit' config.id %}" class="btn btn-sm btn-primary me-1 mb-0">EDIT</a>
+                    <a href="{% url 'configuration_delete' config.id %}" class="btn btn-sm btn-dark mb-0"
+                       onclick="return confirm('Are you sure you want to delete {{ config.display_key }}?');">
+                      DELETE
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-4">
+                    <h6 class="text-secondary">No configurations found.</h6>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+ 
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.key_query %}&key_query={{ request.GET.key_query }}{% endif %}">
+                  <span aria-hidden="true">«</span>
+                </a>
+              </li>
+              {% endif %}
+ 
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.key_query %}&key_query={{ request.GET.key_query }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+              {% endfor %}
+ 
+              {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.key_query %}&key_query={{ request.GET.key_query }}{% endif %}">
+                  <span aria-hidden="true">»</span>
+                </a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+ 
+  {% include 'includes/footer.html' %}
+</div>
+{% endblock %}
+ 

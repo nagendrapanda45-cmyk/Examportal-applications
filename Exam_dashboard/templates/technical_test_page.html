@@ -1,0 +1,1119 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Technical Test - {{ selected_language }} - Exam Portal{% endblock %}
+{% block content %}
+
+
+<style>
+    .navigation-section {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 15px;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 2% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 70%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-radius: 5px;
+    }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    .close {
+        color: #aaa;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .instruction-item {
+        margin-bottom: 15px;
+    }
+    .instruction-item h3 {
+        font-size: 1.2rem;
+        margin: 0 0 5px 0;
+    }
+    .instruction-item p {
+        margin: 0;
+        font-size: 1rem;
+        color: #333;
+    }
+    .alert-message {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+    .alert-error {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 1px solid #ef9a9a;
+    }
+    .alert-success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+    }
+    .alert-show {
+        opacity: 1;
+    }
+    #video-container {
+        position: relative;
+        margin: 15px auto;
+        width: 300px;
+        height: 220px;
+        border: 2px solid #333;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    #webcam {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+    }
+    #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+    }
+    #status {
+        margin-top: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+    }
+    .option-item {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .option-radio {
+        display: none;
+    }
+    .option-label {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #000;
+        border-radius: 50%;
+        margin-right: 10px;
+        text-align: center;
+        line-height: 16px;
+        font-size: 16px;
+    }
+    .option-item.selected .option-label {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+    }
+    .option-text {
+    font-family: monospace;
+    background-color: #f4f4f4;
+    padding: 2px 4px;
+    border-radius: 3px;
+    display: inline-block;
+    }
+
+    /* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Spinner */
+.loader {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+/* Animation for spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+ <!-- Loader Overlay -->
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loader"></div>
+</div>
+
+<div id="alertContainer" class="alert-message" style="display: none;"></div>
+
+<div class="navbar">
+    <a class="navbar-brand" href="#">
+        <i class="fas fa-graduation-cap me-2"></i>Exam Portal
+    </a>
+    <div class="navbar-stats">
+        <div class="stat-item stat-attempted">
+            <div class="stat-color"></div>
+            <div class="stat-text">Attempted: <span id="attemptedCount">0</span> / <span id="totalQuestionsHeader">0</span></div>
+        </div>
+        <div class="stat-item stat-left">
+            <div class="stat-color"></div>
+            <div class="stat-text">Not Attempted: <span id="leftCount">0</span> / <span id="totalQuestions">0</span></div>
+        </div>
+    </div>
+    <div class="navbar-actions">
+        <span class="navbar-text">
+            <i class="fas fa-user"></i>
+            Welcome <span id="userFirstName">{{ user.first_name }}</span>
+        </span>
+        <button type="button" class="btn btn-logout" onclick="showInstructions()">
+            <i class="fas fa-info-circle"></i>
+            Instructions
+        </button>
+    </div>
+</div>
+
+<div id="instructionsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Test Instructions</h2>
+            <span class="close" onclick="hideInstructions()">&times;</span>
+        </div>
+        <div class="modal-body" id="instructionsContent">
+            <!-- Instructions populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<div class="main-wrapper">
+    <main class="main-content">
+        <div class="test-header">
+            <h1 class="test-title">Technical Test - <span id="selectedLanguage">{{ selected_language }}</span></h1>
+            <div class="question-counter">Q.<span id="currentQuestionIndex">1</span>/<span id="totalQuestionsHeader2">0</span></div>
+        </div>
+
+        <div class="question-section">
+            <div class="question-text" id="questionText"></div>
+            <form id="testForm">
+                {% csrf_token %}
+                <input type="hidden" name="question_index" id="questionIndex" value="0">
+                <div class="options-container" id="optionsContainer">
+                    <h3>Questions Loading ..... Please Wait....</h3>
+                    <!-- Options populated dynamically -->
+                </div>
+                <div class="review-checkbox" id="reviewCheckbox" style="display: none;">
+                    <input type="checkbox" id="markReview" name="mark_review" style="display: none;">
+                    <label for="markReview"></label>
+                </div>
+                <div id="editor" style="display: none; height: 300px; font-size: 1rem; width: 90%; border: 1px solid #ccc;"></div>
+                <input type="hidden" name="answer" id="answer" value="">
+                <div class="bottom-section">
+                    <div class="navigation-section">
+                        <button type="button" id="prevButton" class="nav-button" onclick="navigateQuestion(-1)" style="display: none;">Previous</button>
+                        <button type="button" id="nextButton" class="nav-button primary" onclick="navigateQuestion(1)">Save and Next</button>
+                        <button type="button" id="submitButton" class="nav-button primary save" onclick="submitTest()" style="display: none;">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <aside class="sidebar">
+        <div class="timer-card" id="timerCard">
+            <div class="timer-display" id="timer">30:00</div>
+            <div class="timer-label">Time Remaining</div>
+        </div>
+        <div class="submit-card">
+            <button class="submit-btn" type="button" onclick="submitTest()">SUBMIT</button>
+        </div>
+        <div id="tab-switch-warning" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #ff4d4d; color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;">
+            Warning: Tab switch detected! Please stay on the test page.
+        </div>
+        <p>Status: <span id="status">Recording...</span></p>
+        <p>Suspicious Activities: <span id="suspiciousCount">{{ test.suspicious_activity_count|default:0 }}</span></p>
+        <p>Resolution Mismatches: <span id="resolutionMismatchCount">{{ test.resolution_mismatch_count|default:0 }}</span></p>
+        <div id="video-container">
+            <video id="webcam" autoplay muted></video>
+            <canvas id="canvas"></canvas>
+        </div>
+    </aside>
+
+<!-- Freeze Popup -->
+<div id="freezePopup" style="
+    display:none; 
+    position:fixed; 
+    top:0; left:0; 
+    width:100%; height:100%; 
+    background:rgba(0,0,0,0.85); 
+    z-index:9999; 
+    color:white; 
+    font-size:20px; 
+    text-align:center; 
+    padding-top:5%;">
+    <div style="background:#f8d7da; padding:30px; border-radius:12px; display:inline-block; max-width:700px;">
+        <h2 style="color:#f70505;">⚠ Warning</h2>
+        <p style="color:#842029;">Our system has detected multiple faces during your exam session. Please ensure that only <strong>you</strong> are visible on the screen.</p>
+        <ul style="text-align:left; margin:20px auto; max-width:600px; line-height:1.6;color:#842029;">
+            <li>Sit in front of a plain background with enough lighting for facial recognition.</li>
+            <li>Make sure there are no mirrors, posters, images, or pictures behind you.</li>
+            <li>Ensure no one else enters the camera’s view.</li>
+            <li>Ensure the camera is <strong>not blocked</strong> and has a clear view of your face.</li>
+        </ul>
+        <p style="color:#f70505; font-weight:bold;">If multiple faces are detected again, your exam will be terminated immediately.</p>
+        <!-- <p style="color:#f70505;">Please wait <span id="freezeTimer">15</span> seconds before continuing...</p> -->
+        <!-- Close Button -->
+        <button id="freezeCloseBtn" style="
+            margin-top:20px; 
+            padding:10px 20px; 
+            background:#ffd001; 
+            color:#000; 
+            font-size:18px; 
+            border:none; 
+            border-radius:8px; 
+            cursor:pointer;">
+            Close
+        </button>
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+<script src="{% static 'js/tenserflow.js' %}"></script>
+<script src="{% static 'js/coco-ssd.js' %}"></script>
+<script>
+// Initial test data from server
+const initialData = {
+    test_id: '{{ test.test_id }}',
+    remaining_time: {{ test.duration_minutes|default:30|add:0 }} * 60,
+    alert_duration: {{ alert_duration }},
+    alert_cooldown: {{ alert_cooldown }},
+    csrf_token: '{{ csrf_token }}',
+    selected_language: '{{ selected_language }}',
+    user_first_name: '{{ user.first_name }}'
+};
+
+// Initialize test state
+let testState = {
+    test_id: initialData.test_id,
+    questions: [],
+    answers: {},
+    marked_for_review: {},
+    current_index: 0,
+    total_questions: 0,
+    time_left: initialData.remaining_time,
+    suspicious_activity_count: parseInt(document.getElementById('suspiciousCount').textContent),
+    resolution_mismatch_count: parseInt(document.getElementById('resolutionMismatchCount').textContent),
+    instructions: []
+};
+
+// Load test data on page load
+async function initTest() {
+    try {
+            // Show loader
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        // Check for existing test state in localStorage
+        const savedState = localStorage.getItem('testState');
+        if (savedState) {
+            const parsedState = JSON.parse(savedState);
+            if (parsedState.test_id === initialData.test_id) {
+                testState = {
+                    ...testState,
+                    ...parsedState,
+                    suspicious_activity_count: parseInt(document.getElementById('suspiciousCount').textContent),
+                    resolution_mismatch_count: parseInt(document.getElementById('resolutionMismatchCount').textContent)
+                };
+                if (!testState.questions || testState.questions.length === 0) {
+                    await fetchTestData();
+                }
+            } else {
+                localStorage.removeItem('testState');
+                await fetchTestData();
+            }
+        } else {
+            await fetchTestData();
+        }
+
+        // Update UI with initial data
+        document.getElementById('userFirstName').textContent = initialData.user_first_name;
+        document.getElementById('selectedLanguage').textContent = initialData.selected_language;
+
+        // Populate instructions
+        const instructionsContent = document.getElementById('instructionsContent');
+        instructionsContent.innerHTML = testState.instructions.map(ins => `
+            <div class="instruction-item">
+                <h3>${ins.title}</h3>
+                <div class="content">${ins.content}</div>
+            </div>
+        `).join('');
+
+        // Initialize UI
+        updateNavbarStats();
+        displayQuestion(testState.current_index);
+        updateTimer();
+        localStorage.setItem('testState', JSON.stringify(testState));
+    } catch (error) {
+        showAlert('Error initializing test: ' + error.message, 'error');
+        console.error(error);
+    } finally {
+        // Hide loader
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+}
+
+// Fetch test data from server
+async function fetchTestData() {
+    try {
+        // Show loader
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        const response = await fetch("{% url 'start_technical_test' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': initialData.csrf_token
+            },
+            body: JSON.stringify({ language: initialData.selected_language })
+        });
+        const data = await response.json();
+        if (data.error) {
+            showAlert(data.error, 'error');
+            setTimeout(() => window.location.href = "{% url 'select_language' %}", 3000);
+            return;
+        }
+
+        testState.questions = data.questions;
+        testState.total_questions = data.questions.length;
+        testState.instructions = data.instructions;
+        testState.answers = testState.answers || {};
+        testState.marked_for_review = testState.marked_for_review || {};
+        document.getElementById('totalQuestionsHeader').textContent = testState.total_questions;
+        document.getElementById('totalQuestionsHeader2').textContent = testState.total_questions;
+        document.getElementById('totalQuestions').textContent = testState.total_questions;
+        localStorage.setItem('testState', JSON.stringify(testState));
+    } catch (error) {
+        showAlert('Error fetching test data: ' + error.message, 'error');
+        console.error(error);
+    }
+    finally {
+        // Hide loader
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+}
+
+// Initialize code editor for coding questions
+let editor;
+function initializeCodeEditor() {
+    try {
+        editor = ace.edit("editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/" + initialData.selected_language.toLowerCase());
+        editor.setValue(testState.answers[testState.current_index]?.user_answer || "// Write your code here\n");
+        editor.on("change", function() {
+            document.getElementById("answer").value = editor.getValue();
+            testState.answers[testState.current_index] = {
+                question_id: testState.questions[testState.current_index].question_id,
+                user_answer: editor.getValue(),
+                mark_review: testState.marked_for_review[testState.current_index] || false,
+                start_time: testState.answers[testState.current_index]?.start_time || new Date().toISOString(),
+                end_time: new Date().toISOString()
+            };
+            updateNavbarStats();
+            localStorage.setItem('testState', JSON.stringify(testState));
+        });
+        editor.commands.removeCommand('cut');
+        editor.commands.removeCommand('copy');
+        editor.commands.removeCommand('paste');
+        editor.container.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showAlert("Right-click is disabled in the code editor.", "error");
+        });
+    } catch (error) {
+        console.error("Error initializing code editor:", error);
+        showAlert("Error initializing code editor.", "error");
+    }
+}
+
+// Function to escape HTML characters
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;')
+             .replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;')
+             .replace(/"/g, '&quot;')
+             .replace(/'/g, '&#39;');
+}
+
+// Modified displayQuestion function
+function displayQuestion(index) {
+    try {
+        // Save end_time for current before switching
+        if (testState.current_index !== index && testState.answers[testState.current_index]) {
+            testState.answers[testState.current_index].end_time = new Date().toISOString();
+        }
+
+        testState.current_index = index;
+        const question = testState.questions[index];
+        if (!question) {
+            showAlert("No question available at this index.", "error");
+            return;
+        }
+
+        // Initialize timing data for this question
+        if (!testState.answers[index]) {
+            testState.answers[index] = {
+                question_id: question.question_id,
+                user_answer: '',
+                mark_review: false,
+                start_time: new Date().toISOString(),
+                end_time: null
+            };
+        } else {
+            if (!testState.answers[index].start_time) {
+                testState.answers[index].start_time = new Date().toISOString();
+            }
+        }
+
+        // Update UI
+        document.getElementById('questionText').innerHTML = question.question_text || "No question text available";
+        document.getElementById('currentQuestionIndex').textContent = index + 1;
+
+        // Show/hide code editor or options based on question type
+        const optionsContainer = document.getElementById('optionsContainer');
+        const editorContainer = document.getElementById('editor');
+        const reviewCheckbox = document.getElementById('reviewCheckbox');
+        if (question.is_multichoice) {
+            editorContainer.style.display = 'none';
+            reviewCheckbox.style.display = 'block';
+            optionsContainer.style.display = 'block';
+
+            // Shuffle options if not already saved
+            let optionOrder = localStorage.getItem(`option_order_${index}`);
+            if (!optionOrder) {
+                const options = ['A', 'B', 'C', 'D'].filter(opt => question[`option_${opt.toLowerCase()}`]);
+                optionOrder = shuffleArray(options).join(',');
+                localStorage.setItem(`option_order_${index}`, optionOrder);
+            }
+            const orderArray = optionOrder.split(',');
+            optionsContainer.innerHTML = orderArray.map(option => `
+                <div class="option-item ${testState.answers[index]?.user_answer === option ? 'selected' : ''}" 
+                     onclick="selectOption(this, '${option}')" data-value="${option}" tabindex="0">
+                    <input type="radio" name="answer" value="${option}" class="option-radio" id="option-${option.toLowerCase()}"
+                        ${testState.answers[index]?.user_answer === option ? 'checked' : ''}>
+                    <span class="option-label" aria-hidden="true">○</span>
+                    <span class="option-text">${escapeHTML(question[`option_${option.toLowerCase()}`])}</span>
+                </div>
+            `).join('');
+            document.getElementById('markReview').checked = testState.marked_for_review[index] || false;
+        } else {
+            optionsContainer.style.display = 'none';
+            reviewCheckbox.style.display = 'none';
+            editorContainer.style.display = 'block';
+            initializeCodeEditor();
+        }
+
+        // Update navigation buttons
+        // document.getElementById('prevButton').style.display = index > 0 ? 'inline-block' : 'none';
+        document.getElementById('nextButton').style.display = index < testState.total_questions - 1 ? 'inline-block' : 'none';
+        document.getElementById('submitButton').style.display = index === testState.total_questions - 1 ? 'inline-block' : 'none';
+
+        localStorage.setItem('testState', JSON.stringify(testState));
+    } catch (error) {
+        console.error("Error displaying question:", error);
+        showAlert("Error displaying question: " + error.message, "error");
+    }
+}
+
+// Shuffle array for option randomization
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Navigate to next/previous question
+function navigateQuestion(direction) {
+    try {
+        saveCurrentAnswer();
+        const newIndex = testState.current_index + direction;
+        if (newIndex >= 0 && newIndex < testState.total_questions) {
+            displayQuestion(newIndex);
+            localStorage.setItem('testState', JSON.stringify(testState));
+        } else if (newIndex >= testState.total_questions) {
+            submitTest();
+        }
+    } catch (error) {
+        console.error("Error navigating question:", error);
+        showAlert("Error navigating question: " + error.message, "error");
+    }
+}
+
+// Save current answer
+function saveCurrentAnswer() {
+    try {
+        const question = testState.questions[testState.current_index];
+        if (!question) return;
+
+        let answer;
+        if (question.is_multichoice) {
+            answer = document.querySelector('input[name="answer"]:checked')?.value || '';
+        } else {
+            answer = document.getElementById('answer').value;
+        }
+        const markReview = document.getElementById('markReview')?.checked || false;
+
+        testState.answers[testState.current_index] = {
+            question_id: question.question_id,
+            user_answer: answer,
+            mark_review: markReview,
+            start_time: testState.answers[testState.current_index]?.start_time || new Date().toISOString(),
+            end_time: new Date().toISOString()
+        };
+        testState.marked_for_review[testState.current_index] = markReview;
+        updateNavbarStats();
+        localStorage.setItem('testState', JSON.stringify(testState));
+    } catch (error) {
+        console.error("Error saving answer:", error);
+        showAlert("Error saving answer: " + error.message, "error");
+    }
+}
+
+// Update navbar stats
+function updateNavbarStats() {
+    try {
+        const attemptedCount = Object.values(testState.answers).filter(a => a.user_answer).length;
+        document.getElementById('attemptedCount').textContent = attemptedCount;
+        document.getElementById('leftCount').textContent = testState.total_questions - attemptedCount;
+    } catch (error) {
+        console.error("Error updating navbar stats:", error);
+        showAlert("Error updating navbar stats: " + error.message, "error");
+    }
+}
+
+// Timer logic
+function updateTimer() {
+    try {
+        const timerElement = document.getElementById('timer');
+        const timerCard = document.getElementById('timerCard');
+        const formatTime = seconds => {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        };
+        timerElement.textContent = formatTime(testState.time_left);
+        if (testState.time_left <= 60) {
+            timerCard.classList.add('timer-critical');
+        } else if (testState.time_left <= 300) {
+            timerCard.classList.add('timer-warning');
+        } else {
+            timerCard.classList.remove('timer-critical', 'timer-warning');
+        }
+        if (testState.time_left <= 0) {
+            clearInterval(timerInterval);
+            submitTest(true);
+        }
+    } catch (error) {
+        console.error("Error updating timer:", error);
+        showAlert("Error updating timer: " + error.message, "error");
+    }
+}
+
+const timerInterval = setInterval(() => {
+    testState.time_left -= 1;
+    updateTimer();
+    localStorage.setItem('testState', JSON.stringify(testState));
+}, 1000);
+
+// Select option
+function selectOption(element, value) {
+    try {
+        document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+        element.classList.add('selected');
+        document.getElementById(`option-${value.toLowerCase()}`).checked = true;
+        saveCurrentAnswer();
+    } catch (error) {
+        console.error("Error selecting option:", error);
+        showAlert("Error selecting option: " + error.message, "error");
+    }
+}
+
+// Submit test
+async function submitTest(autoSubmit = false) {
+    try {
+        saveCurrentAnswer();
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        const attemptedCount = Object.values(testState.answers).filter(a => a.user_answer).length;
+        const confirmMsg = `Are you sure you want to submit the test?\n\nAttempted: ${attemptedCount}/${testState.total_questions}\nSuspicious Activities: ${testState.suspicious_activity_count}\nResolution Mismatches: ${testState.resolution_mismatch_count}`;
+
+        if (autoSubmit || confirm(confirmMsg)) {
+            // 🔹 Reformat answers to {question_id: {user_answer, mark_review, start_time, end_time}}
+            const formattedAnswers = {};
+            Object.values(testState.answers).forEach(a => {
+                if (a && a.question_id) {
+                    formattedAnswers[a.question_id] = {
+                        user_answer: a.user_answer,
+                        mark_review: a.mark_review,
+                        start_time: a.start_time,
+                        end_time: a.end_time
+                    };
+                }
+            });
+
+            const response = await fetch("{% url 'submit_technical_test' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': initialData.csrf_token
+                },
+                body: JSON.stringify({
+                    answers: formattedAnswers,
+                    suspicious_activity_count: testState.suspicious_activity_count,
+                    resolution_mismatch_count: testState.resolution_mismatch_count
+                })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                showAlert(data.message, 'success');
+                localStorage.removeItem('testState');
+                setTimeout(() => window.location.href = "{% url 'test_selection' %}", 3000);
+            } else {
+                showAlert(data.error || 'Unknown error occurred', 'error');
+            }
+        }
+    } catch (error) {
+        console.error("Error submitting test:", error);
+        showAlert('Error submitting test: ' + error.message, 'error');
+    }
+    finally {
+        // Hide loader
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+}
+    // Logout and submit
+
+    // Alert handling
+    function showAlert(message, type = 'error') {
+        try {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.textContent = message;
+            alertContainer.className = `alert-message alert-${type}`;
+            alertContainer.style.display = 'block';
+            setTimeout(() => {
+                alertContainer.classList.add('alert-show');
+            }, 10);
+            setTimeout(() => {
+                alertContainer.classList.remove('alert-show');
+                setTimeout(() => {
+                    alertContainer.style.display = 'none';
+                }, 500);
+            }, initialData.alert_duration);
+        } catch (error) {
+            console.error("Error showing alert:", error);
+        }
+    }
+
+    // Instructions modal
+    function showInstructions() {
+        try {
+            document.getElementById('instructionsModal').style.display = 'block';
+        } catch (error) {
+            console.error("Error showing instructions:", error);
+            showAlert("Error showing instructions.", "error");
+        }
+    }
+
+    function hideInstructions() {
+        try {
+            document.getElementById('instructionsModal').style.display = 'none';
+        } catch (error) {
+            console.error("Error hiding instructions:", error);
+            showAlert("Error hiding instructions.", "error");
+        }
+    }
+
+    // Event listeners for restricted actions
+    document.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        showAlert("Right-click is disabled during the test.", "error");
+    });
+
+    document.addEventListener('cut', e => {
+        e.preventDefault();
+        showAlert("Cut action is disabled during the test.", "error");
+    });
+
+    document.addEventListener('copy', e => {
+        e.preventDefault();
+        showAlert("Copy action is disabled during the test.", "error");
+    });
+
+    document.addEventListener('paste', e => {
+        e.preventDefault();
+        showAlert("Paste action is disabled during the test.", "error");
+    });
+
+    document.addEventListener('keydown', e => {
+        if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || e.key === 'F12') {
+            e.preventDefault();
+            showAlert("Opening developer tools is disabled during the test.", "error");
+        }
+    });
+
+    // Webcam and suspicious activity monitoring
+    const video = document.getElementById('webcam');
+    const statusEl = document.getElementById('status');
+    const suspiciousCountEl = document.getElementById('suspiciousCount');
+    const resolutionMismatchCountEl = document.getElementById('resolutionMismatchCount');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let model;
+    let lastAlertTime = 0;
+    let modelPaused = false;
+
+    const configData = {
+    freeze_threshold: {{ freeze_threshold }},
+    max_freeze_count: {{ max_freeze_count }},
+    freeze_timer: {{ freeze_timer }},
+    alert_cooldown: {{ alert_cooldown }},
+    max_resolution_mismatches: {{ max_resolution_mismatches }},
+    };
+
+        function showFreezePopup() {
+        try {
+            modelPaused = true;
+            const popup = document.getElementById('freezePopup');
+            const timerEl = document.getElementById('freezeTimer'); // may be null
+            popup.style.display = "block";
+
+            let timeLeft = initialData.alert_cooldown / 1000;
+
+            // Only update timer if it's present in DOM
+            if (timerEl) {
+                timerEl.textContent = timeLeft;
+            }
+
+            let countdown = setInterval(() => {
+                timeLeft--;
+                if (timerEl) {
+                    timerEl.textContent = timeLeft;
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    popup.style.display = "none";
+                    modelPaused = false;
+                }
+            }, 1000);
+        } catch (error) {
+            console.error("Error showing freeze popup:", error);
+            showAlert("Error showing freeze popup.", "error");
+        }
+    }
+
+
+    document.getElementById("freezeCloseBtn").addEventListener("click", () => {
+        try {
+            document.getElementById("freezePopup").style.display = "none";
+            modelPaused = false;
+        } catch (error) {
+            console.error("Error closing freeze popup:", error);
+            showAlert("Error closing freeze popup.", "error");
+        }
+    });
+
+    async function setupWebcam() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            return new Promise(resolve => {
+                video.onloadeddata = () => resolve();
+            });
+        } catch (error) {
+            console.error("Error accessing the webcam:", error);
+            statusEl.textContent = "Error: Could not access webcam.";
+            showAlert("Error: Could not access webcam.", "error");
+        }
+    }
+
+    async function detectFrame() {
+        if (modelPaused) {
+            requestAnimationFrame(detectFrame);
+            return;
+        }
+
+        try {
+            const predictions = await model.detect(video);
+            let personCount = 0;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (const prediction of predictions) {
+                if (prediction.class === 'person' && prediction.score > 0.5) {
+                    personCount++;
+                    const [x, y, width, height] = prediction.bbox;
+                    ctx.beginPath();
+                    ctx.rect(x, y, width, height);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#00FF00';
+                    ctx.fillStyle = '#00FF00';
+                    ctx.stroke();
+                    ctx.fillText('Person', x, y > 10 ? y - 5 : y + 10);
+                }
+            }
+
+            const currentTime = Date.now();
+                if ((personCount === 0 || personCount > 1) && currentTime - lastAlertTime > configData.alert_cooldown) {
+                    lastAlertTime = currentTime;
+
+                    // Increment local suspicious activity
+                    testState.suspicious_activity_count += 1;
+                    localStorage.setItem('testState', JSON.stringify(testState));
+
+                    suspiciousCountEl.textContent = testState.suspicious_activity_count;
+
+                    // Check thresholds
+                    let freezePopup = false;
+                    let autoSubmit = false;
+
+                    if (testState.suspicious_activity_count % configData.freeze_threshold === 0 &&
+                        testState.suspicious_activity_count < configData.max_freeze_count) {
+                        freezePopup = true;
+                    }
+                    if (testState.suspicious_activity_count >= configData.max_freeze_count) {
+                        autoSubmit = true;
+                    }
+
+                    // Act accordingly
+                    if (autoSubmit) {
+                        submitTest(true);
+                    } else if (freezePopup) {
+                        showFreezePopup();
+                        // Optional: auto-hide freeze popup after freeze_timer
+                        setTimeout(() => {
+                            document.getElementById("freezePopup").style.display = "none";
+                            modelPaused = false;
+                        }, configData.freeze_timer * 1000);
+                    } else if (personCount === 0) {
+                        showAlert("No person detected! Please ensure you are visible in the webcam.");
+                        statusEl.textContent = "No Person Detected";
+                        statusEl.style.color = "red";
+                    } else if (personCount > 1) {
+                        showAlert("Multiple persons detected! Only one person should be visible during the test.");
+                        statusEl.textContent = "Multiple Persons Detected";
+                        statusEl.style.color = "red";
+                    }
+                } else if (personCount === 1) {
+                    statusEl.textContent = "Person Detected!";
+                    statusEl.style.color = "green";
+
+            } else {
+                statusEl.textContent = "No Person Detected";
+                statusEl.style.color = "red";
+            }
+
+            requestAnimationFrame(detectFrame);
+        } catch (error) {
+            console.error("Error in detectFrame:", error);
+            showAlert("Error in webcam detection: " + error.message, "error");
+        }
+    }
+
+            function isBrowserMaximized() { 
+            const availWidth = window.screen.availWidth;
+            const availHeight = window.screen.availHeight;
+            const browserWidth = window.innerWidth;
+            const browserHeight = window.innerHeight;
+
+            const heightDiff = availHeight - browserHeight;
+            const widthDiff = availWidth - browserWidth;
+
+            const isMaximized = widthDiff <= 5 && heightDiff >= 80 && heightDiff <= 150;
+
+            if (!isMaximized) {
+                // Increment counter in local state
+                testState.resolution_mismatch_count += 1;
+                localStorage.setItem('testState', JSON.stringify(testState));
+
+                resolutionMismatchCountEl.textContent = testState.resolution_mismatch_count;
+
+                if (testState.resolution_mismatch_count < configData.max_resolution_mismatches) {
+                    const remaining = configData.max_resolution_mismatches - testState.resolution_mismatch_count;
+                    showAlert(
+                        `Browser window is not maximized. Please maximize the window. The test will auto-submit after ${remaining} more mismatch${remaining > 1 ? 'es' : ''}.`,
+                        "error"
+                    );
+                } else if (testState.resolution_mismatch_count >= configData.max_resolution_mismatches) {
+                    submitTest(true);
+                }
+            }
+        }
+
+        setInterval(isBrowserMaximized, 10000); // check every 10s
+
+
+    function captureAndSendWebcamImage() {
+        try {
+            const video = document.getElementById('webcam');
+            if (!video || video.readyState !== 4) {
+                showAlert('Webcam not ready. Please ensure your camera is enabled.', 'error');
+                return;
+            }
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = video.videoWidth;
+            tempCanvas.height = video.videoHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+            const imageData = tempCanvas.toDataURL('image/jpeg');
+            fetch('{% url "captureScreenshot" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': initialData.csrf_token
+                },
+                body: 'image=' + encodeURIComponent(imageData) + '&photo_type=GT'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    showAlert('Failed to send webcam image: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Error sending webcam image: ' + error.message, 'error');
+            });
+        } catch (error) {
+            console.error("Error capturing webcam image:", error);
+            showAlert("Error capturing webcam image: " + error.message, "error");
+        }
+    }
+
+    setInterval(captureAndSendWebcamImage, 10 * 60 * 1000);
+
+    function getBrowserInfo() {
+    const userAgent = navigator.userAgent;
+    let browserName = userAgent.includes('Firefox') ? 'Mozilla Firefox' :
+                     userAgent.includes('Edg') ? 'Microsoft Edge' :
+                     userAgent.includes('Chrome') ? 'Google Chrome' :
+                     userAgent.includes('Safari') ? 'Apple Safari' :
+                     'Unknown Browser';
+    
+    if (!localStorage.getItem("browserLoggedForTT")) {
+            fetch("{% url 'log_browser' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': initialData.csrf_token
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ browser: browserName })
+                })
+                .then(response => {
+                        if (!response.ok) throw new Error("Network response was not ok");
+                        localStorage.setItem("browserLoggedForTT", "true"); // ✅ move here
+                        return response.json();
+                    })
+                // .then(response => response.json())
+                .then(data => {
+                    console.log("Browser logged:", data);
+                })
+                .catch(error => {
+                    console.error("Error logging browser:", error);
+                });
+    }
+}
+
+
+    let tabSwitchCount = 0;
+    document.addEventListener('visibilitychange', function() {
+        try {
+            if (document.visibilityState === 'hidden') {
+                tabSwitchCount++;
+                if (tabSwitchCount >= 3) {
+                    submitTest(true);
+                } else if (tabSwitchCount >= 1) {
+                    const warningDiv = document.getElementById('tab-switch-warning');
+                    warningDiv.style.display = 'block';
+                    setTimeout(() => {
+                        warningDiv.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        } catch (error) {
+            console.error("Error handling tab switch:", error);
+            showAlert("Error handling tab switch: " + error.message, "error");
+        }
+    });
+
+    async function init() {
+        try {
+            await setupWebcam();
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            statusEl.textContent = "Recording...";
+            model = await cocoSsd.load();
+            statusEl.textContent = "Recording. Starting detection...";
+            video.play();
+            getBrowserInfo();
+            detectFrame();
+            initTest();
+        } catch (error) {
+            console.error("Error initializing application:", error);
+            showAlert("Error initializing application: " + error.message, "error");
+        }
+    }
+
+    init();
+</script>
+{% endblock %}

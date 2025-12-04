@@ -1,0 +1,83 @@
+{% extends 'layouts/base.html' %}
+{% load i18n static %}
+ 
+{% block title %}Edit Test: {{ test.test_name }}{% endblock title %}
+ 
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h4 class="mb-0">Edit Test: {{ test.test_name }}</h4>
+        </div>
+        <div class="card-body">
+          <!-- Display messages if any -->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+ 
+          <!-- Test Information Display -->
+          <div class="mb-4">
+            <h5 class="mb-3">Test Information</h5>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <strong>User:</strong> {{ test.user.get_full_name|default:test.user.first_name|add:" "|add:test.user.last_name|default:"N/A" }}
+              </div>
+              <div class="col-md-6 mb-3">
+                <strong>Registration ID:</strong> {{ test.user.registration_id|default:"N/A" }}
+              </div>
+              <div class="col-md-6 mb-3">
+                <strong>Test Name:</strong> {{ test.test_name }}
+              </div>
+              <div class="col-md-6 mb-3">
+                <strong>Current Status:</strong>
+                {% if test.is_submitted == 1 %}
+                  <span class="badge badge-sm bg-gradient-success">Submitted</span>
+                {% else %}
+                  <span class="badge badge-sm bg-dark text-white">Not Submitted</span>
+                {% endif %}
+              </div>
+              {% if test.submission_time %}
+              <div class="col-md-6 mb-3">
+                <strong>Submission Time:</strong> {{ test.submission_time|date:"Y-m-d H:i" }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+ 
+          <hr>
+ 
+          <!-- Edit Form -->
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label for="is_submitted" class="form-label"><strong>Change Submission Status</strong></label>
+              <select name="is_submitted" id="is_submitted" class="form-control">
+                <option value="True" {% if test.is_submitted == 1 %}selected{% endif %}>Submitted</option>
+                <option value="False" {% if test.is_submitted == 0 %}selected{% endif %}>Not Submitted</option>
+              </select>
+              <small class="form-text text-muted">
+                Note: Changing to "Submitted" will set the submission time to now if not already set.
+                Changing to "Not Submitted" will clear the submission time.
+              </small>
+            </div>
+           
+            <div class="text-end">
+              <button type="submit" class="btn bg-gradient-primary me-2">Save Changes</button>
+              <a href="{% url 'test_list' %}" class="btn bg-gradient-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+ 
+ 

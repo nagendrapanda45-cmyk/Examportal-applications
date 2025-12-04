@@ -1,0 +1,316 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 412, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 74, in execute
+    super().execute(*args, **options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 458, in execute
+    output = self.handle(*args, **options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 81, in handle
+    if not settings.DEBUG and not settings.ALLOWED_HOSTS:
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 102, in __getattr__
+    self._setup(name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 89, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 217, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/ubuntu/examportal/core/settings.py", line 15, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "manage.py", line 23, in <module>
+    main()
+  File "manage.py", line 19, in main
+    execute_from_command_line(sys.argv)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 425, in run_from_argv
+    connections.close_all()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 84, in close_all
+    for conn in self.all(initialized_only=True):
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 76, in all
+    return [
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 73, in __iter__
+    return iter(self.settings)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 45, in settings
+    self._settings = self.configure_settings(self._settings)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/db/utils.py", line 148, in configure_settings
+    databases = super().configure_settings(databases)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 50, in configure_settings
+    settings = getattr(django_settings, self.settings_name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 102, in __getattr__
+    self._setup(name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 89, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 217, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/ubuntu/examportal/core/settings.py", line 15, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+Traceback (most recent call last):
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 412, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 74, in execute
+    super().execute(*args, **options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 458, in execute
+    output = self.handle(*args, **options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 81, in handle
+    if not settings.DEBUG and not settings.ALLOWED_HOSTS:
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 102, in __getattr__
+    self._setup(name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 89, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 217, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/ubuntu/examportal/core/settings.py", line 15, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "manage.py", line 23, in <module>
+    main()
+  File "manage.py", line 19, in main
+    execute_from_command_line(sys.argv)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 425, in run_from_argv
+    connections.close_all()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 84, in close_all
+    for conn in self.all(initialized_only=True):
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 76, in all
+    return [
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 73, in __iter__
+    return iter(self.settings)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 45, in settings
+    self._settings = self.configure_settings(self._settings)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/db/utils.py", line 148, in configure_settings
+    databases = super().configure_settings(databases)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 50, in configure_settings
+    settings = getattr(django_settings, self.settings_name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 102, in __getattr__
+    self._setup(name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 89, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 217, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/ubuntu/examportal/core/settings.py", line 15, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+Traceback (most recent call last):
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 412, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 74, in execute
+    super().execute(*args, **options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 458, in execute
+    output = self.handle(*args, **options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 81, in handle
+    if not settings.DEBUG and not settings.ALLOWED_HOSTS:
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 102, in __getattr__
+    self._setup(name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 89, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 217, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/ubuntu/examportal/core/settings.py", line 15, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "manage.py", line 23, in <module>
+    main()
+  File "manage.py", line 19, in main
+    execute_from_command_line(sys.argv)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 425, in run_from_argv
+    connections.close_all()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 84, in close_all
+    for conn in self.all(initialized_only=True):
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 76, in all
+    return [
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 73, in __iter__
+    return iter(self.settings)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 45, in settings
+    self._settings = self.configure_settings(self._settings)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/db/utils.py", line 148, in configure_settings
+    databases = super().configure_settings(databases)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 50, in configure_settings
+    settings = getattr(django_settings, self.settings_name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 102, in __getattr__
+    self._setup(name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 89, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 217, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/ubuntu/examportal/core/settings.py", line 15, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+Traceback (most recent call last):
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 412, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 74, in execute
+    super().execute(*args, **options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 458, in execute
+    output = self.handle(*args, **options)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 81, in handle
+    if not settings.DEBUG and not settings.ALLOWED_HOSTS:
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 102, in __getattr__
+    self._setup(name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 89, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 217, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/ubuntu/examportal/core/settings.py", line 15, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "manage.py", line 23, in <module>
+    main()
+  File "manage.py", line 19, in main
+    execute_from_command_line(sys.argv)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/base.py", line 425, in run_from_argv
+    connections.close_all()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 84, in close_all
+    for conn in self.all(initialized_only=True):
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 76, in all
+    return [
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 73, in __iter__
+    return iter(self.settings)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 45, in settings
+    self._settings = self.configure_settings(self._settings)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/db/utils.py", line 148, in configure_settings
+    databases = super().configure_settings(databases)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/connection.py", line 50, in configure_settings
+    settings = getattr(django_settings, self.settings_name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 102, in __getattr__
+    self._setup(name)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 89, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/conf/__init__.py", line 217, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/ubuntu/examportal/core/settings.py", line 15, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+Exception in thread django-main-thread:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/usr/local/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/autoreload.py", line 64, in wrapper
+    fn(*args, **kwargs)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/commands/runserver.py", line 125, in inner_run
+    autoreload.raise_last_exception()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/autoreload.py", line 86, in raise_last_exception
+    raise _exception[1]
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/core/management/__init__.py", line 394, in execute
+    autoreload.check_errors(django.setup)()
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/utils/autoreload.py", line 64, in wrapper
+    fn(*args, **kwargs)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/apps/registry.py", line 91, in populate
+    app_config = AppConfig.create(entry)
+  File "/home/ubuntu/examportal/venv_examportal/lib/python3.8/site-packages/django/apps/config.py", line 178, in create
+    mod = import_module(mod_path)
+  File "/usr/local/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 961, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 973, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'admin_material'

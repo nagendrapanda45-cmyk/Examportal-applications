@@ -1,0 +1,369 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block extrastyle %}
+    <link href="{% static 'custom/css/add-user-admin-side.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h4 class="font-weight-bolder">User Details</h4>
+          <p class="mb-0 text-sm">Please fill all required (<span class="required">*</span>) details</p>
+        </div>
+        <div class="card-body pt-4">
+           {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- NEW: Error Summary Block -->
+                        {% if form.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <h6 class="alert-heading">Please correct the following errors:</h6>
+                                <ul class="mb-0">
+                                {% for field in form %}
+                                    {% if field.errors %}
+                                    <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if form.non_field_errors %}
+                                    <li>{{ form.non_field_errors|striptags }}</li>
+                                {% endif %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <!-- END: Error Summary Block -->
+                        
+                        <!-- Personal Information -->
+                        <div class="section-header">
+                            <i class="fas fa-user me-2"></i>Personal Information
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name <span class="required">*</span></label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name <span class="required">*</span></label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Gender <span class="required">*</span></label>
+                                {{ form.gender }}
+                                {% if form.gender.errors %}
+                                    <div class="text-danger small">{{ form.gender.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Date of Birth <span class="required">*</span></label>
+                                {{ form.dob }}
+                                {% if form.dob.errors %}
+                                    <div class="text-danger small">{{ form.dob.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Aadhar Number <span class="required">*</span></label>
+                                {{ form.aadhar_number }}
+                                {% if form.aadhar_number.errors %}
+                                    <div class="text-danger small">{{ form.aadhar_number.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="section-header">
+                            <i class="fas fa-phone me-2"></i>Contact Information
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email <span class="required">*</span></label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Mobile <span class="required">*</span></label>
+                                {{ form.mobile }}
+                                {% if form.mobile.errors %}
+                                    <div class="text-danger small">{{ form.mobile.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Alternative Mobile</label>
+                                {{ form.alternative_mobile }}
+                                {% if form.alternative_mobile.errors %}
+                                    <div class="text-danger small">{{ form.alternative_mobile.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Address <span class="required">*</span></label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                    <div class="text-danger small">{{ form.address.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">City <span class="required">*</span></label>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <div class="text-danger small">{{ form.city.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Pincode <span class="required">*</span></label>
+                                {{ form.pincode }}
+                                {% if form.pincode.errors %}
+                                    <div class="text-danger small">{{ form.pincode.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Educational Information -->
+                        <div class="section-header">
+                            <i class="fas fa-graduation-cap me-2"></i>Educational Information
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Highest Qualification <span class="required">*</span></label>
+                                {{ form.highest_qualification }}
+                                {% if form.highest_qualification.errors %}
+                                    <div class="text-danger small">{{ form.highest_qualification.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Specific Qualification <span class="required">*</span></label>
+                                {{ form.specific_qualification }}
+                                {% if form.specific_qualification.errors %}
+                                    <div class="text-danger small">{{ form.specific_qualification.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Stream</label>
+                                {{ form.stream }}
+                                {% if form.stream.errors %}
+                                    <div class="text-danger small">{{ form.stream.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">College/University <span class="required">*</span></label>
+                                {{ form.college_or_university }}
+                                {% if form.college_or_university.errors %}
+                                    <div class="text-danger small">{{ form.college_or_university.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Percentage <span class="required">*</span></label>
+                                {{ form.highest_qualification_percentage }}
+                                {% if form.highest_qualification_percentage.errors %}
+                                    <div class="text-danger small">{{ form.highest_qualification_percentage.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Primary Skills <span class="required">*</span></label>
+                            {{ form.primary_skills }}
+                            {% if form.primary_skills.errors %}
+                                <div class="text-danger small">{{ form.primary_skills.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3" id="other_skills_container" style="display: none;">
+                            <label class="form-label">Other Skills <span class="required">*</span></label>
+                            {{ form.other_skills }}
+                            {% if form.other_skills.errors %}
+                                <div class="text-danger small">{{ form.other_skills.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Training/Certification -->
+                            <div class="section-header">
+                                <i class="fas fa-certificate me-2"></i>Training & Certification
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">Training/Certification Details (Optional)</label>
+                                    {{ form.training_certification }}
+                                    {% if form.training_certification.errors %}
+                                        <div class="text-danger small">{{ form.training_certification.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Certificate (Optional)</label>
+                                    {{ form.certificate }}
+                                    <small class="form-text text-muted">
+                                        Upload certificate (PDF, DOC, DOCX) {{certificate_size_mb}}MB
+                                    </small>
+                                    {% if form.certificate.errors %}
+                                        <div class="text-danger small">{{ form.certificate.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                       
+                            <!-- Documents Section -->
+                            <div class="section-header">
+                                <i class="fas fa-file-upload me-2"></i>Documents Upload
+                            </div>
+                            <div class="row mb-3">
+                                <!-- Resume Field -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Resume <span class="required">*</span></label>
+                                    {{ form.resume }}
+                                    <small class="form-text text-muted">
+                                        Upload your resume (PDF, DOC, DOCX) max{{resume_size_mb}}MB
+                                    </small>
+                                    {% if form.resume.errors %}
+                                        <div class="text-danger small">{{ form.resume.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- ID Proof Field -->
+                                <div class="col-md-6">
+                                    <label class="form-label">ID Proof <span class="required">*</span></label>
+                                    {{ form.id_proof }}
+                                    <small class="form-text text-muted">
+                                        Upload ID proof (PDF, JPG, PNG, JPEG) max {{id_proof_size_kb}}KB
+                                    </small>
+                                    {% if form.id_proof.errors %}
+                                        <div class="text-danger small">{{ form.id_proof.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Photo Field (if you still need it) -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Photo <span class="required">*</span></label>
+                                    {{ form.photo }}
+                                    <small class="form-text text-muted">
+                                        Upload passport size photo (JPG, PNG, JPEG) max {{photo_size_kb}}KB
+                                    </small>
+                                    {% if form.photo.errors %}
+                                        <div class="text-danger small">{{ form.photo.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        
+
+                        <!-- Reference -->
+                        <div class="section-header">
+                            <i class="fas fa-users me-2"></i>Reference Information
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Do you have a reference?</label>
+                                {{ form.reference }}
+                                {% if form.reference.errors %}
+                                    <div class="text-danger small">{{ form.reference.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 referred-by-container" style="display: none;">
+                                <label class="form-label">Referred_by</label>
+                                {{ form.referred_by }}
+                                {% if form.referred_by.errors %}
+                                    <div class="text-danger small">{{ form.referred_by.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Submit
+                            </button>
+                            <a
+                                href="{% url 'question_list' %}"
+                                class="btn bg-gradient-dark btn-lg"
+                                >Cancel</a
+                            >
+                            {% comment %} <a href="{% url 'user_login' %}" class="btn btn-outline-secondary btn-lg ms-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>Already have account? Login
+                            </a> {% endcomment %}
+                        </div>
+                    </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const referenceSelect = document.querySelector('select[name="reference"]');
+        const referredByContainer = document.querySelector('.referred-by-container');
+
+        function toggleReferredBy() {
+            if (referenceSelect.value === 'Yes') {
+                referredByContainer.style.display = 'block';
+                referredByContainer.querySelector('input[name="referred_by"]').required = true;
+            } else {
+                referredByContainer.style.display = 'none';
+                referredByContainer.querySelector('input[name="referred_by"]').required = false;
+                referredByContainer.querySelector('input[name="referred_by"]').value = ''; // Clear the field
+            }
+        }
+
+        // Initial call to set the state based on the current value
+        toggleReferredBy();
+
+        // Add event listener for changes
+        referenceSelect.addEventListener('change', toggleReferredBy);
+
+        // --- Added for Other Skills ---
+        const primarySkillsSelect = document.querySelector('select[name="primary_skills"]');
+        const otherSkillsContainer = document.getElementById('other_skills_container');
+
+        function toggleOtherSkills() {
+            if (primarySkillsSelect.value === 'Others') {
+                otherSkillsContainer.style.display = 'block';
+            } else {
+                otherSkillsContainer.style.display = 'none';
+            }
+        }
+        
+        // Initial check on page load for other skills
+        toggleOtherSkills();
+
+        // Event listener for primary skills change
+        primarySkillsSelect.addEventListener('change', toggleOtherSkills);
+        // --- End of added code ---
+    });
+</script>
+{% endblock %}

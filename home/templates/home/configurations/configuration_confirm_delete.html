@@ -1,0 +1,33 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+ 
+{% block title %} Delete Configuration {% endblock title %}
+ 
+{% block content %}
+<div class="container-fluid py-4">
+<div class="row">
+<div class="col-lg-6 mx-auto">
+<div class="card">
+<div class="card-header pb-0 text-center">
+<h5 class="mb-0">Confirm Deletion</h5>
+</div>
+<div class="card-body pt-0 text-center">
+<p class="mb-4">Are you sure you want to delete the configuration <strong>{{ object.key }}</strong>?</p>
+<form method="post">
+            {% csrf_token %}
+<div class="d-flex justify-content-center gap-3">
+<button type="submit" class="btn bg-gradient-danger mb-0">
+<i class="fas fa-trash me-2"></i>Delete
+</button>
+<a href="{% url 'configuration_list' %}" class="btn bg-gradient-secondary mb-0">
+<i class="fas fa-times me-2"></i>Cancel
+</a>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
+ 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .user-info { margin-bottom: 15px; }
+        .label { font-weight: bold; display: inline-block; width: 150px; }
+        .value { display: inline-block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>User Information</h1>
+        <p>Generated on {% now "SHORT_DATETIME_FORMAT" %}</p>
+    </div>
+
+    <div class="user-details">
+        <div class="user-info">
+            <span class="label">Registration ID:</span>
+            <span class="value">{{ user.registration_id }}</span>
+        </div>
+        <div class="user-info">
+            <span class="label">Name:</span>
+            <span class="value">{{ user.first_name }} {{ user.last_name }}</span>
+        </div>
+        <div class="user-info">
+            <span class="label">Email:</span>
+            <span class="value">{{ user.email }}</span>
+        </div>
+        <div class="user-info">
+            <span class="label">Mobile:</span>
+            <span class="value">{{ user.mobile }}</span>
+        </div>
+        {% if invite %}
+        <div class="user-info">
+            <span class="label">Exam Date:</span>
+            <span class="value">{{ invite.date_of_exam|date:"d-m-Y" }}</span>
+        </div>
+        <div class="user-info">
+            <span class="label">Time Slot:</span>
+            <span class="value">
+                {{ invite.start_time_slot|time:"h:i A" }} to {{ invite.end_time_slot|time:"h:i A" }}
+            </span>
+        </div>
+        <div class="user-info">
+            <span class="label">Invitation Status:</span>
+            <span class="value">{{ invite.invited_status }}</span>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
