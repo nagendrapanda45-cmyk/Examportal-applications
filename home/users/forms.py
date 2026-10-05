@@ -58,10 +58,10 @@ class UsersForm(forms.ModelForm):
             'college_or_university': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'highest_qualification_percentage': forms.NumberInput(attrs={'class': 'form-control'}),
             'training_certification': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
-            'certificate': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'resume': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'id_proof': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'certificate': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.doc,.docx'}),
+            'photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.jpg,.jpeg,.png'}),
+            'resume': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.doc,.docx'}),
+            'id_proof': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.jpg,.jpeg,.png'}),
             'aadhar_number': forms.TextInput(attrs={'class': 'form-control'}),
             'reference': forms.Select(attrs={'class': 'form-control'}),
             'referred_by': forms.TextInput(attrs={'class': 'form-control'}),
@@ -152,10 +152,10 @@ class UsersForm(forms.ModelForm):
                 max_size_mb = int(config.value)
             except (Configuration.DoesNotExist, ValueError):
                 max_size_mb = 6  # Default fallback value
-            ext = os.path.splitext(resume.name)[1].lower()
+            ext = os.path.splitext(resume.name)[1].lower().strip()
             valid_extensions = ['.pdf', '.doc', '.docx']
             if ext not in valid_extensions:
-                raise ValidationError("Only PDF and Word documents are allowed.")
+                raise ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
             if resume.size > max_size_mb * 1024 * 1024:
                 raise ValidationError(f"Resume file size should not exceed {max_size_mb}MB.")
         return resume
@@ -209,10 +209,10 @@ class UsersForm(forms.ModelForm):
                 max_size_mb = int(config.value)
             except (Configuration.DoesNotExist, ValueError):
                 max_size_mb = 6  # Default fallback value
-            ext = os.path.splitext(certificate.name)[1].lower()
+            ext = os.path.splitext(certificate.name)[1].lower().strip()
             valid_extensions = ['.pdf', '.doc', '.docx']
             if ext not in valid_extensions:
-                raise ValidationError("Only PDF and Word documents are allowed.")
+                raise ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
             if certificate.size > max_size_mb * 1024 * 1024:
                 raise ValidationError(f"Certificate file size should not exceed {max_size_mb}MB.")
         return certificate
@@ -415,10 +415,10 @@ class UserRegistrationForm(forms.ModelForm):
                 max_size_mb = int(config.value)
             except (Configuration.DoesNotExist, ValueError):
                 max_size_mb = 6
-            ext = os.path.splitext(resume.name)[1].lower()
+            ext = os.path.splitext(resume.name)[1].lower().strip()
             valid_extensions = ['.pdf', '.doc', '.docx']
             if ext not in valid_extensions:
-                raise ValidationError("Only PDF and Word documents are allowed.")
+                raise ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
             if resume.size > max_size_mb * 1024 * 1024:
                 raise ValidationError(f"Resume file size should not exceed {max_size_mb}MB.")
         return resume
@@ -469,10 +469,10 @@ class UserRegistrationForm(forms.ModelForm):
                 max_size_mb = int(config.value)
             except (Configuration.DoesNotExist, ValueError):
                 max_size_mb = 6
-            ext = os.path.splitext(certificate.name)[1].lower()
+            ext = os.path.splitext(certificate.name)[1].lower().strip()
             valid_extensions = ['.pdf', '.doc', '.docx']
             if ext not in valid_extensions:
-                raise ValidationError("Only PDF and Word documents are allowed.")
+                raise ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
             if certificate.size > max_size_mb * 1024 * 1024:
                 raise ValidationError(f"Certificate file size should not exceed {max_size_mb}MB.")
         return certificate

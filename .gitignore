@@ -35,3 +35,17 @@ user_invite/migrations/*
 /media.zip
 /Exam.pem
 users_logs/anonymous.log
+
+.agent/
+.agents/
+.gemini/
+.gsd/
+GSD-STYLE.md
+PROJECT_RULES.md
+VERSION
+adapters/
+scripts/
+fix.py
+fix_css.py
+generate_docs.py
+model_capabilities.yaml

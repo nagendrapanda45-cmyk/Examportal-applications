@@ -32,7 +32,7 @@ if not SECRET_KEY:
 DEBUG = False
 #DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.1.53','192.168.1.50', '49.249.160.198', '13.232.128.222','registration.techraq.com', 'onlinetestzone.com','183.82.6.191', '*']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.1.53','192.168.1.50', '49.249.160.198', '13.232.128.222','registration.intelligenzit.com', 'onlinetestzone.com','183.82.6.191', '*']
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:    
@@ -207,11 +207,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'users_logs')
 
-EMAIL_HOST_USER     = "registrations@techraq.com"
+EMAIL_HOST_USER     = "registrations@intelligenzit.com"
 EMAIL_HOST_PASSWORD     = "lzfkcfjzdnkjdmvt"
 
 # New EmailId
-# EMAIL_HOST_USER     = "registrations1@techraq.com"
+# EMAIL_HOST_USER     = "registrations1@intelligenzit.com"
 # EMAIL_HOST_PASSWORD     = "byvldghkkbcmdmdh"
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -227,9 +227,9 @@ RECAPTCHA_SECRET_KEY = '6LcgVYsrAAAAAEMlQ8LsW7upUO3UMBylSYq7X-jL'
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600 #100MB
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://registration.techraq.com',
-    'https://www.registration.techraq.com',
-    'http://www.registration.techraq.com',
+    'https://registration.intelligenzit.com',
+    'https://www.registration.intelligenzit.com',
+    'http://www.registration.intelligenzit.com',
     'http://192.168.1.50:8863',
     'http://13.232.128.222:8000',
     'http://183.82.6.191:8000',

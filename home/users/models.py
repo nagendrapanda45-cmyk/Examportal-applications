@@ -30,10 +30,10 @@ def validate_resume(file):
         max_size_mb = int(Configuration.objects.get(key='resume_max_size_mb').value)
     except (Configuration.DoesNotExist, ValueError):
         max_size_mb = 6  # Default fallback value
-    ext = os.path.splitext(file.name)[1].lower()
+    ext = os.path.splitext(file.name)[1].lower().strip()
     valid_extensions = ['.pdf', '.doc', '.docx']
     if ext not in valid_extensions:
-        raise ValidationError("Only PDF and Word files are allowed.")
+        raise ValidationError("Only PDF and Word documents (.doc, .docx) are allowed.")
     if file.size > max_size_mb * 1024 * 1024:
         raise ValidationError(f"Resume file size should not exceed {max_size_mb}MB.")
 
@@ -54,10 +54,10 @@ def validate_certificate(file):
         max_size_mb = int(Configuration.objects.get(key='certificate_max_size_mb').value)
     except (Configuration.DoesNotExist, ValueError):
         max_size_mb = 6  # Default fallback value
-    ext = os.path.splitext(file.name)[1].lower()
+    ext = os.path.splitext(file.name)[1].lower().strip()
     valid_extensions = ['.pdf', '.doc', '.docx']
     if ext not in valid_extensions:
-        raise ValidationError("Only PDF and Word files are allowed.")
+        raise ValidationError("Only PDF and Word documents (.doc, .docx) are allowed.")
     if file.size > max_size_mb * 1024 * 1024:
         raise ValidationError(f"Certificate file size should not exceed {max_size_mb}MB.")
 
@@ -98,12 +98,14 @@ class Users(models.Model):
         return f'{instance.registration_id}/tt_images/{int(time.time())}.{ext}'
     def get_primary_skills_choices():
         try:
-            current_year = timezone.now().year
-            skills = Configuration.objects.filter(
-                key=f'primary_skills_{current_year}',
-                deleted=False
-            ).values_list('value', flat=True)
-            dynamic_choices = [(skill, skill) for skill in sorted(set(skills))]
+            from django.db import transaction
+            with transaction.atomic():
+                current_year = timezone.now().year
+                skills = Configuration.objects.filter(
+                    key=f'primary_skills_{current_year}',
+                    deleted=False
+                ).values_list('value', flat=True)
+                dynamic_choices = [(skill, skill) for skill in sorted(set(skills))]
         except Exception:
             dynamic_choices = []
         fallback_choices = [
@@ -418,11 +420,13 @@ class Question(models.Model):
     # @classmethod
     def get_specialisation_choices():
         try:
-            languages = Configuration.objects.filter(
-                key='programming_languages_' + str(current_year),
-                deleted=False
-            ).values_list('value', flat=True)
-            dynamic_choices = [(lang.capitalize(), lang.capitalize()) for lang in sorted(set(languages))]
+            from django.db import transaction
+            with transaction.atomic():
+                languages = Configuration.objects.filter(
+                    key='programming_languages_' + str(current_year),
+                    deleted=False
+                ).values_list('value', flat=True)
+                dynamic_choices = [(lang.capitalize(), lang.capitalize()) for lang in sorted(set(languages))]
         except Exception:
             dynamic_choices = []
         fallback_choices = [

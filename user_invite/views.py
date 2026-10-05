@@ -271,7 +271,7 @@ def send_bulk_email(request):
                             # Ensure confirmation_token and URL exist or generate them
                             if not user.confirmation_url or not user.confirmation_token:
                                 user.confirmation_token = str(uuid.uuid4())
-                                user.confirmation_url = f"https://registration.techraq.com/invite/user/confirmation/{user.registration_id}/{user.confirmation_token}"
+                                user.confirmation_url = f"https://registration.intelligenzit.com/invite/user/confirmation/{user.registration_id}/{user.confirmation_token}"
                                 user.save(update_fields=['confirmation_token', 'confirmation_url'])
                                 logger.warning(f"Generated confirmation URL for user {user.email} (ID: {user.user_id}): {user.confirmation_url}")
 
@@ -283,7 +283,7 @@ def send_bulk_email(request):
                                     'time_slot': start_time_slot if start_time_slot else '9:00 AM'
                                 },
                                 'venue': {
-                                    'company_name': 'TechRAQ Info Solutions Pvt Ltd',
+                                    'company_name': 'Intelligenz IT Info Solutions Pvt Ltd',
                                     'address_line1': '#Plot No 23 & 24, 1st Floor,',
                                     'address_line2': 'Silicon Park, Silicon Valley,',
                                     'address_line3': 'Beside ICICI Bank Lane,',
@@ -293,7 +293,7 @@ def send_bulk_email(request):
                                     'google_maps_url': 'https://maps.app.goo.gl/3LdsG2g8PSTquPHM8'
                                 },
                                 'contact': {
-                                    'email': 'resumes@techraq.com',
+                                    'email': 'resumes@intelligenzit.com',
                                     'phone': '7842181883/ 9063839746'
                                 },
                                 'config': {

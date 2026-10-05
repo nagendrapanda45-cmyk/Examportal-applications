@@ -121,7 +121,9 @@ class UserInvite(models.Model):
 def get_email_template_choices():
     current_year = '2025'  # Replace with dynamic year if needed, e.g., datetime.now().year
     try:
-        return [(config.value, config.value) for config in Configuration.objects.filter(key__startswith=f'email_template_{current_year}', deleted=False)]
+        from django.db import transaction
+        with transaction.atomic():
+            return [(config.value, config.value) for config in Configuration.objects.filter(key__startswith=f'email_template_{current_year}', deleted=False)]
     except Exception:
         return []  # Return empty choices during migration
 

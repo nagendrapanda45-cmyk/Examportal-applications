@@ -384,7 +384,7 @@ def add_footer(canvas, doc):
     canvas.setFont('Helvetica', 8)
     page_number = f"Page {doc.page}"
     canvas.drawCentredString(letter[0]/2, 0.5*inch, page_number)
-    canvas.drawString(1*inch, 0.5*inch, "Techraq Fresher Hiring")
+    canvas.drawString(1*inch, 0.5*inch, "Intelligenz IT Fresher Hiring")
     canvas.restoreState()
 
 @login_required
@@ -548,7 +548,7 @@ def generate_test(request):
                     content = []
 
                     # First Page: Header, Participant Details, Instructions
-                    content.append(Paragraph("Techraq Fresher Hiring", styles['Header']))
+                    content.append(Paragraph("Intelligenz IT Fresher Hiring", styles['Header']))
                     content.append(Paragraph(
                         f"{'General' if test_type == 'gt' else 'Technical'} Test (Set {set_num})" + 
                         (f" ({selected_language})" if test_type == 'tt' else ""),

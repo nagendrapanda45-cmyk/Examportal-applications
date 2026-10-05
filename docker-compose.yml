@@ -1,6 +1,17 @@
 version: '3.7'
 
 services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: examportal_db
+      POSTGRES_USER: examportal_user
+      POSTGRES_PASSWORD: examportal_pass
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -12,3 +23,6 @@ services:
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
+
+volumes:
+  postgres_data:

@@ -6,7 +6,7 @@ from user_invite.models import UserInvite
 from datetime import datetime, timedelta, time
 
 # 🔑 Outlook SMTP Credentials (set your details here)
-OUTLOOK_EMAIL = "registrations1@techraq.com"
+OUTLOOK_EMAIL = "registrations1@intelligenzit.com"
 OUTLOOK_APP_PASSWORD = "byvldghkkbcmdmdh"
 
 class Command(BaseCommand):

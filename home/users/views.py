@@ -576,7 +576,7 @@ def send_exam_details(request, pk):
     In reference to your application for Freshers Drive {current_year}, we request you to kindly attend for the Preliminary Technical Test on {date_of_exam} at {slot_timings} at the below venue.
 
     Venue:
-    TechRAQ Info Solutions Pvt Ltd
+    Intelligenz IT Info Solutions Pvt Ltd
     Plot No 23 & 24, 1st Floor,
     Silicon Park, Silicon Valley,
     Beside ICICI Bank Lane,
@@ -600,7 +600,7 @@ def send_exam_details(request, pk):
       o A valid ID proof
       o A printout of this email
     • Kindly report to the venue 30 minutes before your scheduled time.
-    For any further assistance, please feel free to contact us {contact_number} or email us @ resumes@techraq.com.
+    For any further assistance, please feel free to contact us {contact_number} or email us @ resumes@intelligenzit.com.
 
     Thanks & Regards,
     HR Team
@@ -614,7 +614,7 @@ def send_exam_details(request, pk):
     <p>In reference to your application for Freshers Drive {current_year}, we request you to kindly attend for the Preliminary Technical Test on <strong>{date_of_exam}</strong> at <strong>{slot_timings}</strong> at the below venue.</p>
 
     <p><strong>Venue:</strong><br>
-    TechRAQ Info Solutions Pvt Ltd<br>
+    Intelligenz IT Info Solutions Pvt Ltd<br>
     Plot No 23 & 24, 1st Floor,<br>
     Silicon Park, Silicon Valley,<br>
     Beside ICICI Bank Lane,<br>
@@ -638,7 +638,7 @@ def send_exam_details(request, pk):
         o A valid ID proof<br>
         o A printout of this email<br>
     • Kindly report to the venue 30 minutes before your scheduled time.<br>
-    For any further assistance, please feel free to contact us <strong>{contact_number}</strong> or email us @ <a href="mailto:resumes@techraq.com">resumes@techraq.com</a>.</p>
+    For any further assistance, please feel free to contact us <strong>{contact_number}</strong> or email us @ <a href="mailto:resumes@intelligenzit.com">resumes@intelligenzit.com</a>.</p>
 
     <p>Thanks & Regards,<br>HR Team</p>
     """
