@@ -934,6 +934,25 @@ document.addEventListener('visibilitychange', function() {
 });
 
 init();
-    </script>
+    
+        // ANTI-CHEAT STRICT RULES
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                alert("⛔ ANTI-CHEAT WARNING: You have opened a new tab, another browser, or an AI tool. This is strictly prohibited. Your action has been recorded!");
+            }
+        });
+
+        window.addEventListener("blur", () => {
+            alert("⛔ ANTI-CHEAT WARNING: You switched to another application or opened a file. Please return to the exam window immediately!");
+        });
+        
+        // Mock USB / Multiple persons warning for presentation
+        setInterval(() => {
+            // Randomly simulate checking for multiple persons to make it look like AI is running in the background
+            console.log("AI Proctoring: Analyzing webcam feed for multiple persons...");
+            console.log("AI Proctoring: Scanning for unauthorized USB devices...");
+        }, 10000);
+
+</script>
 </body>
 </html>

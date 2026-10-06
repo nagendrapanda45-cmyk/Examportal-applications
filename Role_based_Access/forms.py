@@ -22,7 +22,9 @@ class EmployeeForm(UserCreationForm):
     department = forms.ChoiceField(
         choices=[
             ('Programming Team', 'Programming Team'),
-           
+            ('Recruiter', 'Recruiter'),
+            ('Human Resources (HR)', 'Human Resources (HR)'),
+            ('Finance', 'Finance'),
         ],
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})
@@ -98,7 +100,9 @@ class EmployeeEditForm(forms.ModelForm):
     department = forms.ChoiceField(
         choices=[
             ('Programming Team', 'Programming Team'),
-            
+            ('Recruiter', 'Recruiter'),
+            ('Human Resources (HR)', 'Human Resources (HR)'),
+            ('Finance', 'Finance'),
         ],
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})

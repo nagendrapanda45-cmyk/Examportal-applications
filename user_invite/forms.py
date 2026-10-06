@@ -6,7 +6,8 @@ from home.users.models import Configuration
 class EmailTemplateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        current_year = '2025'  # Can be dynamic
+        from datetime import datetime
+        current_year = datetime.now().year  # Can be dynamic
         choices = [
             (config.value, config.value)
             for config in Configuration.objects.filter(

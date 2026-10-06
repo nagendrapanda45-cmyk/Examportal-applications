@@ -11,6 +11,8 @@ current_year = datetime.now().year
 
 class CustomAdminSite(AdminSite):
     def index(self, request, extra_context=None):
+        if not self.has_permission(request):
+            return self.login(request, extra_context)
         total_users = Users.objects.filter(deleted=False).count()
         total_questions = Question.objects.filter(deleted=False).count()
         total_tests = Tests.objects.filter(is_submitted=1).count()

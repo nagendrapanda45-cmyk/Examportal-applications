@@ -1,0 +1,1582 @@
+﻿diff --git a/Exam_dashboard/templates/emails/technical_test_submitted.html b/Exam_dashboard/templates/emails/technical_test_submitted.html
+index d290a49..ab04899 100644
+--- a/Exam_dashboard/templates/emails/technical_test_submitted.html
++++ b/Exam_dashboard/templates/emails/technical_test_submitted.html
+@@ -15,12 +15,12 @@
+ <body>
+     <div class="container">
+         <div class="header">
+-            <img src="https://storage.googleapis.com/techraq/logo.png" alt="TechRAQ Logo">
++            <img src="https://storage.googleapis.com/intelligenzit/logo.png" alt="Intelligenz IT Logo">
+         </div>
+         <div class="content">
+             <p>Dear <strong>{{ first_name }}</strong>,</p>
+             <p>
+-                Thank you for appearing for the TechRAQ Solutions Fresher Recruitment Drive Online Test. We appreciate your time and effort in completing the assessment.
++                Thank you for appearing for the Intelligenz IT Solutions Fresher Recruitment Drive Online Test. We appreciate your time and effort in completing the assessment.
+             </p>
+             <p>
+                 The evaluation of test responses is currently underway and, due to the large number of participants, will take a few days. The final results and further updates will be shared with you between <strong>6th and 10th October 2025</strong> on your registered email.
+@@ -34,7 +34,7 @@
+         </div>
+         <div class="footer">
+             <b>Warm Regards</b>,<br>
+-            <b>TechRAQ Solutions – Recruitment Team</b>
++            <b>Intelligenz IT Solutions – Recruitment Team</b>
+         </div>
+     </div>
+ </body>
+diff --git a/core/settings.py b/core/settings.py
+index cf62f2f..e9ce7fb 100644
+--- a/core/settings.py
++++ b/core/settings.py
+@@ -29,10 +29,10 @@ if not SECRET_KEY:
+ 
+ # Render Deployment Code
+ #DEBUG = 'RENDER' not in os.environ
+-DEBUG = False
+-#DEBUG = True
++#DEBUG = False
++DEBUG = True
+ 
+-ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.1.53','192.168.1.50', '49.249.160.198', '13.232.128.222','registration.techraq.com', 'onlinetestzone.com','183.82.6.191', '*']
++ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.1.53','192.168.1.50', '49.249.160.198', '13.232.128.222','registration.intelligenzit.com', 'onlinetestzone.com','183.82.6.191', '*']
+ 
+ RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+ if RENDER_EXTERNAL_HOSTNAME:    
+@@ -207,11 +207,11 @@ MEDIA_URL = '/media/'
+ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+ # MEDIA_ROOT = os.path.join(BASE_DIR, 'users_logs')
+ 
+-EMAIL_HOST_USER     = "registrations@techraq.com"
++EMAIL_HOST_USER     = "registrations@intelligenzit.com"
+ EMAIL_HOST_PASSWORD     = "lzfkcfjzdnkjdmvt"
+ 
+ # New EmailId
+-# EMAIL_HOST_USER     = "registrations1@techraq.com"
++# EMAIL_HOST_USER     = "registrations1@intelligenzit.com"
+ # EMAIL_HOST_PASSWORD     = "byvldghkkbcmdmdh"
+ 
+ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+@@ -227,9 +227,9 @@ RECAPTCHA_SECRET_KEY = '6LcgVYsrAAAAAEMlQ8LsW7upUO3UMBylSYq7X-jL'
+ DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600 #100MB
+ 
+ CSRF_TRUSTED_ORIGINS = [
+-    'https://registration.techraq.com',
+-    'https://www.registration.techraq.com',
+-    'http://www.registration.techraq.com',
++    'https://registration.intelligenzit.com',
++    'https://www.registration.intelligenzit.com',
++    'http://www.registration.intelligenzit.com',
+     'http://192.168.1.50:8863',
+     'http://13.232.128.222:8000',
+     'http://183.82.6.191:8000',
+diff --git a/docker-compose.yml b/docker-compose.yml
+index a1e308c..169c835 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -1,6 +1,17 @@
+ version: '3.7'
+ 
+ services:
++  db:
++    image: postgres:15
++    environment:
++      POSTGRES_DB: examportal_db
++      POSTGRES_USER: examportal_user
++      POSTGRES_PASSWORD: examportal_pass
++    ports:
++      - "15432:5432"
++    volumes:
++      - postgres_data:/var/lib/postgresql/data
++
+   prometheus:
+     image: prom/prometheus:latest
+     ports:
+@@ -11,4 +22,7 @@ services:
+   grafana:
+     image: grafana/grafana:latest
+     ports:
+-      - "3000:3000"
+\ No newline at end of file
++      - "3000:3000"
++
++volumes:
++  postgres_data:
+\ No newline at end of file
+diff --git a/email_scheduler/management/commands/Slot_remainder.py b/email_scheduler/management/commands/Slot_remainder.py
+index 50e91b2..691d442 100644
+--- a/email_scheduler/management/commands/Slot_remainder.py
++++ b/email_scheduler/management/commands/Slot_remainder.py
+@@ -6,7 +6,7 @@ from user_invite.models import UserInvite
+ from datetime import datetime, timedelta, time
+ 
+ # 🔑 Outlook SMTP Credentials (set your details here)
+-OUTLOOK_EMAIL = "registrations1@techraq.com"
++OUTLOOK_EMAIL = "registrations1@intelligenzit.com"
+ OUTLOOK_APP_PASSWORD = "byvldghkkbcmdmdh"
+ 
+ class Command(BaseCommand):
+diff --git a/email_scheduler/templates/emails/Exam_notification.html b/email_scheduler/templates/emails/Exam_notification.html
+index 6f21012..fdf5564 100644
+--- a/email_scheduler/templates/emails/Exam_notification.html
++++ b/email_scheduler/templates/emails/Exam_notification.html
+@@ -27,7 +27,7 @@
+                 <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; overflow: hidden; border-spacing: 0; font-family: Arial, sans-serif;">
+                     <tr>
+                         <td colspan="2" align="center" style="background-color: #5a47b6; padding: 20px;">
+-                            <img src="https://storage.googleapis.com/techraq/logo.png" 
++                            <img src="https://storage.googleapis.com/intelligenzit/logo.png" 
+                                  alt="Company Logo" 
+                                  width="150" 
+                                  style="display: block; max-width: 150px; height: auto; border: 0;">
+@@ -39,7 +39,7 @@
+                         
+                         <p style="font-size: 16px;color: #383838 !important;">Dear <span style="color: #5a47b6">{{ first_name }}</span>,</p>
+                         
+-                        <p style="font-size: 16px;color: #383838 !important;">Thank you once again for your interest in the <span style="color: #5a47b6;">TechRAQ Solutions Fresher Recruitment Drive.</span></p>
++                        <p style="font-size: 16px;color: #383838 !important;">Thank you once again for your interest in the <span style="color: #5a47b6;">Intelligenz IT Solutions Fresher Recruitment Drive.</span></p>
+                         
+                         <p style="font-size: 16px;color: #383838 !important;">Further to our earlier communication about the Written Test, please note that it will now be organized in an <span style="color: #eb2222;">ONLINE format between 1st September and 15th September 2025.</span></p>
+                         
+@@ -62,7 +62,7 @@
+                         <p style="font-size: 16px;color: #383838 !important;">Thanks & Regards,<br>
+                         HR Team<br>
+                         Phone: 7842181883 / 9063839746<br>
+-                        registrations@techraq.com</p>
++                        registrations@intelligenzit.com</p>
+                         
+                         <table width="100%"></table>
+                         </td>
+diff --git a/email_scheduler/templates/emails/Slot_remainder_mail.html b/email_scheduler/templates/emails/Slot_remainder_mail.html
+index 8f1410c..0ad3dc3 100644
+--- a/email_scheduler/templates/emails/Slot_remainder_mail.html
++++ b/email_scheduler/templates/emails/Slot_remainder_mail.html
+@@ -3,7 +3,7 @@
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-  <title>Remainder: Online Test – TechRAQ Fresher Drive</title>
++  <title>Remainder: Online Test – Intelligenz IT Fresher Drive</title>
+   <style>
+     .text-below-img {
+       margin-top: 12px;
+@@ -25,7 +25,7 @@
+         <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; overflow: hidden; border-spacing: 0; font-family: Arial, sans-serif;">
+           <tr>
+             <td colspan="2" align="center" style="background-color: #5a47b6; padding: 20px;">
+-              <img src="https://storage.googleapis.com/techraq/logo.png" 
++              <img src="https://storage.googleapis.com/intelligenzit/logo.png" 
+                    alt="Company Logo" 
+                    width="150" 
+                    style="display: block; max-width: 150px; height: auto; border: 0;">
+@@ -36,7 +36,7 @@
+               
+               <p style="font-size: 16px; color: #383838 !important; font-weight:600;">Dear {{ first_name }},</p>
+ 
+-              <p>We are pleased to inform you that your Online Test for the <b>TechRAQ Solutions Fresher Recruitment Drive</b> has been scheduled. Kindly find the details below:</p>
++              <p>We are pleased to inform you that your Online Test for the <b>Intelligenz IT Solutions Fresher Recruitment Drive</b> has been scheduled. Kindly find the details below:</p>
+ 
+               <p style="color:#e63946; font-weight:600;">
+                 ⏰ You are receiving this reminder as your test is scheduled to begin in less than 4 hour.
+@@ -107,7 +107,7 @@
+                 <li>Ensure a stable internet connection and a fully charged device.</li>
+                 <li>Keep your speakers ON to receive alerts and instructions.</li>
+                 <li>Begin the test promptly within your allocated time slot.</li>
+-                <img src="https://storage.googleapis.com/techraq/DOS%20AND%20DONTS.png" alt="imge" width="100%" style="margin-top:12px; margin-bottom:12px;">
++                <img src="https://storage.googleapis.com/intelligenzit/DOS%20AND%20DONTS.png" alt="imge" width="100%" style="margin-top:12px; margin-bottom:12px;">
+               </ul>
+ 
+               <p style="font-weight:600; color:#5a47b6;">Don’ts</p>
+@@ -125,15 +125,15 @@
+               <p>In case of questions, reach out to our team 
+                 <span style="color:#383838;">7842181883 / 9063839746 / 
+                    
+-                  <a href="mailto:registrations1@techraq.com" style="color:#5a47b6; text-decoration:none;">registrations@techraq.com</a>
+-                  / <a href="mailto:registrations1@techraq.com" style="color:#5a47b6; text-decoration:none;">registrations1@techraq.com</a>
++                  <a href="mailto:registrations1@intelligenzit.com" style="color:#5a47b6; text-decoration:none;">registrations@intelligenzit.com</a>
++                  / <a href="mailto:registrations1@intelligenzit.com" style="color:#5a47b6; text-decoration:none;">registrations1@intelligenzit.com</a>
+                 </span>
+               </p>
+ 
+               <br>
+               <p style="font-size: 16px; color: #383838 !important;">
+                 Warm Regards,<br>
+-                <b>TechRAQ Solutions – Recruitment Team</b>
++                <b>Intelligenz IT Solutions – Recruitment Team</b>
+               </p>
+               
+             </td>
+diff --git a/email_scheduler/templates/emails/Timeslot_Invite_mail.html b/email_scheduler/templates/emails/Timeslot_Invite_mail.html
+index b892510..2a0cdce 100644
+--- a/email_scheduler/templates/emails/Timeslot_Invite_mail.html
++++ b/email_scheduler/templates/emails/Timeslot_Invite_mail.html
+@@ -3,7 +3,7 @@
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-  <title>Online Test – TechRAQ Fresher Drive</title>
++  <title>Online Test – Intelligenz IT Fresher Drive</title>
+   <style>
+     .text-below-img {
+       margin-top: 12px;
+@@ -25,7 +25,7 @@
+         <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; overflow: hidden; border-spacing: 0; font-family: Arial, sans-serif;">
+           <tr>
+             <td colspan="2" align="center" style="background-color: #5a47b6; padding: 20px;">
+-              <img src="https://storage.googleapis.com/techraq/logo.png" 
++              <img src="https://storage.googleapis.com/intelligenzit/logo.png" 
+                    alt="Company Logo" 
+                    width="150" 
+                    style="display: block; max-width: 150px; height: auto; border: 0;">
+@@ -36,7 +36,7 @@
+               
+               <p style="font-size: 16px; color: #383838 !important; font-weight:600;">Dear {{ first_name }},</p>
+ 
+-              <p>We are pleased to inform you that your Online Test for the <b>TechRAQ Solutions Fresher Recruitment Drive</b> has been scheduled. Kindly find the details below:</p>
++              <p>We are pleased to inform you that your Online Test for the <b>Intelligenz IT Solutions Fresher Recruitment Drive</b> has been scheduled. Kindly find the details below:</p>
+ 
+               <p><b>PLEASE GO THROUGH THE EMAIL CONTENT BELOW COMPLETELY.</b></p>
+ 
+@@ -103,7 +103,7 @@
+                 <li>Ensure a stable internet connection and a fully charged device.</li>
+                 <li>Keep your speakers ON to receive alerts and instructions.</li>
+                 <li>Begin the test promptly within your allocated time slot.</li>
+-                <img src="https://storage.googleapis.com/techraq/DOS%20AND%20DONTS.png" alt="imge" width="100%" style="margin-top:12px; margin-bottom:12px;">
++                <img src="https://storage.googleapis.com/intelligenzit/DOS%20AND%20DONTS.png" alt="imge" width="100%" style="margin-top:12px; margin-bottom:12px;">
+               </ul>
+ 
+               <p style="font-weight:600; color:#5a47b6;">Don’ts</p>
+@@ -121,15 +121,15 @@
+               <p>In case of questions, reach out to our team 
+                 <span style="color:#383838;">7842181883 / 9063839746 / 
+                    
+-                  <a href="mailto:registrations1@techraq.com" style="color:#5a47b6; text-decoration:none;">registrations@techraq.com</a>
+-                  / <a href="mailto:registrations1@techraq.com" style="color:#5a47b6; text-decoration:none;">registrations1@techraq.com</a>
++                  <a href="mailto:registrations1@intelligenzit.com" style="color:#5a47b6; text-decoration:none;">registrations@intelligenzit.com</a>
++                  / <a href="mailto:registrations1@intelligenzit.com" style="color:#5a47b6; text-decoration:none;">registrations1@intelligenzit.com</a>
+                 </span>
+               </p>
+ 
+               <br>
+               <p style="font-size: 16px; color: #383838 !important;">
+                 Warm Regards,<br>
+-                <b>TechRAQ Solutions – Recruitment Team</b>
++                <b>Intelligenz IT Solutions – Recruitment Team</b>
+               </p>
+               
+             </td>
+diff --git a/email_scheduler/templates/emails/scheduled_notification.html b/email_scheduler/templates/emails/scheduled_notification.html
+index 1f45bf0..02289aa 100644
+--- a/email_scheduler/templates/emails/scheduled_notification.html
++++ b/email_scheduler/templates/emails/scheduled_notification.html
+@@ -28,7 +28,7 @@
+                 <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; overflow: hidden; border-spacing: 0; font-family: Arial, sans-serif;">
+                     <tr>
+                         <td colspan="2" align="center" style="background-color: #5a47b6; padding: 20px;">
+-                            <img  src="https://storage.googleapis.com/techraq/logo.png" 
++                            <img  src="https://storage.googleapis.com/intelligenzit/logo.png" 
+                                              alt="Company Logo" 
+                                              width="150" 
+                                              style="display: block; max-width: 150px; height: auto; border: 0;">
+@@ -40,7 +40,7 @@
+                         <br>
+                     <p style="font-size: 16px;color: #383838 !important;">Dear <span style="color: #5a47b6">{{ first_name }}</span>,</p>
+                                
+-                                <p style="font-size: 16px;color: #383838 !important;">Thank you for applying to our Fresher Recruitment Drive at <span style="color: #5a47b6;"> TechRAQ Info Solutions Pvt. Ltd.</span></p>                               
++                                <p style="font-size: 16px;color: #383838 !important;">Thank you for applying to our Fresher Recruitment Drive at <span style="color: #5a47b6;"> Intelligenz IT Info Solutions Pvt. Ltd.</span></p>                               
+                                 <p style="font-size: 16px;color: #383838 !important;">We are delighted by the overwhelming response we've received and truly appreciate your interest in joining us.</p>
+                             
+                                 
+@@ -56,9 +56,9 @@
+ 
+                                 <p style="font-size: 16px;color: #383838 !important;"> Thanks & Regards,
+                                 <br>Usha Sri Chikati
+-                                <br>HR Lead | TechRAQ Solutions
+-                                <br>connect2hr@techraq.com
+-                                <br>www.techraq.com</p>
++                                <br>HR Lead | Intelligenz IT Solutions
++                                <br>connect2hr@intelligenzit.com
++                                <br>www.intelligenzit.com</p>
+                                 
+                                 <table width="100%">
+                             </table>
+diff --git a/home/templates/includes/footer.html b/home/templates/includes/footer.html
+index 9b97030..17a2426 100644
+--- a/home/templates/includes/footer.html
++++ b/home/templates/includes/footer.html
+@@ -3,7 +3,7 @@
+     <div class="row align-items-center justify-content-lg-between">
+       <div class="col-lg-6 mb-lg-0 mb-4">
+         <div class="copyright text-center text-sm text-muted text-lg-start">
+-          &copy; <a href="/" class="font-weight-bold">ExamPortal</a>
++          &copy; <a href="/" class="font-weight-bold">Intelligenz IT</a>
+           {% comment %} Coded by AppSeed. {% endcomment %}
+         </div>
+       </div>
+diff --git a/home/templates/includes/sidebar.html b/home/templates/includes/sidebar.html
+index ea69155..13bf912 100644
+--- a/home/templates/includes/sidebar.html
++++ b/home/templates/includes/sidebar.html
+@@ -5,8 +5,7 @@
+     <div class="sidenav-header">
+         <i class="fas fa-times p-3 cursor-pointer text-white opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+         <a class="navbar-brand m-0" href="/admin/">
+-            <img src="{% static 'img/logo-ct.png' %}" class="navbar-brand-img h-100" alt="main_logo">
+-            <span class="ms-1 font-weight-bold text-white">ExamPortal</span>
++            <img src="{% static 'img/logo.png' %}" class="navbar-brand-img h-100" alt="main_logo">
+         </a>
+     </div>
+     <hr class="horizontal light mt-0 mb-2">
+diff --git a/home/users/forms.py b/home/users/forms.py
+index e05e1b0..f651289 100644
+--- a/home/users/forms.py
++++ b/home/users/forms.py
+@@ -58,10 +58,10 @@ class UsersForm(forms.ModelForm):
+             'college_or_university': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+             'highest_qualification_percentage': forms.NumberInput(attrs={'class': 'form-control'}),
+             'training_certification': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+-            'certificate': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+-            'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+-            'resume': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+-            'id_proof': forms.ClearableFileInput(attrs={'class': 'form-control'}),
++            'certificate': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.doc,.docx'}),
++            'photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.jpg,.jpeg,.png'}),
++            'resume': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.doc,.docx'}),
++            'id_proof': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.jpg,.jpeg,.png'}),
+             'aadhar_number': forms.TextInput(attrs={'class': 'form-control'}),
+             'reference': forms.Select(attrs={'class': 'form-control'}),
+             'referred_by': forms.TextInput(attrs={'class': 'form-control'}),
+@@ -152,10 +152,10 @@ class UsersForm(forms.ModelForm):
+                 max_size_mb = int(config.value)
+             except (Configuration.DoesNotExist, ValueError):
+                 max_size_mb = 6  # Default fallback value
+-            ext = os.path.splitext(resume.name)[1].lower()
++            ext = os.path.splitext(resume.name)[1].lower().strip()
+             valid_extensions = ['.pdf', '.doc', '.docx']
+             if ext not in valid_extensions:
+-                raise ValidationError("Only PDF and Word documents are allowed.")
++                raise ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
+             if resume.size > max_size_mb * 1024 * 1024:
+                 raise ValidationError(f"Resume file size should not exceed {max_size_mb}MB.")
+         return resume
+@@ -209,10 +209,10 @@ class UsersForm(forms.ModelForm):
+                 max_size_mb = int(config.value)
+             except (Configuration.DoesNotExist, ValueError):
+                 max_size_mb = 6  # Default fallback value
+-            ext = os.path.splitext(certificate.name)[1].lower()
++            ext = os.path.splitext(certificate.name)[1].lower().strip()
+             valid_extensions = ['.pdf', '.doc', '.docx']
+             if ext not in valid_extensions:
+-                raise ValidationError("Only PDF and Word documents are allowed.")
++                raise ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
+             if certificate.size > max_size_mb * 1024 * 1024:
+                 raise ValidationError(f"Certificate file size should not exceed {max_size_mb}MB.")
+         return certificate
+@@ -415,10 +415,10 @@ class UserRegistrationForm(forms.ModelForm):
+                 max_size_mb = int(config.value)
+             except (Configuration.DoesNotExist, ValueError):
+                 max_size_mb = 6
+-            ext = os.path.splitext(resume.name)[1].lower()
++            ext = os.path.splitext(resume.name)[1].lower().strip()
+             valid_extensions = ['.pdf', '.doc', '.docx']
+             if ext not in valid_extensions:
+-                raise ValidationError("Only PDF and Word documents are allowed.")
++                raise ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
+             if resume.size > max_size_mb * 1024 * 1024:
+                 raise ValidationError(f"Resume file size should not exceed {max_size_mb}MB.")
+         return resume
+@@ -469,10 +469,10 @@ class UserRegistrationForm(forms.ModelForm):
+                 max_size_mb = int(config.value)
+             except (Configuration.DoesNotExist, ValueError):
+                 max_size_mb = 6
+-            ext = os.path.splitext(certificate.name)[1].lower()
++            ext = os.path.splitext(certificate.name)[1].lower().strip()
+             valid_extensions = ['.pdf', '.doc', '.docx']
+             if ext not in valid_extensions:
+-                raise ValidationError("Only PDF and Word documents are allowed.")
++                raise ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
+             if certificate.size > max_size_mb * 1024 * 1024:
+                 raise ValidationError(f"Certificate file size should not exceed {max_size_mb}MB.")
+         return certificate
+diff --git a/home/users/models.py b/home/users/models.py
+index a240798..81f1e47 100644
+--- a/home/users/models.py
++++ b/home/users/models.py
+@@ -30,10 +30,10 @@ def validate_resume(file):
+         max_size_mb = int(Configuration.objects.get(key='resume_max_size_mb').value)
+     except (Configuration.DoesNotExist, ValueError):
+         max_size_mb = 6  # Default fallback value
+-    ext = os.path.splitext(file.name)[1].lower()
++    ext = os.path.splitext(file.name)[1].lower().strip()
+     valid_extensions = ['.pdf', '.doc', '.docx']
+     if ext not in valid_extensions:
+-        raise ValidationError("Only PDF and Word files are allowed.")
++        raise ValidationError("Only PDF and Word documents (.doc, .docx) are allowed.")
+     if file.size > max_size_mb * 1024 * 1024:
+         raise ValidationError(f"Resume file size should not exceed {max_size_mb}MB.")
+ 
+@@ -54,10 +54,10 @@ def validate_certificate(file):
+         max_size_mb = int(Configuration.objects.get(key='certificate_max_size_mb').value)
+     except (Configuration.DoesNotExist, ValueError):
+         max_size_mb = 6  # Default fallback value
+-    ext = os.path.splitext(file.name)[1].lower()
++    ext = os.path.splitext(file.name)[1].lower().strip()
+     valid_extensions = ['.pdf', '.doc', '.docx']
+     if ext not in valid_extensions:
+-        raise ValidationError("Only PDF and Word files are allowed.")
++        raise ValidationError("Only PDF and Word documents (.doc, .docx) are allowed.")
+     if file.size > max_size_mb * 1024 * 1024:
+         raise ValidationError(f"Certificate file size should not exceed {max_size_mb}MB.")
+ 
+@@ -98,12 +98,14 @@ class Users(models.Model):
+         return f'{instance.registration_id}/tt_images/{int(time.time())}.{ext}'
+     def get_primary_skills_choices():
+         try:
+-            current_year = timezone.now().year
+-            skills = Configuration.objects.filter(
+-                key=f'primary_skills_{current_year}',
+-                deleted=False
+-            ).values_list('value', flat=True)
+-            dynamic_choices = [(skill, skill) for skill in sorted(set(skills))]
++            from django.db import transaction
++            with transaction.atomic():
++                current_year = timezone.now().year
++                skills = Configuration.objects.filter(
++                    key=f'primary_skills_{current_year}',
++                    deleted=False
++                ).values_list('value', flat=True)
++                dynamic_choices = [(skill, skill) for skill in sorted(set(skills))]
+         except Exception:
+             dynamic_choices = []
+         fallback_choices = [
+@@ -418,11 +420,13 @@ class Question(models.Model):
+     # @classmethod
+     def get_specialisation_choices():
+         try:
+-            languages = Configuration.objects.filter(
+-                key='programming_languages_' + str(current_year),
+-                deleted=False
+-            ).values_list('value', flat=True)
+-            dynamic_choices = [(lang.capitalize(), lang.capitalize()) for lang in sorted(set(languages))]
++            from django.db import transaction
++            with transaction.atomic():
++                languages = Configuration.objects.filter(
++                    key='programming_languages_' + str(current_year),
++                    deleted=False
++                ).values_list('value', flat=True)
++                dynamic_choices = [(lang.capitalize(), lang.capitalize()) for lang in sorted(set(languages))]
+         except Exception:
+             dynamic_choices = []
+         fallback_choices = [
+diff --git a/home/users/templates/emails/registration_confirmation.html b/home/users/templates/emails/registration_confirmation.html
+index 71e80a1..75d2e20 100644
+--- a/home/users/templates/emails/registration_confirmation.html
++++ b/home/users/templates/emails/registration_confirmation.html
+@@ -29,7 +29,7 @@
+                 <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; overflow: hidden; border-spacing: 0; font-family: Arial, sans-serif;">
+                     <tr>
+                         <td colspan="2" align="center" style="background-color: #5a47b6; padding: 20px;">
+-                            <img  src="https://storage.googleapis.com/techraq/logo.png" 
++                            <img  src="https://storage.googleapis.com/intelligenzit/logo.png" 
+                                              alt="Company Logo" 
+                                              width="150" 
+                                              style="display: block; max-width: 150px; height: auto; border: 0;">
+@@ -42,13 +42,13 @@
+                         <p style="font-size: 16px;color: #383838 !important;">Dear {{ first_name }},</p>
+                                
+                                 <p style="font-size: 16px;color: #383838 !important;"> Greetings!</p>                               
+-                                <p style="font-size: 16px;color: #383838 !important;">We are glad to confirm your registration for the <b style="color: #5a47b6;">Fresher’s drive - {{ config.current_year }}</b> at TechRAQ.</p>
++                                <p style="font-size: 16px;color: #383838 !important;">We are glad to confirm your registration for the <b style="color: #5a47b6;">Fresher’s drive - {{ config.current_year }}</b> at Intelligenz IT.</p>
+                             
+                                 
+                                 <p style="font-size: 16px;color: #383838 !important;">Here is your Registration ID: <strong style="color: #5a47b6;">{{ registration_id }} </strong>, please keep it safe for all future correspondence.</p>
+                                 <p style="font-size: 16px;color: #383838 !important;">You will hear more details on Recruitment Drive by {{ config.recruitment_drive_dates }}.</p>
+ 
+-                                <p style="font-size: 16px;color: #383838 !important;">For any further assistance please write to us at <span style="color: #5a47b6;">resumes@techraq.com</span> or call @ <span style="color: #5a47b6;">{{ config.contact_numbers }}</span>.</p>
++                                <p style="font-size: 16px;color: #383838 !important;">For any further assistance please write to us at <span style="color: #5a47b6;">resumes@intelligenzit.com</span> or call @ <span style="color: #5a47b6;">{{ config.contact_numbers }}</span>.</p>
+                                 <br>
+                                 <br>
+ 
+diff --git a/home/users/templates/users/register.html b/home/users/templates/users/register.html
+index 318353f..e004e65 100644
+--- a/home/users/templates/users/register.html
++++ b/home/users/templates/users/register.html
+@@ -1,387 +1,302 @@
++{% extends "layouts/base-fullscreen.html" %}
+ {% load static %}
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-    <meta charset="UTF-8">
+-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-    <title>{{ title }} - Exam Portal</title>
+-    <link href="{% static 'custom/css/cdn-jsdelivr-bootstrap.min.css' %}" rel="stylesheet" />
+-    <link href="{% static 'custom/css/cdnjs-fontausome.css' %}" rel="stylesheet" />
+-    <link href="{% static 'custom/css/user-register.css' %}" rel="stylesheet" />    
+-</head>
+-<body class="registration-page">
+-    <div class="container">
+-        <div class="">
+-            <div class="registration-container">
+-                <section class="mb-4 header-section position-relative" style="background-color: #5a47b6;">
+-                    <div class="logo-container">
+-                        <img src="{% static 'img/logo.png' %}" alt="Exam Portal Logo" class="logo">
+-                    </div>
+-                    <h5 class="text-center mt-3 registration-header">User Registration Form</h5>
+-                </section>
+ 
+-                {% if messages %}
+-                    {% for message in messages %}
+-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+-                            {{ message }}
+-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+-                        </div>
+-                    {% endfor %}
+-                {% endif %}
++    <link href="{% static 'custom/css/add-user-admin-side.css' %}" rel="stylesheet" />
+ 
+-                <section class="form-section">
+-                    <div class="d-flex justify-content-end required-info">
+-                        <p class="mb-0 text-sm text-center">Please fill all required (<span class="required">*</span>) details</p>
+-                    </div> 
+ 
+-                    <!-- Registration Form -->
+-                    <form method="post" enctype="multipart/form-data" novalidate id="registrationForm">
+-                        {% csrf_token %}
++{% block content %}
++<link href="{% static 'custom/css/add-user-admin-side.css' %}" rel="stylesheet" />
++
++<div class="container-fluid py-4">
++  <div class="row">
++    <div class="col-md-12">
++      <div class="card">
++        
++<div class="card-header pb-0 text-center">
++    <img src="{% static 'img/logo.png' %}" alt="Logo" style="max-height: 60px;" class="mb-3">
++    <h4 class="font-weight-bolder">User Registration Form</h4>
++</div>
+ 
+-                        <div class="form-container mb-3">
+-                            <!-- Personal Information -->
+-                            <div class="form-header mb-3">
+-                                <i class="fas fa-user me-2"></i>Personal Information
++        <div class="card-body pt-4">
++           {% if messages %}
++                        {% for message in messages %}
++                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
++                                {{ message }}
++                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                             </div>
++                        {% endfor %}
++                    {% endif %}
+ 
+-                            <div class="row mb-3">
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">First Name <span class="required">*</span></label>
+-                                        {{ form.first_name }}
+-                                        <div class="text-danger small error-message" id="error-first_name"></div>
+-                                        {% if form.first_name.errors %}
+-                                            <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Last Name <span class="required">*</span></label>
+-                                        {{ form.last_name }}
+-                                        <div class="text-danger small error-message" id="error-last_name"></div>
+-                                        {% if form.last_name.errors %}
+-                                            <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-    
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Gender <span class="required">*</span></label>
+-                                        {{ form.gender }}
+-                                        <div class="text-danger small error-message" id="error-gender"></div>
+-                                        {% if form.gender.errors %}
+-                                            <div class="text-danger small">{{ form.gender.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Date of Birth <span class="required">*</span></label>
+-                                        {{ form.dob }}
+-                                        <div class="text-danger small error-message" id="error-dob"></div>
+-                                        {% if form.dob.errors %}
+-                                            <div class="text-danger small">{{ form.dob.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Aadhar Number <span class="required">*</span></label>
+-                                        {{ form.aadhar_number }}
+-                                        <div class="text-danger small error-message" id="error-aadhar_number"></div>
+-                                        {% if form.aadhar_number.errors %}
+-                                            <div class="text-danger small">{{ form.aadhar_number.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
++                    <form method="post" enctype="multipart/form-data" novalidate>
++                        {% csrf_token %}
++                        
++                        <!-- NEW: Error Summary Block -->
++                        {% if form.errors %}
++                            <div class="alert alert-danger" role="alert">
++                                <h6 class="alert-heading">Please correct the following errors:</h6>
++                                <ul class="mb-0">
++                                {% for field in form %}
++                                    {% if field.errors %}
++                                    <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
++                                    {% endif %}
++                                {% endfor %}
++                                {% if form.non_field_errors %}
++                                    <li>{{ form.non_field_errors|striptags }}</li>
++                                {% endif %}
++                                </ul>
+                             </div>
++                        {% endif %}
++                        <!-- END: Error Summary Block -->
++                        
++                        <!-- Personal Information -->
++                        <div class="section-header">
++                            <i class="fas fa-user me-2"></i>Personal Information
+                         </div>
+-
+-                        <div class="form-container mb-3">
+-                            <!-- Contact Information -->
+-                            <div class="form-header mb-3">
+-                                <i class="fas fa-phone me-2"></i>Contact Information
++                        <div class="row mb-3">
++                            <div class="col-md-6">
++                                <label class="form-label">First Name <span class="required">*</span></label>
++                                {{ form.first_name }}
++                                {% if form.first_name.errors %}
++                                    <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
++                                {% endif %}
+                             </div>
+-                            <div class="row mb-3">
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Email <span class="required">*</span></label>
+-                                        {{ form.email }}
+-                                        <div class="text-danger small error-message" id="error-email"></div>
+-                                        {% if form.email.errors %}
+-                                            <div class="text-danger small">{{ form.email.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Mobile <span class="required">*</span></label>
+-                                        {{ form.mobile }}
+-                                        <div class="text-danger small error-message" id="error-mobile"></div>
+-                                        {% if form.mobile.errors %}
+-                                            <div class="text-danger small">{{ form.mobile.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Alternative Mobile</label>
+-                                        {{ form.alternative_mobile }}
+-                                        <div class="text-danger small error-message" id="error-alternative_mobile"></div>
+-                                        {% if form.alternative_mobile.errors %}
+-                                            <div class="text-danger small">{{ form.alternative_mobile.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Address <span class="required">*</span></label>
+-                                        {{ form.address }}
+-                                        <div class="text-danger small error-message" id="error-address"></div>
+-                                        {% if form.address.errors %}
+-                                            <div class="text-danger small">{{ form.address.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">City <span class="required">*</span></label>
+-                                        {{ form.city }}
+-                                        <div class="text-danger small error-message" id="error-city"></div>
+-                                        {% if form.city.errors %}
+-                                            <div class="text-danger small">{{ form.city.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Pincode <span class="required">*</span></label>
+-                                        {{ form.pincode }}
+-                                        <div class="text-danger small error-message" id="error-pincode"></div>
+-                                        {% if form.pincode.errors %}
+-                                            <div class="text-danger small">{{ form.pincode.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
++                            <div class="col-md-6">
++                                <label class="form-label">Last Name <span class="required">*</span></label>
++                                {{ form.last_name }}
++                                {% if form.last_name.errors %}
++                                    <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
++                                {% endif %}
+                             </div>
+                         </div>
+-
+-                        <div class="form-container mb-3">
+-                            <!-- Educational Information -->
+-                            <div class="form-header mb-3">
+-                                <i class="fas fa-graduation-cap me-2"></i>Educational Information
++                        
++                        <div class="row mb-3">
++                            <div class="col-md-4">
++                                <label class="form-label">Gender <span class="required">*</span></label>
++                                {{ form.gender }}
++                                {% if form.gender.errors %}
++                                    <div class="text-danger small">{{ form.gender.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-4">
++                                <label class="form-label">Date of Birth <span class="required">*</span></label>
++                                {{ form.dob }}
++                                {% if form.dob.errors %}
++                                    <div class="text-danger small">{{ form.dob.errors.0 }}</div>
++                                {% endif %}
+                             </div>
++                            <div class="col-md-4">
++                                <label class="form-label">Aadhar Number <span class="required">*</span></label>
++                                {{ form.aadhar_number }}
++                                {% if form.aadhar_number.errors %}
++                                    <div class="text-danger small">{{ form.aadhar_number.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                        </div>
+ 
+-                            <div class="row mb-3">
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Highest Qualification <span class="required">*</span></label>
+-                                        {{ form.highest_qualification }}
+-                                        <div class="text-danger small error-message" id="error-highest_qualification"></div>
+-                                        {% if form.highest_qualification.errors %}
+-                                            <div class="text-danger small">{{ form.highest_qualification.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-                                
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Specific Qualification <span class="required">*</span></label>
+-                                        {{ form.specific_qualification }}
+-                                        <div class="text-danger small error-message" id="error-specific_qualification"></div>
+-                                        {% if form.specific_qualification.errors %}
+-                                            <div class="text-danger small">{{ form.specific_qualification.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
++                        <!-- Contact Information -->
++                        <div class="section-header">
++                            <i class="fas fa-phone me-2"></i>Contact Information
++                        </div>
++                        <div class="row mb-3">
++                            <div class="col-md-6">
++                                <label class="form-label">Email <span class="required">*</span></label>
++                                {{ form.email }}
++                                {% if form.email.errors %}
++                                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-3">
++                                <label class="form-label">Mobile <span class="required">*</span></label>
++                                {{ form.mobile }}
++                                {% if form.mobile.errors %}
++                                    <div class="text-danger small">{{ form.mobile.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-3">
++                                <label class="form-label">Alternative Mobile</label>
++                                {{ form.alternative_mobile }}
++                                {% if form.alternative_mobile.errors %}
++                                    <div class="text-danger small">{{ form.alternative_mobile.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                        </div>
+ 
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Stream</label>
+-                                        {{ form.stream }}
+-                                        <div class="text-danger small error-message" id="error-stream"></div>
+-                                        {% if form.stream.errors %}
+-                                            <div class="text-danger small">{{ form.stream.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
++                        <div class="row mb-3">
++                            <div class="col-md-8">
++                                <label class="form-label">Address <span class="required">*</span></label>
++                                {{ form.address }}
++                                {% if form.address.errors %}
++                                    <div class="text-danger small">{{ form.address.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-2">
++                                <label class="form-label">City <span class="required">*</span></label>
++                                {{ form.city }}
++                                {% if form.city.errors %}
++                                    <div class="text-danger small">{{ form.city.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-2">
++                                <label class="form-label">Pincode <span class="required">*</span></label>
++                                {{ form.pincode }}
++                                {% if form.pincode.errors %}
++                                    <div class="text-danger small">{{ form.pincode.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                        </div>
+ 
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">College/University <span class="required">*</span></label>
+-                                        {{ form.college_or_university }}
+-                                        <div class="text-danger small error-message" id="error-college_or_university"></div>
+-                                        {% if form.college_or_university.errors %}
+-                                            <div class="text-danger small">{{ form.college_or_university.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
++                        <!-- Educational Information -->
++                        <div class="section-header">
++                            <i class="fas fa-graduation-cap me-2"></i>Educational Information
++                        </div>
++                        <div class="row mb-3">
++                            <div class="col-md-4">
++                                <label class="form-label">Highest Qualification <span class="required">*</span></label>
++                                {{ form.highest_qualification }}
++                                {% if form.highest_qualification.errors %}
++                                    <div class="text-danger small">{{ form.highest_qualification.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-4">
++                                <label class="form-label">Specific Qualification <span class="required">*</span></label>
++                                {{ form.specific_qualification }}
++                                {% if form.specific_qualification.errors %}
++                                    <div class="text-danger small">{{ form.specific_qualification.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-4">
++                                <label class="form-label">Stream</label>
++                                {{ form.stream }}
++                                {% if form.stream.errors %}
++                                    <div class="text-danger small">{{ form.stream.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                        </div>
+ 
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Percentage <span class="required">*</span></label>
+-                                        {{ form.highest_qualification_percentage }}
+-                                        <div class="text-danger small error-message" id="error-highest_qualification_percentage"></div>
+-                                        {% if form.highest_qualification_percentage.errors %}
+-                                            <div class="text-danger small">{{ form.highest_qualification_percentage.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
++                        <div class="row mb-3">
++                            <div class="col-md-8">
++                                <label class="form-label">College/University <span class="required">*</span></label>
++                                {{ form.college_or_university }}
++                                {% if form.college_or_university.errors %}
++                                    <div class="text-danger small">{{ form.college_or_university.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-4">
++                                <label class="form-label">Percentage <span class="required">*</span></label>
++                                {{ form.highest_qualification_percentage }}
++                                {% if form.highest_qualification_percentage.errors %}
++                                    <div class="text-danger small">{{ form.highest_qualification_percentage.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                        </div>
+ 
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Primary Skills <span class="required">*</span></label>
+-                                        {{ form.primary_skills }}
+-                                        <div class="text-danger small error-message" id="error-primary_skills"></div>
+-                                        {% if form.primary_skills.errors %}
+-                                            <div class="text-danger small">{{ form.primary_skills.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
++                        <div class="mb-3">
++                            <label class="form-label">Primary Skills <span class="required">*</span></label>
++                            {{ form.primary_skills }}
++                            {% if form.primary_skills.errors %}
++                                <div class="text-danger small">{{ form.primary_skills.errors.0 }}</div>
++                            {% endif %}
++                        </div>
+ 
+-                                <div class="col-md-4 other-skills-container" style="display: none;">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Other Skills <span class="required">*</span></label>
+-                                        {{ form.other_skills }}
+-                                        <div class="text-danger small error-message" id="error-other_skills"></div>
+-                                        {% if form.other_skills.errors %}
+-                                            <div class="text-danger small">{{ form.other_skills.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-                            </div>
++                        <div class="mb-3" id="other_skills_container" style="display: none;">
++                            <label class="form-label">Other Skills <span class="required">*</span></label>
++                            {{ form.other_skills }}
++                            {% if form.other_skills.errors %}
++                                <div class="text-danger small">{{ form.other_skills.errors.0 }}</div>
++                            {% endif %}
+                         </div>
+ 
+-                        <div class="form-container mb-3">
+-                            <!-- Training/Certification -->
+-                            <div class="form-header mb-3">
++                        <!-- Training/Certification -->
++                            <div class="section-header">
+                                 <i class="fas fa-certificate me-2"></i>Training & Certification
+                             </div>
+                             <div class="row mb-3">
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Training/Certification Details (Optional)</label>
+-                                        {{ form.training_certification }}
+-                                        <div class="text-danger small error-message" id="error-training_certification"></div>
+-                                        {% if form.training_certification.errors %}
+-                                            <div class="text-danger small">{{ form.training_certification.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
++                                <div class="col-md-12">
++                                    <label class="form-label">Training/Certification Details (Optional)</label>
++                                    {{ form.training_certification }}
++                                    {% if form.training_certification.errors %}
++                                        <div class="text-danger small">{{ form.training_certification.errors.0 }}</div>
++                                    {% endif %}
+                                 </div>
+-
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Certificate (Optional)</label>
+-                                        {{ form.certificate }}
+-                                        <small class="form-text input-info">
+-                                            Upload certificate (PDF, DOC, DOCX) max {{certificate_size_mb}}MB
+-                                        </small>
+-                                        <div class="text-danger small error-message" id="error-certificate"></div>
+-                                        {% if form.certificate.errors %}
+-                                            <div class="text-danger small">{{ form.certificate.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
++                            </div>
++                            <div class="row mb-3">
++                                <div class="col-md-6">
++                                    <label class="form-label">Certificate (Optional)</label>
++                                    {{ form.certificate }}
++                                    <small class="form-text text-muted">
++                                        Upload certificate (PDF, DOC, DOCX) {{certificate_size_mb}}MB
++                                    </small>
++                                    {% if form.certificate.errors %}
++                                        <div class="text-danger small">{{ form.certificate.errors.0 }}</div>
++                                    {% endif %}
+                                 </div>
+                             </div>
+-                        </div>
+ 
+-                        <div class="form-container mb-3">
++                       
+                             <!-- Documents Section -->
+-                            <div class="form-header mb-3">
++                            <div class="section-header">
+                                 <i class="fas fa-file-upload me-2"></i>Documents Upload
+                             </div>
+                             <div class="row mb-3">
+                                 <!-- Resume Field -->
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Resume <span class="required">*</span></label>
+-                                        {{ form.resume }}
+-                                        <small class="form-text input-info">
+-                                            Upload your resume (PDF, DOC, DOCX) max {{resume_size_mb}}MB
+-                                        </small>
+-                                        <div class="text-danger small error-message" id="error-resume"></div>
+-                                        {% if form.resume.errors %}
+-                                            <div class="text-danger small">{{ form.resume.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
+-
+-                                <!-- ID Proof Field -->
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">ID Proof</label>
+-                                        {{ form.id_proof }}
+-                                        <small class="form-text input-info">
+-                                            Upload ID proof (PDF, JPG, PNG, JPEG) max {{id_proof_size_kb}}KB
+-                                        </small>
+-                                        <div class="text-danger small error-message" id="error-id_proof"></div>
+-                                        {% if form.id_proof.errors %}
+-                                            <div class="text-danger small">{{ form.id_proof.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
++                                <div class="col-md-6">
++                                    <label class="form-label">Resume <span class="required">*</span></label>
++                                    {{ form.resume }}
++                                    <small class="form-text text-muted">
++                                        Upload your resume (PDF, DOC, DOCX) max{{resume_size_mb}}MB
++                                    </small>
++                                    {% if form.resume.errors %}
++                                        <div class="text-danger small">{{ form.resume.errors.0 }}</div>
++                                    {% endif %}
+                                 </div>
+                                 
+-                                <!-- Photo Field -->
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Photo <span class="required">*</span></label>
+-                                        {{ form.photo }}
+-                                        <small class="form-text input-info">
+-                                            Upload passport size photo (JPG, PNG, JPEG) max {{photo_size_kb}}KB
+-                                        </small>
+-                                        <div class="text-danger small error-message" id="error-photo"></div>
+-                                        {% if form.photo.errors %}
+-                                            <div class="text-danger small">{{ form.photo.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
++                                <!-- ID Proof Field -->
++                                <div class="col-md-6">
++                                    <label class="form-label">ID Proof <span class="required">*</span></label>
++                                    {{ form.id_proof }}
++                                    <small class="form-text text-muted">
++                                        Upload ID proof (PDF, JPG, PNG, JPEG) max {{id_proof_size_kb}}KB
++                                    </small>
++                                    {% if form.id_proof.errors %}
++                                        <div class="text-danger small">{{ form.id_proof.errors.0 }}</div>
++                                    {% endif %}
+                                 </div>
+                             </div>
+-                        </div>
+ 
+-                        <div class="form-container mb-3">
+-                            <!-- Reference -->
+-                            <div class="form-header mb-3">
+-                                <i class="fas fa-users me-2"></i>Reference Information
+-                            </div>
++                            <!-- Photo Field (if you still need it) -->
+                             <div class="row mb-3">
+-                                <!-- Reference Field -->
+-                                <div class="col-md-4">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Do You Have A Reference?<span class="required">*</span></label>
+-                                        {{ form.reference }}
+-                                        <div class="text-danger small error-message" id="error-reference"></div>
+-                                        {% if form.reference.errors %}
+-                                            <div class="text-danger small">{{ form.reference.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
++                                <div class="col-md-6">
++                                    <label class="form-label">Photo <span class="required">*</span></label>
++                                    {{ form.photo }}
++                                    <small class="form-text text-muted">
++                                        Upload passport size photo (JPG, PNG, JPEG) max {{photo_size_kb}}KB
++                                    </small>
++                                    {% if form.photo.errors %}
++                                        <div class="text-danger small">{{ form.photo.errors.0 }}</div>
++                                    {% endif %}
+                                 </div>
++                            </div>
+ 
+-                                <!-- Referred By Field -->
+-                                <div class="col-md-4 referred-by-container" style="display: none;">
+-                                    <div class="form-item mt-3">
+-                                        <label class="form-label">Referred By <span class="required">*</span></label>
+-                                        {{ form.referred_by }}
+-                                        <div class="text-danger small error-message" id="error-referred_by"></div>
+-                                        {% if form.referred_by.errors %}
+-                                            <div class="text-danger small">{{ form.referred_by.errors.0 }}</div>
+-                                        {% endif %}
+-                                    </div>
+-                                </div>
++                        
+ 
+-                                <!-- reCAPTCHA -->
+-                                <div class="col-md-12">
+-                                    <div class="mb-3 text-center mt-3">
+-                                        <div class="g-recaptcha" data-sitekey="6LcgVYsrAAAAAJNq7RjXbB9SjXyVtwKZJAF-FYvH"></div>
+-                                        <div class="text-danger small error-message" id="error-g-recaptcha"></div>
+-                                    </div>
+-                                </div>
++                        <!-- Reference -->
++                        <div class="section-header">
++                            <i class="fas fa-users me-2"></i>Reference Information
++                        </div>
++                        <div class="row mb-3">
++                            <div class="col-md-6">
++                                <label class="form-label">Do you have a reference?</label>
++                                {{ form.reference }}
++                                {% if form.reference.errors %}
++                                    <div class="text-danger small">{{ form.reference.errors.0 }}</div>
++                                {% endif %}
++                            </div>
++                            <div class="col-md-6 referred-by-container" style="display: none;">
++                                <label class="form-label">Referred_by</label>
++                                {{ form.referred_by }}
++                                {% if form.referred_by.errors %}
++                                    <div class="text-danger small">{{ form.referred_by.errors.0 }}</div>
++                                {% endif %}
+                             </div>
+                         </div>
+ 
+@@ -392,227 +307,74 @@
+                                 {% endfor %}
+                             </div>
+                         {% endif %}
+-    
+-                        <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+-                            <button type="submit" class="btn register-btn" id="registerButton">
+-                                <i class="fas fa-user-plus me-2"></i>Register
++
++
++                        
++<div class="row mb-3">
++    <div class="col-md-12 text-center d-flex justify-content-center">
++        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
++        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
++    </div>
++</div>
++<div class="text-end">
++                            <button type="submit" class="btn btn-primary btn-lg">
++                                Submit
+                             </button>
++                            <a
++                                href="{% url 'question_list' %}"
++                                class="btn bg-gradient-dark btn-lg"
++                                >Back to Login</a
++                            >
++                            {% comment %} <a href="{% url 'user_login' %}" class="btn btn-outline-secondary btn-lg ms-3">
++                                <i class="fas fa-sign-in-alt me-2"></i>Already have account? Login
++                            </a> {% endcomment %}
+                         </div>
+                     </form>
+-                </section>
+-            </div>
+         </div>
++      </div>
+     </div>
+-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+-    <script src="{% static 'custom/js/cdn-jsdelivr-bootstrap.min.js' %}"></script>
+-    <script>
+-        document.addEventListener('DOMContentLoaded', function() {
+-            const form = document.getElementById('registrationForm');
+-            const referenceSelect = document.querySelector('select[name="reference"]');
+-            const referredByContainer = document.querySelector('.referred-by-container');
+-            const primarySkillsSelect = document.querySelector('select[name="primary_skills"]');
+-            const otherSkillsContainer = document.querySelector('.other-skills-container');
+-
+-            // Configuration for file validations (matching backend)
+-            const config = {
+-                photo: {
+-                    maxSizeKB: {{ photo_size_kb }},
+-                    validExtensions: ['.jpg', '.jpeg', '.png']
+-                },
+-                resume: {
+-                    maxSizeMB: {{ resume_size_mb }},
+-                    validExtensions: ['.pdf', '.doc', '.docx']
+-                },
+-                id_proof: {
+-                    maxSizeKB: {{ id_proof_size_kb }},
+-                    validExtensions: ['.pdf', '.jpg', '.jpeg', '.png']
+-                },
+-                certificate: {
+-                    maxSizeMB: {{ certificate_size_mb }},
+-                    validExtensions: ['.pdf', '.doc', '.docx']
+-                }
+-            };
+-
+-            // Required fields configuration
+-            const requiredFields = [
+-                { name: 'first_name', validate: value => /^[a-zA-Z\s]+$/.test(value) && value.trim() !== '', errorMsg: 'First name is required and should contain only alphabets and spaces.' },
+-                { name: 'last_name', validate: value => /^[a-zA-Z\s]+$/.test(value) && value.trim() !== '', errorMsg: 'Last name is required and should contain only alphabets and spaces.' },
+-                { name: 'gender', validate: value => value !== '', errorMsg: 'Please select a gender.' },
+-                { name: 'dob', validate: value => {
+-                    if (!value) return false;
+-                    const dob = new Date(value);
+-                    const today = new Date();
+-                    const age = today.getFullYear() - dob.getFullYear() - ((today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) ? 1 : 0);
+-                    return dob <= today && age >= 18;
+-                }, errorMsg: 'Date of birth is required and you must be at least 18 years old.' },
+-                { name: 'aadhar_number', validate: value => /^\d{12}$/.test(value), errorMsg: 'Aadhar number must be only numbers and exactly 12 digits.' },
+-                { name: 'email', validate: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), errorMsg: 'Please enter a valid email address.' },
+-                { name: 'mobile', validate: value => /^\d{10}$/.test(value), errorMsg: 'Mobile number must be exactly 10 digits.' },
+-                { name: 'address', validate: value => value.trim() !== '', errorMsg: 'Address is required.' },
+-                { name: 'city', validate: value => value.trim() !== '', errorMsg: 'City is required.' },
+-                { name: 'pincode', validate: value => /^\d{6}$/.test(value), errorMsg: 'Pincode must be exactly 6 digits.' },
+-                { name: 'highest_qualification', validate: value => value !== '', errorMsg: 'Please select your highest qualification.' },
+-                { name: 'specific_qualification', validate: value => value.trim() !== '', errorMsg: 'Specific qualification is required.' },
+-                { name: 'college_or_university', validate: value => value.trim() !== '', errorMsg: 'College/University name is required.' },
+-                { name: 'highest_qualification_percentage', validate: value => value >= 0 && value <= 100, errorMsg: 'Percentage must be between 0 and 100.' },
+-                { name: 'primary_skills', validate: value => value !== '' && value !== 'Select your Primary Skills', errorMsg: 'Please select a primary skill.' },
+-                { name: 'resume', validate: value => {
+-                    if (!value) return false;
+-                    const ext = value.name.split('.').pop().toLowerCase();
+-                    return config.resume.validExtensions.includes('.' + ext) && value.size <= config.resume.maxSizeMB * 1024 * 1024;
+-                }, errorMsg: `Resume must be a PDF or Word document and not exceed ${config.resume.maxSizeMB}MB.` },
+-                { name: 'photo', validate: value => {
+-                    if (!value) return false;
+-                    const ext = value.name.split('.').pop().toLowerCase();
+-                    return config.photo.validExtensions.includes('.' + ext) && value.size <= config.photo.maxSizeKB * 1024;
+-                }, errorMsg: `Photo must be a JPG, JPEG, or PNG file and not exceed ${config.photo.maxSizeKB}KB.` },
+-                { name: 'g-recaptcha-response', validate: value => value !== '', errorMsg: 'Please complete the reCAPTCHA verification.' }
+-            ];
+-
+-            // Optional fields with validation
+-            const optionalFields = [
+-                { name: 'alternative_mobile', validate: value => !value || /^\d{10}$/.test(value), errorMsg: 'Alternative mobile number must be exactly 10 digits.' },
+-                { name: 'certificate', validate: value => {
+-                    if (!value) return true;
+-                    const ext = value.name.split('.').pop().toLowerCase();
+-                    return config.certificate.validExtensions.includes('.' + ext) && value.size <= config.certificate.maxSizeMB * 1024 * 1024;
+-                }, errorMsg: `Certificate must be a PDF or Word document and not exceed ${config.certificate.maxSizeMB}MB.` },
+-                { name: 'id_proof', validate: value => {
+-                    if (!value) return true;
+-                    const ext = value.name.split('.').pop().toLowerCase();
+-                    return config.id_proof.validExtensions.includes('.' + ext) && value.size <= config.id_proof.maxSizeKB * 1024;
+-                }, errorMsg: `ID proof must be a PDF, JPG, JPEG, or PNG file and not exceed ${config.id_proof_size_kb}KB.` }
+-            ];
+-
+-            // Toggle referred-by field based on reference selection
+-            referenceSelect.addEventListener('change', function() {
+-                referredByContainer.style.display = this.value === 'Yes' ? 'block' : 'none';
+-                const referredByField = requiredFields.find(field => field.name === 'referred_by');
+-                if (this.value === 'Yes' && !referredByField) {
+-                    requiredFields.push({
+-                        name: 'referred_by',
+-                        validate: value => value.trim() !== '',
+-                        errorMsg: 'Referred by name is required when reference is selected.'
+-                    });
+-                } else if (this.value !== 'Yes' && referredByField) {
+-                    requiredFields.splice(requiredFields.findIndex(field => field.name === 'referred_by'), 1);
+-                    const referredByInput = document.querySelector('[name="referred_by"]');
+-                    if (referredByInput) {
+-                        referredByInput.value = '';
+-                        document.getElementById('error-referred_by').textContent = '';
+-                    }
+-                }
+-            });
+-
+-            // Toggle other-skills field based on primary skills selection
+-            primarySkillsSelect.addEventListener('change', function() {
+-                otherSkillsContainer.style.display = this.value === 'Others' ? 'block' : 'none';
+-                const otherSkillsField = requiredFields.find(field => field.name === 'other_skills');
+-                if (this.value === 'Others' && !otherSkillsField) {
+-                    requiredFields.push({
+-                        name: 'other_skills',
+-                        validate: value => value.trim() !== '',
+-                        errorMsg: "Other skills are required when 'Others' is selected."
+-                    });
+-                } else if (this.value !== 'Others' && otherSkillsField) {
+-                    requiredFields.splice(requiredFields.findIndex(field => field.name === 'other_skills'), 1);
+-                    const otherSkillsInput = document.querySelector('[name="other_skills"]');
+-                    if (otherSkillsInput) {
+-                        otherSkillsInput.value = '';
+-                        document.getElementById('error-other_skills').textContent = '';
+-                    }
+-                }
+-            });
+-
+-            // Initialize visibility and required fields based on initial values
++  </div>
++</div>
++<script>
++    document.addEventListener('DOMContentLoaded', function() {
++        const referenceSelect = document.querySelector('select[name="reference"]');
++        const referredByContainer = document.querySelector('.referred-by-container');
++
++        function toggleReferredBy() {
+             if (referenceSelect.value === 'Yes') {
+                 referredByContainer.style.display = 'block';
+-                if (!requiredFields.find(field => field.name === 'referred_by')) {
+-                    requiredFields.push({
+-                        name: 'referred_by',
+-                        validate: value => value.trim() !== '',
+-                        errorMsg: 'Referred by name is required when reference is selected.'
+-                    });
+-                }
+-            }
+-            if (primarySkillsSelect.value === 'Others') {
+-                otherSkillsContainer.style.display = 'block';
+-                if (!requiredFields.find(field => field.name === 'other_skills')) {
+-                    requiredFields.push({
+-                        name: 'other_skills',
+-                        validate: value => value.trim() !== '',
+-                        errorMsg: "Other skills are required when 'Others' is selected."
+-                    });
+-                }
++                referredByContainer.querySelector('input[name="referred_by"]').required = true;
+             } else {
+-                otherSkillsContainer.style.display = 'none';
+-                const otherSkillsInput = document.querySelector('[name="other_skills"]');
+-                if (otherSkillsInput) {
+-                    otherSkillsInput.value = '';
+-                    document.getElementById('error-other_skills').textContent = '';
+-                }
++                referredByContainer.style.display = 'none';
++                referredByContainer.querySelector('input[name="referred_by"]').required = false;
++                referredByContainer.querySelector('input[name="referred_by"]').value = ''; // Clear the field
+             }
++        }
+ 
+-            // Validate form on submit
+-            form.addEventListener('submit', function(e) {
+-                e.preventDefault();
+-                let isValid = true;
+-
+-                // Clear previous error messages
+-                document.querySelectorAll('.error-message').forEach(element => {
+-                    element.textContent = '';
+-                });
+-
+-                // Validate all required fields
+-                for (const field of requiredFields) {
+-                    const input = field.name === 'g-recaptcha-response' ? 
+-                        { name: 'g-recaptcha-response', value: grecaptcha.getResponse() } : 
+-                        form.querySelector(`[name="${field.name}"]`);
+-                    if (!input) continue;
+-                    const value = input.type === 'file' ? input.files[0] : (input.name === 'g-recaptcha-response' ? grecaptcha.getResponse() : input.value);
+-                    if (!field.validate(value)) {
+-                        document.getElementById(`error-${field.name}`).textContent = field.errorMsg;
+-                        isValid = false;
+-                    }
+-                }
++        // Initial call to set the state based on the current value
++        toggleReferredBy();
+ 
+-                // Validate optional fields if they have values
+-                for (const field of optionalFields) {
+-                    const input = form.querySelector(`[name="${field.name}"]`);
+-                    if (input && input.value) {
+-                        const value = input.type === 'file' ? input.files[0] : input.value;
+-                        if (!field.validate(value)) {
+-                            document.getElementById(`error-${field.name}`).textContent = field.errorMsg;
+-                            isValid = false;
+-                        }
+-                    }
+-                }
++        // Add event listener for changes
++        referenceSelect.addEventListener('change', toggleReferredBy);
+ 
+-                if (isValid) {
+-                    form.submit();
+-                }
+-            });
++        // --- Added for Other Skills ---
++        const primarySkillsSelect = document.querySelector('select[name="primary_skills"]');
++        const otherSkillsContainer = document.getElementById('other_skills_container');
+ 
+-            // Add reCAPTCHA callback
+-            window.validateRecaptcha = function() {
+-                const errorElement = document.getElementById('error-g-recaptcha');
+-                if (grecaptcha.getResponse() === '') {
+-                    errorElement.textContent = 'Please complete the reCAPTCHA verification.';
+-                } else {
+-                    errorElement.textContent = '';
+-                }
+-            };
+-
+-            // Bind reCAPTCHA callback
+-            if (typeof grecaptcha !== 'undefined') {
+-                grecaptcha.ready(function() {
+-                    const recaptchaWidget = document.querySelector('.g-recaptcha');
+-                    if (recaptchaWidget) {
+-                        recaptchaWidget.setAttribute('data-callback', 'validateRecaptcha');
+-                    }
+-                });
++        function toggleOtherSkills() {
++            if (primarySkillsSelect.value === 'Others') {
++                otherSkillsContainer.style.display = 'block';
++            } else {
++                otherSkillsContainer.style.display = 'none';
+             }
+-        });
+-    </script>
+-</body>
+-</html>
+\ No newline at end of file
++        }
++        
++        // Initial check on page load for other skills
++        toggleOtherSkills();
++
++        // Event listener for primary skills change
++        primarySkillsSelect.addEventListener('change', toggleOtherSkills);
++        // --- End of added code ---
++    });
++</script>
++{% endblock %}
+\ No newline at end of file
+diff --git a/home/users/templates/users/registration_success.html b/home/users/templates/users/registration_success.html
+index 3175f73..0511b00 100644
+--- a/home/users/templates/users/registration_success.html
++++ b/home/users/templates/users/registration_success.html
+@@ -42,7 +42,7 @@
+         <div class="success-icon">&#10004;</div> <!-- Tick mark -->
+         <div class="success-message">Registration Successful!</div>
+         <p class="registration-id">Your Registration ID: {{ registration_id }}</p>
+-        <p>Thank you for registering with TechRAQ Info Solutions Pvt. Ltd.</p>
++        <p>Thank you for registering with Intelligenz IT Info Solutions Pvt. Ltd.</p>
+         <p>You will receive a confirmation email with further details.</p>
+     </div>
+ </body>
+diff --git a/home/users/views.py b/home/users/views.py
+index e71b021..9955ed7 100644
+--- a/home/users/views.py
++++ b/home/users/views.py
+@@ -576,7 +576,7 @@ def send_exam_details(request, pk):
+     In reference to your application for Freshers Drive {current_year}, we request you to kindly attend for the Preliminary Technical Test on {date_of_exam} at {slot_timings} at the below venue.
+ 
+     Venue:
+-    TechRAQ Info Solutions Pvt Ltd
++    Intelligenz IT Info Solutions Pvt Ltd
+     Plot No 23 & 24, 1st Floor,
+     Silicon Park, Silicon Valley,
+     Beside ICICI Bank Lane,
+@@ -600,7 +600,7 @@ def send_exam_details(request, pk):
+       o A valid ID proof
+       o A printout of this email
+     • Kindly report to the venue 30 minutes before your scheduled time.
+-    For any further assistance, please feel free to contact us {contact_number} or email us @ resumes@techraq.com.
++    For any further assistance, please feel free to contact us {contact_number} or email us @ resumes@intelligenzit.com.
+ 
+     Thanks & Regards,
+     HR Team
+@@ -614,7 +614,7 @@ def send_exam_details(request, pk):
+     <p>In reference to your application for Freshers Drive {current_year}, we request you to kindly attend for the Preliminary Technical Test on <strong>{date_of_exam}</strong> at <strong>{slot_timings}</strong> at the below venue.</p>
+ 
+     <p><strong>Venue:</strong><br>
+-    TechRAQ Info Solutions Pvt Ltd<br>
++    Intelligenz IT Info Solutions Pvt Ltd<br>
+     Plot No 23 & 24, 1st Floor,<br>
+     Silicon Park, Silicon Valley,<br>
+     Beside ICICI Bank Lane,<br>
+@@ -638,7 +638,7 @@ def send_exam_details(request, pk):
+         o A valid ID proof<br>
+         o A printout of this email<br>
+     • Kindly report to the venue 30 minutes before your scheduled time.<br>
+-    For any further assistance, please feel free to contact us <strong>{contact_number}</strong> or email us @ <a href="mailto:resumes@techraq.com">resumes@techraq.com</a>.</p>
++    For any further assistance, please feel free to contact us <strong>{contact_number}</strong> or email us @ <a href="mailto:resumes@intelligenzit.com">resumes@intelligenzit.com</a>.</p>
+ 
+     <p>Thanks & Regards,<br>HR Team</p>
+     """
+diff --git a/home/views.py b/home/views.py
+index e1a5765..e9db98e 100644
+--- a/home/views.py
++++ b/home/views.py
+@@ -384,7 +384,7 @@ def add_footer(canvas, doc):
+     canvas.setFont('Helvetica', 8)
+     page_number = f"Page {doc.page}"
+     canvas.drawCentredString(letter[0]/2, 0.5*inch, page_number)
+-    canvas.drawString(1*inch, 0.5*inch, "Techraq Fresher Hiring")
++    canvas.drawString(1*inch, 0.5*inch, "Intelligenz IT Fresher Hiring")
+     canvas.restoreState()
+ 
+ @login_required
+@@ -548,7 +548,7 @@ def generate_test(request):
+                     content = []
+ 
+                     # First Page: Header, Participant Details, Instructions
+-                    content.append(Paragraph("Techraq Fresher Hiring", styles['Header']))
++                    content.append(Paragraph("Intelligenz IT Fresher Hiring", styles['Header']))
+                     content.append(Paragraph(
+                         f"{'General' if test_type == 'gt' else 'Technical'} Test (Set {set_num})" + 
+                         (f" ({selected_language})" if test_type == 'tt' else ""),
+diff --git a/static/img/logo.png b/static/img/logo.png
+index 8b3cff8..7c29a6a 100644
+Binary files a/static/img/logo.png and b/static/img/logo.png differ
+diff --git a/user_invite/models.py b/user_invite/models.py
+index 17924c9..27659db 100644
+--- a/user_invite/models.py
++++ b/user_invite/models.py
+@@ -121,7 +121,9 @@ class UserInvite(models.Model):
+ def get_email_template_choices():
+     current_year = '2025'  # Replace with dynamic year if needed, e.g., datetime.now().year
+     try:
+-        return [(config.value, config.value) for config in Configuration.objects.filter(key__startswith=f'email_template_{current_year}', deleted=False)]
++        from django.db import transaction
++        with transaction.atomic():
++            return [(config.value, config.value) for config in Configuration.objects.filter(key__startswith=f'email_template_{current_year}', deleted=False)]
+     except Exception:
+         return []  # Return empty choices during migration
+ 
+diff --git a/user_invite/templates/user_invite/confirmation_success.html b/user_invite/templates/user_invite/confirmation_success.html
+index 9093281..f5b05c3 100644
+--- a/user_invite/templates/user_invite/confirmation_success.html
++++ b/user_invite/templates/user_invite/confirmation_success.html
+@@ -53,7 +53,7 @@
+                 <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; overflow: hidden; border-spacing: 0; font-family: Arial, sans-serif;">
+                     <tr>
+                         <td colspan="2" align="center" style="background-color: #5a47b6; padding: 20px;">
+-                            <img src="https://storage.googleapis.com/techraq/logo.png"
++                            <img src="https://storage.googleapis.com/intelligenzit/logo.png"
+                                  alt="Company Logo"
+                                  width="150"
+                                  style="display: block; max-width: 150px; height: auto; border: 0;">
+@@ -80,7 +80,7 @@
+                             
+                             <p style="font-size: 16px; color: #383838 !important;">Your registration has been successfully confirmed. We appreciate you taking the time to verify your details.</p>
+                             
+-                            <p style="font-size: 16px; color: #383838 !important;">For any further assistance, please write to us at <span style="color: #5a47b6;">resumes@techraq.com</span>.</p>
++                            <p style="font-size: 16px; color: #383838 !important;">For any further assistance, please write to us at <span style="color: #5a47b6;">resumes@intelligenzit.com</span>.</p>
+                             
+                             <p style="font-size: 16px; color: #383838 !important;">You can close the browser now.</p>
+                             
+diff --git a/user_invite/views.py b/user_invite/views.py
+index 6cde6f2..50b5542 100644
+--- a/user_invite/views.py
++++ b/user_invite/views.py
+@@ -271,7 +271,7 @@ def send_bulk_email(request):
+                             # Ensure confirmation_token and URL exist or generate them
+                             if not user.confirmation_url or not user.confirmation_token:
+                                 user.confirmation_token = str(uuid.uuid4())
+-                                user.confirmation_url = f"https://registration.techraq.com/invite/user/confirmation/{user.registration_id}/{user.confirmation_token}"
++                                user.confirmation_url = f"https://registration.intelligenzit.com/invite/user/confirmation/{user.registration_id}/{user.confirmation_token}"
+                                 user.save(update_fields=['confirmation_token', 'confirmation_url'])
+                                 logger.warning(f"Generated confirmation URL for user {user.email} (ID: {user.user_id}): {user.confirmation_url}")
+ 
+@@ -283,7 +283,7 @@ def send_bulk_email(request):
+                                     'time_slot': start_time_slot if start_time_slot else '9:00 AM'
+                                 },
+                                 'venue': {
+-                                    'company_name': 'TechRAQ Info Solutions Pvt Ltd',
++                                    'company_name': 'Intelligenz IT Info Solutions Pvt Ltd',
+                                     'address_line1': '#Plot No 23 & 24, 1st Floor,',
+                                     'address_line2': 'Silicon Park, Silicon Valley,',
+                                     'address_line3': 'Beside ICICI Bank Lane,',
+@@ -293,7 +293,7 @@ def send_bulk_email(request):
+                                     'google_maps_url': 'https://maps.app.goo.gl/3LdsG2g8PSTquPHM8'
+                                 },
+                                 'contact': {
+-                                    'email': 'resumes@techraq.com',
++                                    'email': 'resumes@intelligenzit.com',
+                                     'phone': '7842181883/ 9063839746'
+                                 },
+                                 'config': {

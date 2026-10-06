@@ -29,7 +29,7 @@ if not SECRET_KEY:
 
 # Render Deployment Code
 #DEBUG = 'RENDER' not in os.environ
-DEBUG = False
+DEBUG = True
 #DEBUG = True
 
 ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.1.53','192.168.1.50', '49.249.160.198', '13.232.128.222','registration.intelligenzit.com', 'onlinetestzone.com','183.82.6.191', '*']
@@ -207,15 +207,15 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'users_logs')
 
-EMAIL_HOST_USER     = "registrations@intelligenzit.com"
-EMAIL_HOST_PASSWORD     = "lzfkcfjzdnkjdmvt"
+EMAIL_HOST_USER     = "nagendrapanda45@gmail.com"
+EMAIL_HOST_PASSWORD     = "qgmmwetpyxghlpyd"
 
 # New EmailId
 # EMAIL_HOST_USER     = "registrations1@intelligenzit.com"
 # EMAIL_HOST_PASSWORD     = "byvldghkkbcmdmdh"
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.office365.com'  # or your email host
+EMAIL_HOST = 'smtp.gmail.com'  # Changed to Gmail
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = EMAIL_HOST_USER

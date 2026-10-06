@@ -402,7 +402,7 @@ def generate_test(request):
 
     programming_languages = []
     if test_type == 'tt':
-        configs = Configuration.objects.filter(key=f'primary_skills_{current_year}', deleted=False)
+        configs = Configuration.objects.filter(key=f'programming_languages_{current_year}', deleted=False)
         if configs.exists():
             programming_languages = [config.value.strip() for config in configs]
         else:
@@ -833,9 +833,9 @@ def download_test_sets_zip(request):
         zip_buffer.seek(0)
  
         if test_type:
-            zip_name = f'TechRaq_{test_type.upper()}_Sets_{datetime.now().strftime("%Y%m%d_%H%M%S")}.zip'
+            zip_name = f'IntelligenzIT_{test_type.upper()}_Sets_{datetime.now().strftime("%Y%m%d_%H%M%S")}.zip'
         else:
-            zip_name = f'TechRaq_All_Test_Sets_{datetime.now().strftime("%Y%m%d_%H%M%S")}.zip'
+            zip_name = f'IntelligenzIT_All_Test_Sets_{datetime.now().strftime("%Y%m%d_%H%M%S")}.zip'
  
         logger.info(f"Downloaded ZIP for user {request.user.email} (batch {latest_batch_id or 'all'}, type {test_type or 'all'})")
         response = HttpResponse(zip_buffer, content_type='application/zip')

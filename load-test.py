@@ -1,13 +1,13 @@
 import asyncio
 import aiohttp
 
-BASE_URL = "https://onlinetestzone.com"
+BASE_URL = "http://127.0.0.1:8000"
 
 # Shared headers
 HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-    "Referer": "https://onlinetestzone.com",
+    "Referer": "http://127.0.0.1:8000",
     "Cookie": "csrftoken=UICtYfIE7nyY1MAhiFELt0azn71FPt98; messages=W1siX19qc29uX21lc3NhZ2UiLDAsMjUsIkxvZ2dlZCBpbiBzdWNjZXNzZnVsbHkuIiwiIl1d:1uxPKR:ZwuxJ9qXL55G3jso8QpAerTO8cpw0nVxP61ThRtVqqY; sessionid=cv405rno3g65dd3d3ho3lamk68z2701d"
 }
 

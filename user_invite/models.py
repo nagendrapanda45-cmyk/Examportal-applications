@@ -38,7 +38,8 @@
 #         super().save(*args, **kwargs)
 
 # def get_email_template_choices():
-#     current_year = '2025'  # Replace with dynamic year if needed, e.g., datetime.now().year
+#     from datetime import datetime
+#     current_year = datetime.now().year  # Replace with dynamic year if needed, e.g., datetime.now().year
 #     try:
 #         return [(config.value, config.value) for config in Configuration.objects.filter(key__startswith=f'email_template_{current_year}', deleted=False)]
 #     except Exception:
@@ -119,7 +120,8 @@ class UserInvite(models.Model):
         super().save(*args, **kwargs)
 
 def get_email_template_choices():
-    current_year = '2025'  # Replace with dynamic year if needed, e.g., datetime.now().year
+    from datetime import datetime
+    current_year = datetime.now().year  # Replace with dynamic year if needed, e.g., datetime.now().year
     try:
         from django.db import transaction
         with transaction.atomic():
