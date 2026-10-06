@@ -177,11 +177,18 @@
                                     <div class="text-danger small">{{ form.college_or_university.errors.0 }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="percentage_container">
                                 <label class="form-label">Percentage <span class="required">*</span></label>
                                 {{ form.highest_qualification_percentage }}
                                 {% if form.highest_qualification_percentage.errors %}
                                     <div class="text-danger small">{{ form.highest_qualification_percentage.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4" id="cgpa_container" style="display: none;">
+                                <label class="form-label">CGPA <span class="required">*</span></label>
+                                {{ form.cgpa }}
+                                {% if form.cgpa.errors %}
+                                    <div class="text-danger small">{{ form.cgpa.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -364,6 +371,32 @@
         // Event listener for primary skills change
         primarySkillsSelect.addEventListener('change', toggleOtherSkills);
         // --- End of added code ---
+
+        // --- Toggle CGPA/Percentage ---
+        const hqSelect = document.querySelector('#id_highest_qualification');
+        const percentageContainer = document.getElementById('percentage_container');
+        const cgpaContainer = document.getElementById('cgpa_container');
+        
+        function toggleCgpaPercentage() {
+            if (hqSelect && hqSelect.value) {
+                if (hqSelect.value === 'PG' || hqSelect.value === 'PhD') {
+                    percentageContainer.style.display = 'none';
+                    cgpaContainer.style.display = 'block';
+                } else {
+                    percentageContainer.style.display = 'block';
+                    cgpaContainer.style.display = 'none';
+                }
+            } else {
+                percentageContainer.style.display = 'block';
+                cgpaContainer.style.display = 'none';
+            }
+        }
+        
+        if (hqSelect) {
+            hqSelect.addEventListener('change', toggleCgpaPercentage);
+            toggleCgpaPercentage(); // init on page load
+        }
+        // --- End Toggle ---
     });
 </script>
 {% endblock %}

@@ -57,6 +57,7 @@ class UsersForm(forms.ModelForm):
             'stream': forms.TextInput(attrs={'class': 'form-control'}),
             'college_or_university': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'highest_qualification_percentage': forms.NumberInput(attrs={'class': 'form-control'}),
+            'cgpa': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'training_certification': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'certificate': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.doc,.docx'}),
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.jpg,.jpeg,.png'}),
@@ -138,6 +139,19 @@ class UsersForm(forms.ModelForm):
         referred_by = cleaned_data.get('referred_by')
         if reference == 'Yes' and not referred_by:
             self.add_error('referred_by', 'This field is required when reference is Yes.')
+            
+        hq = cleaned_data.get('highest_qualification')
+        percentage = cleaned_data.get('highest_qualification_percentage')
+        cgpa = cleaned_data.get('cgpa')
+        
+        if hq in ['PG', 'PhD']:
+            if cgpa is None:
+                self.add_error('cgpa', 'This field is required for PG/PhD qualifications.')
+            cleaned_data['highest_qualification_percentage'] = None
+        elif hq:
+            if percentage is None:
+                self.add_error('highest_qualification_percentage', 'This field is required for this qualification.')
+            cleaned_data['cgpa'] = None
         
         return cleaned_data
         
@@ -257,7 +271,7 @@ class UserRegistrationForm(forms.ModelForm):
             'first_name', 'last_name', 'gender', 'dob', 'email', 'mobile',
             'alternative_mobile', 'address', 'city', 'pincode', 'primary_skills',
             'other_skills', 'highest_qualification', 'specific_qualification', 'stream',
-            'college_or_university', 'highest_qualification_percentage', 'training_certification', 'certificate',
+            'college_or_university', 'highest_qualification_percentage', 'cgpa', 'training_certification', 'certificate',
             'photo', 'resume', 'id_proof', 'aadhar_number', 'reference', 'referred_by'
         ]
 
@@ -316,6 +330,11 @@ class UserRegistrationForm(forms.ModelForm):
             'highest_qualification_percentage': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter percentage (e.g., 85.50)',
+                'step': '0.01'
+            }),
+            'cgpa': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter CGPA (e.g., 8.5)',
                 'step': '0.01'
             }),
             'training_certification': forms.Textarea(attrs={
@@ -404,6 +423,12 @@ class UserRegistrationForm(forms.ModelForm):
         if percentage is not None and (percentage < 0 or percentage > 100):
             raise ValidationError("Percentage must be between 0 and 100.")
         return percentage
+
+    def clean_cgpa(self):
+        cgpa = self.cleaned_data.get('cgpa')
+        if cgpa is not None and (cgpa < 0 or cgpa > 10):
+            raise ValidationError("CGPA must be between 0 and 10.")
+        return cgpa
 
     def clean_resume(self):
         resume = self.cleaned_data.get('resume')
@@ -494,6 +519,19 @@ class UserRegistrationForm(forms.ModelForm):
         
         if reference == 'Yes' and not referred_by:
             raise ValidationError("Please provide the referrer's name.")
+            
+        hq = cleaned_data.get('highest_qualification')
+        percentage = cleaned_data.get('highest_qualification_percentage')
+        cgpa = cleaned_data.get('cgpa')
+        
+        if hq in ['PG', 'PhD']:
+            if cgpa is None:
+                self.add_error('cgpa', 'This field is required for PG/PhD qualifications.')
+            cleaned_data['highest_qualification_percentage'] = None
+        elif hq:
+            if percentage is None:
+                self.add_error('highest_qualification_percentage', 'This field is required for this qualification.')
+            cleaned_data['cgpa'] = None
         
         return cleaned_data
     
@@ -503,7 +541,7 @@ class UserLoginForm(forms.Form):
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'REG-YYYY-DOB(YYYYMMDD)-XXXXX'
+            'placeholder': 'REG-YYYY-DOB-INTITIN000001'
         })
     )
     

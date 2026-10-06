@@ -181,11 +181,18 @@
                                     <div class="text-danger small">{{ form.college_or_university.errors.0 }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="percentage_container">
                                 <label class="form-label">Percentage <span class="required">*</span></label>
                                 {{ form.highest_qualification_percentage }}
                                 {% if form.highest_qualification_percentage.errors %}
                                     <div class="text-danger small">{{ form.highest_qualification_percentage.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4" id="cgpa_container" style="display: none;">
+                                <label class="form-label">CGPA <span class="required">*</span></label>
+                                {{ form.cgpa }}
+                                {% if form.cgpa.errors %}
+                                    <div class="text-danger small">{{ form.cgpa.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -313,7 +320,7 @@
 <div class="row mb-3">
     <div class="col-md-12 text-center d-flex justify-content-center">
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+        <div class="g-recaptcha" data-sitekey="6LcgVYsrAAAAAJNq7RjXbB9SjXyVtwKZJAF-FYvH"></div>
     </div>
 </div>
 <div class="text-end">
@@ -375,6 +382,158 @@
         // Event listener for primary skills change
         primarySkillsSelect.addEventListener('change', toggleOtherSkills);
         // --- End of added code ---
+
+        // --- Toggle CGPA/Percentage ---
+        const hqSelect = document.querySelector('#id_highest_qualification');
+        const percentageContainer = document.getElementById('percentage_container');
+        const cgpaContainer = document.getElementById('cgpa_container');
+        
+        function toggleCgpaPercentage() {
+            if (hqSelect && hqSelect.value) {
+                if (hqSelect.value === 'PG' || hqSelect.value === 'PhD') {
+                    percentageContainer.style.display = 'none';
+                    cgpaContainer.style.display = 'block';
+                } else {
+                    percentageContainer.style.display = 'block';
+                    cgpaContainer.style.display = 'none';
+                }
+            } else {
+                percentageContainer.style.display = 'block';
+                cgpaContainer.style.display = 'none';
+            }
+        }
+        
+        if (hqSelect) {
+            hqSelect.addEventListener('change', toggleCgpaPercentage);
+            toggleCgpaPercentage(); // init on page load
+        }
+        // --- End Toggle ---
+
+        // Custom Validations
+        function showWarning(msg) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Input',
+                    text: msg,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            } else {
+                alert(msg);
+            }
+        }
+
+        // 1. First Name and Last Name: Max length 30 characters.
+        ['#id_first_name', '#id_last_name'].forEach(function(sel) {
+            const el = document.querySelector(sel);
+            if (el) {
+                el.setAttribute('maxlength', '30');
+                el.addEventListener('input', function() {
+                    if (this.value.length > 30) {
+                        this.value = this.value.substring(0, 30);
+                    }
+                });
+            }
+        });
+
+        // 2. Aadhar Number: Only numbers. Warn if letters typed.
+        const aadharEl = document.querySelector('#id_aadhar_number');
+        if (aadharEl) {
+            aadharEl.addEventListener('input', function(e) {
+                const originalValue = this.value;
+                const newValue = originalValue.replace(/[^0-9]/g, '');
+                if (originalValue !== newValue) {
+                    this.value = newValue;
+                    showWarning('Only numbers are allowed in Aadhar Number.');
+                }
+            });
+        }
+
+        // 3. Mobile & Alternative Mobile: Only numbers
+        ['#id_mobile', '#id_alternative_mobile'].forEach(function(sel) {
+            const el = document.querySelector(sel);
+            if (el) {
+                el.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
+        });
+
+        // 4. Address & City: Only letters (and spaces) allowed. Block numbers.
+        ['#id_address', '#id_city'].forEach(function(sel) {
+            const el = document.querySelector(sel);
+            if (el) {
+                el.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+                });
+            }
+        });
+
+        // 5. Pin Code: Only numbers allowed.
+        const pinEl = document.querySelector('#id_pincode');
+        if (pinEl) {
+            pinEl.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        }
+
+        // 6. Qualifications, Stream, College/University: Only letters, ., ,, -, spaces. No numbers.
+        ['#id_highest_qualification', '#id_specific_qualification', '#id_stream', '#id_college_or_university'].forEach(function(sel) {
+            const el = document.querySelector(sel);
+            if (el) {
+                el.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^a-zA-Z\s.,-]/g, '');
+                });
+            }
+        });
+
+        // 7. Percentage: Only numbers and decimal point.
+        const pctEl = document.querySelector('#id_highest_qualification_percentage');
+        if (pctEl) {
+            pctEl.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9.]/g, '');
+            });
+        }
+
+        // 8. Training and Certifications: Only letters (and spaces/punctuation) allowed. Block numbers.
+        const trainingEl = document.querySelector('#id_training_certification');
+        if (trainingEl) {
+            trainingEl.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[0-9]/g, ''); // block numbers
+            });
+        }
+
+        // Form submit validation for Max Length
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const fname = document.querySelector('#id_first_name');
+                const lname = document.querySelector('#id_last_name');
+                let errorMsg = '';
+                
+                if (fname && fname.value.length > 30) {
+                    errorMsg = 'First name cannot exceed 30 characters.';
+                } else if (lname && lname.value.length > 30) {
+                    errorMsg = 'Last name cannot exceed 30 characters.';
+                }
+
+                if (errorMsg) {
+                    e.preventDefault();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: errorMsg,
+                        });
+                    } else {
+                        alert(errorMsg);
+                    }
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

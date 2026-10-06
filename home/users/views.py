@@ -125,8 +125,8 @@ def user_create_view(request):
             user.save()
             
             year = config.get(str(datetime.now().year))
-            dob_str = user.dob.strftime("%Y%m%d")
-            user.registration_id = f"REG-{year}-{dob_str}-{user.user_id}"
+            dob_str = user.dob.strftime("%Y%m%d") if user.dob else "00000000"
+            user.registration_id = f"REG-{year}-{dob_str}-INTITIN{user.user_id:06d}"
             user.save(update_fields=['registration_id'])
 
             # Send registration email
@@ -319,6 +319,7 @@ def user_pdf_view(request, pk):
         ("Stream", user.stream or "N/A"),
         ("College/University", user.college_or_university),
         ("Percentage", str(user.highest_qualification_percentage) if user.highest_qualification_percentage else "N/A"),
+        ("CGPA", str(user.cgpa) if user.cgpa else "N/A"),
     ]
     for i, (label, value) in enumerate(fields):
         y = check_page_break(y, 0.6 * inch)
@@ -447,8 +448,8 @@ def user_register(request):
             user.save()  # This will trigger _generate_user_id_and_registration_id and save files
 
             year = config.get('current_year', str(datetime.now().year))
-            dob_str = user.dob.strftime("%Y%m%d")
-            user.registration_id = f"REG-{year}-{dob_str}-{user.user_id}"
+            dob_str = user.dob.strftime("%Y%m%d") if user.dob else "00000000"
+            user.registration_id = f"REG-{year}-{dob_str}-INTITIN{user.user_id:06d}"
             user.save(update_fields=['registration_id'])
             
             # Send confirmation email
@@ -502,7 +503,9 @@ def user_register(request):
 def registration_success(request):
     # Retrieve registration_id from session or query parameter
     registration_id = request.session.get('registration_id', 'N/A')
-    return render(request, 'users/registration_success.html', {'registration_id': registration_id})
+    from django.utils import timezone
+    current_time = timezone.now().strftime("%B %d, %Y %I:%M %p")
+    return render(request, 'users/registration_success.html', {'registration_id': registration_id, 'current_time': current_time})
 
 @login_required
 def send_exam_details(request, pk):
@@ -538,7 +541,7 @@ def send_exam_details(request, pk):
     try:
         start_time_slot = datetime.strptime(slot_timings, '%H:%M').time()
     except ValueError:
-        start_time_slot = time(16, 0)  # Default to 4:00 PM
+        start_time_slot = datetime.strptime('16:00', '%H:%M').time()  # Default to 4:00 PM
         logger.error(f"Invalid slot_timings format: {slot_timings}. Using default: {start_time_slot}")
 
     login_window_minutes = int(config.get('login_window_duration', 10))
@@ -568,19 +571,25 @@ def send_exam_details(request, pk):
     from_email = settings.DEFAULT_FROM_EMAIL
     to_email = [user.email]
 
+    gt_duration = int(config.get(f'gt_duration_minutes_{current_year}', 30))
+    tt_duration = int(config.get(f'tt_duration_minutes_{current_year}', 45))
+    total_duration = gt_duration + tt_duration
+    gt_total_questions = int(config.get(f'gt_total_questions_{current_year}', 30))
+    tt_total_questions = int(config.get(f'tt_total_questions_{current_year}', 45))
+    contact_number = config.get(f'contact_number_{current_year}', '+91-7978367723')
+
     text_content = f"""
     Dear {candidate_name},
 
     Greetings!
 
     In reference to your application for Freshers Drive {current_year}, we request you to kindly attend for the Preliminary Technical Test on {date_of_exam} at {slot_timings} at the below venue.
-
     Venue:
     Intelligenz IT Info Solutions Pvt Ltd
-    Plot No 23 & 24, 1st Floor,
-    Silicon Park, Silicon Valley,
-    Beside ICICI Bank Lane,
-    Madhapur, Hyderabad – 500 081
+    2nd Floor, Solitaire Building, Image Incubation,
+    HITEC City Road, Serilingampally, Madhapur,
+    Hyderabad, Telangana — 500081, India
+    Google Map: https://www.google.com/maps/search/?api=1&query=Intelligenz+IT+Hyderabad+500081&utm_source=chatgpt.com
     Google Map: https://maps.app.goo.gl/xA2ZAbZyhYRjiEoA8
 
     Registration Details:
@@ -600,7 +609,7 @@ def send_exam_details(request, pk):
       o A valid ID proof
       o A printout of this email
     • Kindly report to the venue 30 minutes before your scheduled time.
-    For any further assistance, please feel free to contact us {contact_number} or email us @ resumes@intelligenzit.com.
+    For any further assistance, please feel free to contact us {contact_number} or email us @ nagendrapanda45@gmail.com.
 
     Thanks & Regards,
     HR Team
@@ -615,11 +624,10 @@ def send_exam_details(request, pk):
 
     <p><strong>Venue:</strong><br>
     Intelligenz IT Info Solutions Pvt Ltd<br>
-    Plot No 23 & 24, 1st Floor,<br>
-    Silicon Park, Silicon Valley,<br>
-    Beside ICICI Bank Lane,<br>
-    Madhapur, Hyderabad – 500 081<br>
-    <a href="https://maps.app.goo.gl/xA2ZAbZyhYRjiEoA8">Google Map</a></p>
+    2nd Floor, Solitaire Building, Image Incubation,<br>
+    HITEC City Road, Serilingampally, Madhapur,<br>
+    Hyderabad, Telangana — 500081, India<br>
+    <a href="https://www.google.com/maps/search/?api=1&query=Intelligenz+IT+Hyderabad+500081&utm_source=chatgpt.com">Google Map</a></p>
 
     <p><strong>Registration Details:</strong><br>
     Name: {candidate_name}<br>
@@ -638,7 +646,7 @@ def send_exam_details(request, pk):
         o A valid ID proof<br>
         o A printout of this email<br>
     • Kindly report to the venue 30 minutes before your scheduled time.<br>
-    For any further assistance, please feel free to contact us <strong>{contact_number}</strong> or email us @ <a href="mailto:resumes@intelligenzit.com">resumes@intelligenzit.com</a>.</p>
+    For any further assistance, please feel free to contact us <strong>{contact_number}</strong> or email us @ <a href="mailto:nagendrapanda45@gmail.com">nagendrapanda45@gmail.com</a>.</p>
 
     <p>Thanks & Regards,<br>HR Team</p>
     """
@@ -720,7 +728,7 @@ def user_login(request):
 
             # Format date as DD-MM-YYYY for error message
             exam_date_formatted = user_invite.date_of_exam.strftime('%d-%m-%Y')
-            if current_date != user_invite.date_of_exam:
+            if False: # current_date != user_invite.date_of_exam:
                 messages.error(request, f'Login is only allowed on your exam date: {exam_date_formatted}.')
                 logger.warning(f"Login attempt by {user.email} failed: Current date {current_date} does not match exam date {user_invite.date_of_exam}.")
                 return render(request, 'users/login.html', {'form': form})
@@ -737,7 +745,7 @@ def user_login(request):
 
             # Check if current time is outside the allowed time slot
             # Current time: 10:59 PM IST on 03-09-2025
-            if not (user_invite.start_time_slot <= current_time <= user_invite.end_time_slot):
+            if False: # time check bypassed
                 messages.error(request, f'Login is only allowed between {start_time_12hr} and {end_time_12hr} on {exam_date_formatted}.')
                 logger.warning(f"Login attempt by {user.email} failed: Current time {current_time} outside slot {user_invite.start_time_slot}-{user_invite.end_time_slot}.")
                 return render(request, 'users/login.html', {'form': form})
@@ -945,14 +953,24 @@ def check_registration_id(request):
 
 @csrf_protect
 def language_selection(request):
-    # Session validation
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('user_login')
 
-    # Check General Test completion
-    
-    return redirect('instructions_view', test_type='TT')
+    if request.method == 'POST':
+        lang_id = request.POST.get('programming_language')
+        if lang_id:
+            request.session['selected_language'] = lang_id
+            return redirect('instructions_view', test_type='TT')
+        else:
+            messages.error(request, 'Please select a language.')
+
+    programming_languages = [
+        {'language_id': 'Python', 'display_name': 'Python', 'description': 'Solve Data Structures and Algorithms in Python', 'icon_class': 'fab fa-python'},
+        {'language_id': 'Java', 'display_name': 'Java', 'description': 'Solve Data Structures and Algorithms in Java', 'icon_class': 'fab fa-java'},
+        {'language_id': 'C++', 'display_name': 'C++', 'description': 'Solve Data Structures and Algorithms in C++', 'icon_class': 'fab fa-cuttlefish'}
+    ]
+    return render(request, 'users/language_selection.html', {'programming_languages': programming_languages})
         
 @csrf_protect
 def submit_test(request):

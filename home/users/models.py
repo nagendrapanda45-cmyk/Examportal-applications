@@ -216,7 +216,19 @@ class Users(models.Model):
         validators=[
             MinValueValidator(0),
             MaxValueValidator(100)
-        ]
+        ],
+        null=True,
+        blank=True
+    )
+    cgpa = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(10)
+        ],
+        null=True,
+        blank=True
     )
     training_certification = models.TextField(blank=True, null=True)
     aadhar_number = models.CharField(max_length=12, validators=[
