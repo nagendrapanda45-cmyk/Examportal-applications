@@ -9,38 +9,38 @@
             max-width: 500px;
             margin: 50px auto;
             padding: 30px;
-            background-color: #e6ffed;
-            border: 2px solid #34c759;
+            background-color: #fff;
+            border: 2px solid #e91e63;
             border-radius: 10px;
             text-align: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.15);
         }
 
         .success-icon {
             font-size: 50px;
-            color: #34c759;
+            color: #e91e63;
             margin-bottom: 10px;
         }
 
         .success-message {
             font-size: 24px;
             font-weight: bold;
-            color: #2e7d32;
+            color: #e91e63;
             margin-bottom: 10px;
         }
 
         .registration-id {
             font-weight: bold;
             margin-top: 10px;
-            color: #1b5e20;
+            color: #333;
         }
     </style>
 </head>
 <body>
     <div class="success-container">
         <div class="success-icon">&#10004;</div> <!-- Tick mark -->
-        <div class="success-message">Registration Successful!</div>
+        <div class="success-message">Registration Successful{% if first_name %}, {{ first_name }} {{ last_name }}{% endif %}!</div>
         <p class="registration-id">Your Registration ID: {{ registration_id }}</p>
         <p style="color: #555; font-size: 14px; margin-top: 5px;">Registered on: {{ current_time }}</p>
         <p>Thank you for registering with Intelligenz IT Info Solutions Pvt. Ltd.</p>

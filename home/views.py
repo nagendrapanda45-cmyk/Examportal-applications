@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from Role_based_Access.decorators import module_access_required
 # ... all your imports ...
 import logging
 from django.contrib.auth.decorators import login_required
@@ -51,6 +53,7 @@ import json
 
 
 # ... (rest of your views.py file from index to result_view) ...
+@module_access_required('Dashboard')
 def index(request):
     return redirect('admin:index')
 
@@ -59,6 +62,7 @@ logger=logging.getLogger(__name__)
 current_year = datetime.now().year
 
 @login_required
+@module_access_required('Manage Tests')
 def test_list(request):
     # Get queryset based on user role
     if request.user.is_staff:
@@ -242,6 +246,7 @@ def test_edit(request, pk):
     })
  
 @login_required
+@module_access_required('Manage Instructions')
 def instruction_list(request):
     instructions = Instruction.objects.all().order_by('display_order')
     test_name_query = request.GET.get('test_name_query', '')
@@ -294,6 +299,7 @@ def instruction_delete(request, pk):
     return redirect('instruction_list')
 
 @login_required
+@module_access_required('Test Results')
 def result_list(request):
     min_percentage = request.GET.get('min_percentage')
     max_percentage = request.GET.get('max_percentage')
@@ -388,6 +394,7 @@ def add_footer(canvas, doc):
     canvas.restoreState()
 
 @login_required
+@module_access_required('General-Test Generation', 'Technical-Test Generation')
 def generate_test(request):
     if not request.user.is_authenticated or not request.user.is_staff:
         logger.warning(f"Unauthorized access attempt by user {request.user.email if request.user.is_authenticated else 'anonymous'}")
@@ -848,6 +855,7 @@ def download_test_sets_zip(request):
         test_type = request.GET.get('test_type', 'gt').lower()
         return redirect(f"{reverse('generate_test')}?test_type={test_type}")
  
+@method_decorator(module_access_required('Manage Configurations'), name='dispatch')
 class ConfigurationListView(LoginRequiredMixin, ListView):
     model = Configuration
     template_name = 'home/configurations/configuration_list.html'
@@ -1164,6 +1172,7 @@ def import_status(request):
 
 
 @login_required
+@module_access_required('Dashboard')
 def index(request):
     if not request.user.is_authenticated:
         return redirect('user_login')
@@ -1218,6 +1227,7 @@ def index(request):
     return render(request, 'admin/index.html', context)
 
 @login_required
+@module_access_required('Final Results')
 def final_result_list(request):
    
  

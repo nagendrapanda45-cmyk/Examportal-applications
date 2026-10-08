@@ -1,3 +1,4 @@
+from Role_based_Access.decorators import module_access_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -18,6 +19,7 @@ from openpyxl.styles import Font, Alignment
 current_year = datetime.now().year
 
 # @login_required
+@module_access_required('Manage Questions')
 def question_list(request):
     form = SearchForm(request.GET or None)
     questions = Question.objects.filter(deleted=False).order_by('-question_id')  # Filter out deleted questions

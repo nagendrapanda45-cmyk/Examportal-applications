@@ -107,8 +107,8 @@ class UserInvite(models.Model):
 
     class Meta:
         db_table = 'user_invites'
-        verbose_name = 'User Invite'
-        verbose_name_plural = 'User Invites'
+        verbose_name = 'Profile Invite'
+        verbose_name_plural = 'Candidate Invites'
 
     def __str__(self):
         return f"{self.user.full_name} - {self.invited_status}"

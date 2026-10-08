@@ -1,3 +1,4 @@
+from Role_based_Access.decorators import module_access_required
 from home.users.models import Users
 from .models import UserInvite
 from .models import EmailTemplate
@@ -37,6 +38,7 @@ from datetime import date, datetime as dt
 from .models import Users, UserInvite, EmailTemplate
 from django.core.paginator import Paginator
 
+@module_access_required('Candidate Invites')
 def user_invite_list_view(request):
     query = request.GET.get('q')
     status_filter = request.GET.get('status', 'all')
@@ -367,6 +369,7 @@ def send_bulk_email(request):
         messages.error(request, f"Failed to send emails: {str(e)}")
 
     return redirect('user_invite_list')
+@module_access_required('Manage Emails Templates')
 def email_template_list(request):
     templates = EmailTemplate.objects.filter(is_deleted=False)
     return render(request, 'email_templates/list.html', {'templates': templates})

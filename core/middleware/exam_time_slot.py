@@ -15,11 +15,11 @@ class ExamTimeSlotMiddleware:
 
     def __call__(self, request):
         excluded_paths = [
-            '/users/login/',
-            '/users/logout/',
-            '/users/instructions/GT/',
-            '/users/instructions/TT/',
-            '/users/dashboard/',
+            '/candidates/login/',
+            '/candidates/logout/',
+            '/candidates/instructions/GT/',
+            '/candidates/instructions/TT/',
+            '/candidates/dashboard/',
             '/email_scheduler/export-exam-summary/',
             '/email_scheduler/export-tests-excel/',
             '/'

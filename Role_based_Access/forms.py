@@ -3,6 +3,24 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Employee
 
+MODULE_CHOICES = [
+    ('Dashboard', 'Dashboard'),
+    ('Manage Role', 'Manage Role'),
+    ('Manage Candidate', 'Manage Candidate'),
+    ('Candidate Invites', 'Candidate Invites'),
+    ('Manage Emails Templates', 'Manage Emails Templates'),
+    ('Manage Questions', 'Manage Questions'),
+    ('Manage Tests', 'Manage Tests'),
+    ('General-Test Generation', 'General-Test Generation'),
+    ('Technical-Test Generation', 'Technical-Test Generation'),
+    ('Manage Instructions', 'Manage Instructions'),
+    ('Test Results', 'Test Results'),
+    ('Manage QR', 'Manage QR'),
+    ('Manage Configurations', 'Manage Configurations'),
+    ('Final Results', 'Final Results'),
+    ('Change Password', 'Change Password'),
+]
+
 class EmployeeForm(UserCreationForm):
     name = forms.CharField(
         max_length=100,
@@ -29,6 +47,11 @@ class EmployeeForm(UserCreationForm):
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    accessible_modules = forms.MultipleChoiceField(
+        choices=MODULE_CHOICES,
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control', 'size': '6'})
+    )
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,7 +70,7 @@ class EmployeeForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'name', 'email', 'department', 'password1', 'password2')
+        fields = ('username', 'name', 'email', 'department', 'password1', 'password2', 'accessible_modules')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -66,7 +89,8 @@ class EmployeeForm(UserCreationForm):
                 defaults={
                     'name': self.cleaned_data['name'],
                     'email': self.cleaned_data['email'],
-                    'department': self.cleaned_data['department']
+                    'department': self.cleaned_data['department'],
+                    'accessible_modules': self.cleaned_data.get('accessible_modules', [])
                 }
             )
         return user
@@ -107,10 +131,15 @@ class EmployeeEditForm(forms.ModelForm):
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    accessible_modules = forms.MultipleChoiceField(
+        choices=MODULE_CHOICES,
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control', 'size': '6'})
+    )
 
     class Meta:
         model = Employee
-        fields = ('name', 'email', 'department')
+        fields = ('name', 'email', 'department', 'accessible_modules')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

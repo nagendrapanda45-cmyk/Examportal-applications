@@ -10,7 +10,7 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header pb-0">
-          <h4 class="font-weight-bolder">Add New Employee</h4>
+          <h4 class="font-weight-bolder">Add New Role</h4>
           <p class="mb-0 text-sm">Please fill all required (<span class="required">*</span>) details</p>
         </div>
         <div class="card-body pt-4">
@@ -90,6 +90,21 @@
               </div>
             </div>
 
+            <!-- Permissions Information -->
+            <div class="section-header mt-4">
+              <i class="fas fa-shield-alt me-2"></i>Permissions Information
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label class="form-label">Accessible Modules</label>
+                {{ form.accessible_modules }}
+                <small class="text-muted d-block mt-1">Select one or more modules.</small>
+                {% if form.accessible_modules.errors %}
+                  <div class="text-danger small">{{ form.accessible_modules.errors.0 }}</div>
+                {% endif %}
+              </div>
+            </div>
+
             {% if form.non_field_errors %}
               <div class="alert alert-danger">
                 {% for error in form.non_field_errors %}
@@ -99,7 +114,7 @@
             {% endif %}
 
             <div class="text-end">
-              <button type="submit" class="btn btn-primary btn-lg">Add Employee</button>
+              <button type="submit" class="btn btn-primary btn-lg">Add Role</button>
               <a href="{% url 'manage_employees' %}" class="btn bg-gradient-dark btn-lg">Cancel</a>
             </div>
           </form>
@@ -109,3 +124,18 @@
   </div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#id_accessible_modules').select2({
+        placeholder: "Select modules",
+        allowClear: true,
+        width: '100%'
+    });
+});
+</script>
+{% endblock scripts %}

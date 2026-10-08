@@ -1,3 +1,4 @@
+from Role_based_Access.decorators import module_access_required
 # Role_based_Access/views.py
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
@@ -7,6 +8,7 @@ from .models import Employee
 from django.db.models import Q
 
 @login_required
+@module_access_required('Manage Role')
 def manage_employees(request):
     search_query = request.GET.get('search_query', '')
     employees = Employee.objects.all()
@@ -24,22 +26,24 @@ def manage_employees(request):
     })
 
 @login_required
+@module_access_required('Manage Role')
 def add_employee(request):
     form = EmployeeForm()
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Employee added successfully!')
+            messages.success(request, 'Role added successfully!')
             return redirect('manage_employees')
         else:
-            messages.error(request, 'Error adding employee. Please check the form.')
+            messages.error(request, 'Error adding role. Please check the form.')
 
     return render(request, 'Role_based_Access/add_employee.html', {
         'form': form
     })
 
 @login_required
+@module_access_required('Manage Role')
 def edit_employee(request, employee_id):
     employee = get_object_or_404(Employee, id=employee_id)
     
@@ -52,10 +56,10 @@ def edit_employee(request, employee_id):
         form = EmployeeEditForm(request.POST, instance=employee)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Employee updated successfully!')
+            messages.success(request, 'Role updated successfully!')
             return redirect('manage_employees')
         else:
-            messages.error(request, 'Error updating employee. Please check the form.')
+            messages.error(request, 'Error updating role. Please check the form.')
     else:
         form = EmployeeEditForm(instance=employee)
 
@@ -65,12 +69,13 @@ def edit_employee(request, employee_id):
     })
 
 @login_required
+@module_access_required('Manage Role')
 def delete_employee(request, employee_id):
     if request.method == 'POST':
         employee = get_object_or_404(Employee, id=employee_id)
         user = employee.user
         employee.delete()
         user.delete()
-        messages.success(request, 'Employee deleted successfully!')
+        messages.success(request, 'Role deleted successfully!')
         return redirect('manage_employees')
     return redirect('manage_employees')

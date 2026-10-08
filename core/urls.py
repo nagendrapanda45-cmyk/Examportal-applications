@@ -41,7 +41,7 @@ urlpatterns = [
     # path('', include('home.urls_user')),  # Load user views
     path('', include('home.urls')),
     #path("", include('admin_material.urls')),
-    path('users/', include('home.users.urls')),
+    path('candidates/', include('home.users.urls')),
     path('questions/', include('questions.urls')),
     path('exam_dashboard/', include('Exam_dashboard.urls')),
     path('qr/', include('qr_generator.urls')),

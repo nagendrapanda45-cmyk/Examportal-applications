@@ -29,21 +29,21 @@
                                 </div>
                                 <div class="col text-end">
                                     <a class="btn bg-gradient-dark mb-0 me-2" href="{% url 'export_users' %}?{% if query %}q={{ query|urlencode }}&{% endif %}{% if from_date %}from_date={{ from_date }}&{% endif %}{% if to_date %}to_date={{ to_date }}{% endif %}">
-                                        <i class="material-symbols-rounded text-sm"></i> Export Users
+                                        <i class="material-symbols-rounded text-sm"></i> EXPORT CANDIDATE
                                     </a>
-                                    <a class="btn bg-gradient-dark mb-0" href="/users/create/">
-                                        <i class="material-symbols-rounded text-sm"></i> Add New User
+                                    <a class="btn bg-gradient-dark mb-0" href="/candidates/create/">
+                                        <i class="material-symbols-rounded text-sm"></i> ADD NEW CANDIDATE
                                     </a>
                                 </div>
                             </div>
                         </form>
-                        <form action="{% url 'import_status' %}" method="POST" enctype="multipart/form-data" style="display: inline;">
+                        <!-- <form action="{% url 'import_status' %}" method="POST" enctype="multipart/form-data" style="display: inline;">
                                         {% csrf_token %}
                                         <input type="file" name="file" accept=".csv,.xlsx" style="display: none;" id="importFile" onchange="this.form.submit()">
                                         <button type="button" class="btn bg-gradient-dark mb-0 me-2" onclick="document.getElementById('importFile').click();">
                                             <i class="material-symbols-rounded text-sm"></i> Import Status
                                         </button>
-                                    </form>
+                                    </form> -->
                     </div>
                 </div>
             </div>
@@ -56,7 +56,7 @@
             <div class="card my-4">
                 <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                     <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-                        <h6 class="text-white text-capitalize ps-3">Users List</h6>
+                        <h6 class="text-white text-capitalize ps-3">Candidates List</h6>
                     </div>
                 </div>
                 <div class="card-body px-0 pb-2">

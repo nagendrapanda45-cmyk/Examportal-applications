@@ -1,7 +1,7 @@
 # # middleware/restrict_public.py
 from django.http import HttpResponseForbidden
 
-ALLOWED_PATHS = ['/users/register','/users/registration-success','/static/custom/css/cdn-jsdelivr-bootstrap.min.css',
+ALLOWED_PATHS = ['/candidates/register','/candidates/registration-success','/static/custom/css/cdn-jsdelivr-bootstrap.min.css',
 '/static/custom/css/cdnjs-cloudflare-font-awesome.min.css','/static/custom/css/user-register.css','/metrics']
 INTERNAL_IP_RANGES = ['192.168.1', '172.168.1','127.0.0.1','13.232.128','0.0.0.0','49.249.160.198','183.82.6.191','13.232.128.222']  # Adjust to your internal network ranges
 # INTERNAL_IP_RANGES = ['172.168.1.0/24','192.168.1.0/24']  # Adjust to your internal network ranges

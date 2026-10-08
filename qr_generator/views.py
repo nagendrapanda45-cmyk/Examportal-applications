@@ -1,3 +1,4 @@
+from Role_based_Access.decorators import module_access_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import QRGenerate
@@ -9,6 +10,7 @@ from django.contrib import messages
 
 
 # @login_required
+@module_access_required('Manage QR')
 def qr_list(request):
     qr_codes_all = QRGenerate.objects.filter(deleted=False).order_by('-created_at')
     query = request.GET.get('search', '').strip()
@@ -26,10 +28,12 @@ def qr_list(request):
     
     return render(request, 'qr_generator/qr_list.html', {'page_obj': page_obj})
 # @login_required
+@module_access_required('Manage QR')
 def qr_detail(request, pk):
     config = get_object_or_404(QRGenerate, pk=pk)
     return render(request, 'qr_generator/qr_detail.html', {'config': config})
 # @login_required
+@module_access_required('Manage QR')
 def regenerate_qr(request, pk):
     config = get_object_or_404(QRGenerate, pk=pk)
     config.generate_qr_code()
@@ -37,6 +41,7 @@ def regenerate_qr(request, pk):
     messages.success(request, 'QR code re-generated successfully!')
     return redirect('qr_generator:qr_detail', pk=pk)
 # @login_required
+@module_access_required('Manage QR')
 def qr_create(request):
     if request.method == 'POST':
         form = QRGenerateForm(request.POST)
@@ -54,6 +59,7 @@ def qr_create(request):
     return render(request, 'qr_generator/qr_create.html', {'form': form})
 
 # @login_required
+@module_access_required('Manage QR')
 def qr_delete(request, pk):
     qr_instance = get_object_or_404(QRGenerate, pk=pk)
     qr_instance.deleted = True

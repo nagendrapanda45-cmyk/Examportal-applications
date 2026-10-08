@@ -1,3 +1,4 @@
+from Role_based_Access.decorators import module_access_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Users
@@ -52,6 +53,7 @@ def get_config_value(key, default=None, cast_type=None):
         logger.error(f"Error retrieving config {key}: {str(e)}")
         return default
 @login_required
+@module_access_required('Manage Candidate')
 def user_list_view(request):
     query = request.GET.get('q')
     from_date = request.GET.get('from_date')
@@ -193,10 +195,10 @@ def user_edit_view(request, pk):
     
     context = {
         'form': form,
-        'photo_size_kb': int(config.get(f'photo_max_size_kb_{current_year}')),
-        'resume_size_mb': round(int(config.get(f'resume_max_size_mb_{current_year}'))),
-        'id_proof_size_kb': int(config.get(f'id_proof_max_size_kb_{current_year}')),
-        'certificate_size_mb': round(int(config.get(f'certificate_max_size_mb_{current_year}'))),
+        'photo_size_kb': int(config.get(f'photo_max_size_kb_{current_year}', 1024)),
+        'resume_size_mb': round(int(config.get(f'resume_max_size_mb_{current_year}', 5))),
+        'id_proof_size_kb': int(config.get(f'id_proof_max_size_kb_{current_year}', 1024)),
+        'certificate_size_mb': round(int(config.get(f'certificate_max_size_mb_{current_year}', 5))),
     }
     return render(request, 'user_form.html', context)
 
@@ -484,6 +486,8 @@ def user_register(request):
                 user.action_status = 'pending'  # Keep status as pending if email fails
                 user.save(update_fields=['registration_mail_sent', 'action_status'])
             request.session['registration_id'] = user.registration_id
+            request.session['first_name'] = user.first_name
+            request.session['last_name'] = user.last_name
             return redirect('registration_success')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -503,9 +507,16 @@ def user_register(request):
 def registration_success(request):
     # Retrieve registration_id from session or query parameter
     registration_id = request.session.get('registration_id', 'N/A')
+    first_name = request.session.get('first_name', '')
+    last_name = request.session.get('last_name', '')
     from django.utils import timezone
     current_time = timezone.now().strftime("%B %d, %Y %I:%M %p")
-    return render(request, 'users/registration_success.html', {'registration_id': registration_id, 'current_time': current_time})
+    return render(request, 'users/registration_success.html', {
+        'registration_id': registration_id, 
+        'first_name': first_name,
+        'last_name': last_name,
+        'current_time': current_time
+    })
 
 @login_required
 def send_exam_details(request, pk):
