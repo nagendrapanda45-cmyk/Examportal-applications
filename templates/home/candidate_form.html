@@ -1,0 +1,39 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>User Form</h2>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    {% for field in form %}
+      {% if field.name == 'mobile' %}
+        <p>
+          {{ field.label_tag }}
+          <div class="input-group" style="margin-bottom: 1rem;">
+            {{ form.mobile_country_code }}
+            {{ field }}
+          </div>
+          {{ field.errors }}
+        </p>
+      {% elif field.name == 'alternative_mobile' %}
+        <p>
+          {{ field.label_tag }}
+          <div class="input-group" style="margin-bottom: 1rem;">
+            {{ form.alt_mobile_country_code }}
+            {{ field }}
+          </div>
+          {{ field.errors }}
+        </p>
+      {% elif field.name == 'mobile_country_code' or field.name == 'alt_mobile_country_code' %}
+        {# rendered inside the input-groups above #}
+      {% else %}
+        <p>
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </p>
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+    <a href="{% url 'candidate_list' %}" class="btn btn-secondary mt-3">Cancel</a>
+  </form>
+</div>
+{% endblock %}

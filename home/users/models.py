@@ -63,7 +63,7 @@ def validate_certificate(file):
 
 
 
-class Users(models.Model):
+class Candidate(models.Model):
     def get_upload_path(instance, filename, field_name):
         if not instance.registration_id:
             if not instance.dob:
@@ -149,10 +149,7 @@ class Users(models.Model):
         message="Name should contain only alphabets and spaces."
     )
 
-    aadhar_validator = RegexValidator(
-        regex=r'^\d{12}$',
-        message="Aadhar number must be exactly 12 digits."
-    )
+
 
     photo = models.ImageField(
         upload_to=photo_upload_path,
@@ -193,7 +190,9 @@ class Users(models.Model):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     dob = models.DateField(null=True)
     email = models.EmailField(unique=True)
+    mobile_country_code = models.CharField(max_length=5, default='+91')
     mobile = models.CharField(max_length=10, unique=True)
+    alt_mobile_country_code = models.CharField(max_length=5, blank=True, null=True, default='+91')
     alternative_mobile = models.CharField(max_length=10, blank=True, null=True)
     address = models.TextField(max_length=2500)
     city = models.CharField(max_length=100)
@@ -231,17 +230,17 @@ class Users(models.Model):
         blank=True
     )
     training_certification = models.TextField(blank=True, null=True)
-    aadhar_number = models.CharField(max_length=12, validators=[
-        RegexValidator(regex=r'^\d{12}$', message='Enter a valid 12-digit Aadhar number')
+    pan_no = models.CharField(max_length=10, validators=[
+        RegexValidator(regex=r'^[a-zA-Z0-9]{10}$', message='Enter a valid 10-character PAN number')
     ])
 
     password = models.CharField(max_length=255, blank=True, null=True)
     reference = models.CharField(max_length=5, choices=REFERENCE_CHOICES, default='')
     referred_by = models.CharField(max_length=255, blank=True)
-    registered_at = models.DateTimeField(default=timezone.now)
+    registered_at = models.DateTimeField(default=timezone.now, db_index=True)
     uploaded_at = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False, db_index=True)
     registration_mail_sent = models.BooleanField(default=False)
     is_mail_sent = models.BooleanField(default=False)
     action_status = models.CharField(max_length=100, blank=True, null=True, default='pending')
@@ -319,7 +318,7 @@ class Users(models.Model):
         return self.full_name
 
     class Meta:
-        db_table = 'users'
+        db_table = 'candidates'
 
 class ManualResults(models.Model):
     YES_NO_CHOICES = [
@@ -333,13 +332,13 @@ class ManualResults(models.Model):
     ]
 
     user = models.ForeignKey(
-        Users,
+        Candidate,
         on_delete=models.CASCADE,
         related_name='manual_results',
         to_field='user_id'
     )
     registration_id = models.ForeignKey(
-        Users,
+        Candidate,
         on_delete=models.CASCADE,
         related_name='manual_results_registration',
         to_field='registration_id'
@@ -382,7 +381,7 @@ class Admin(models.Model):
         ('ProjectManager', 'ProjectManager'), ('TechLead', 'TechLead'), ('HR', 'HR'),
         ('Recruiter', 'Recruiter'), ('SuperAdmin', 'SuperAdmin'), ('Coordinator', 'Coordinator')
     ])
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return self.username
@@ -403,7 +402,7 @@ class Instruction(models.Model):
     content = models.TextField()
     display_order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         db_table = 'instructions'
@@ -418,7 +417,7 @@ class Configuration(models.Model):
     value = models.CharField(max_length=255)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False, db_index=True)
     configID = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
@@ -484,8 +483,8 @@ class Question(models.Model):
     )
     is_multichoice = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    deleted = models.BooleanField(default=False, db_index=True)
 
     def __str__(self):
         return self.question_text[:50]
@@ -496,7 +495,7 @@ class Question(models.Model):
 class Tests(models.Model):
     TEST_TYPE_CHOICES = [('GT', 'General Test'), ('TT', 'Technical Test')]
     test_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     test_name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     test_type = models.CharField(max_length=2, choices=TEST_TYPE_CHOICES)
@@ -506,7 +505,7 @@ class Tests(models.Model):
     is_submitted = models.BooleanField(default=False)
     cutoff_pass_score = models.IntegerField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
     suspicious_activity_count = models.IntegerField(default=0) # New column for suspicious activity count
@@ -521,9 +520,9 @@ class Tests(models.Model):
     class Meta:
         db_table = 'tests'
 
-class TestUserQuestionAnswer(models.Model):
+class TestCandidateQuestionAnswer(models.Model):
     attempt_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     test = models.ForeignKey(Tests, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     start_time = models.DateTimeField(blank=True, null=True)
@@ -559,19 +558,19 @@ class TestUserQuestionAnswer(models.Model):
         return f"Answer for {self.question} by {self.user.full_name}"
 
     class Meta:
-        db_table = 'test_user_questions_answers'
+        db_table = 'test_candidate_questions_answers'
 
 class Result(models.Model):
     result_id = models.AutoField(primary_key=True)
     test = models.ForeignKey(Tests, on_delete=models.CASCADE)
-    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     total_questions = models.IntegerField()
     total_attempted_questions = models.IntegerField()
     total_correct_answers = models.IntegerField()
     percentage = models.FloatField()
     cutoff_pass_score = models.IntegerField(blank=True, null=True)
     result_status = models.CharField(max_length=10, choices=[('pass', 'pass'), ('fail', 'fail')])
-    generated_at = models.DateTimeField(auto_now_add=True)
+    generated_at = models.DateTimeField(auto_now_add=True, db_index=True)
     skill = models.CharField(max_length=100, blank=True, null=True)
     def save(self, *args, **kwargs):
         if self.total_questions > 0:
@@ -594,7 +593,7 @@ class GenerateTest(models.Model):
     set_name = models.CharField(max_length=50, unique=True)
     pdf_file = models.FileField(upload_to='test_pdfs/')
     test_type = models.CharField(max_length=2, choices=TEST_TYPE_CHOICES, default='GT')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     batch_id = models.CharField(max_length=50, null=True)
     class Meta:
         db_table = 'generate_test'
@@ -609,9 +608,9 @@ class GenerateTestQuestions(models.Model):
         return f"{self.generate_test.set_name} - {self.question.question_text[:50]}..."
 class FinalResult(models.Model):
     final_result_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     result_status = models.CharField(max_length=10, choices=[('pass', 'pass'), ('fail', 'fail')])
-    generated_at = models.DateTimeField(auto_now_add=True)
+    generated_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_result_published = models.BooleanField(default=False)
     def calculate_result_status(self):

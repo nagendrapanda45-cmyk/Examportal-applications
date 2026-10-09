@@ -1,8 +1,8 @@
 from django import forms
-# from .models import Users
+# from .models import Candidate
 from django.core.exceptions import ValidationError
 from datetime import date
-from .models import Users, Instruction,Configuration
+from .models import Candidate, Instruction,Configuration
 import re
 from datetime import date, datetime
 from django.core.exceptions import ValidationError
@@ -12,7 +12,18 @@ from datetime import datetime, timedelta
 
 current_year = datetime.now().year
 
-class UsersForm(forms.ModelForm):
+class CandidateForm(forms.ModelForm):
+    mobile_country_code = forms.ChoiceField(
+        choices=[('+91', '+91 (IND)'), ('+1', '+1 (USA/CAN)'), ('+44', '+44 (UK)'), ('+61', '+61 (AUS)')],
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select', 'style': 'max-width: 120px;'}),
+    )
+    alt_mobile_country_code = forms.ChoiceField(
+        choices=[('+91', '+91 (IND)'), ('+1', '+1 (USA/CAN)'), ('+44', '+44 (UK)'), ('+61', '+61 (AUS)')],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select', 'style': 'max-width: 120px;'}),
+    )
+
     # FIX: Explicitly define gender to add a placeholder
     gender = forms.ChoiceField(
         choices=[
@@ -27,13 +38,13 @@ class UsersForm(forms.ModelForm):
 
     # FIX: Explicitly define primary_skills to add a placeholder
     primary_skills = forms.ChoiceField(
-        choices=[('', 'Select your Primary Skills')] + Users.get_primary_skills_choices(),
+        choices=[('', 'Select your Primary Skills')] + Candidate.get_primary_skills_choices(),
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'}),
     )
     
     class Meta:
-        model = Users
+        model = Candidate
         # ADDED 'user_confirmation_status' TO THE LIST BELOW TO FIX THE ERROR
         exclude = [
             'user_id', 'registration_id', 'uploaded_at', 'deleted', 'registered_at', 
@@ -63,7 +74,7 @@ class UsersForm(forms.ModelForm):
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.jpg,.jpeg,.png'}),
             'resume': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.doc,.docx'}),
             'id_proof': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.jpg,.jpeg,.png'}),
-            'aadhar_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'pan_no': forms.TextInput(attrs={'class': 'form-control'}),
             'reference': forms.Select(attrs={'class': 'form-control'}),
             'referred_by': forms.TextInput(attrs={'class': 'form-control'}),
         }
@@ -72,7 +83,7 @@ class UsersForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['dob'].required = True
         self.fields['mobile'].required = True
-        self.fields['aadhar_number'].required = True
+        self.fields['pan_no'].required = True
 
         if self.instance and self.instance.pk:
             self.fields['photo'].required = False
@@ -82,13 +93,13 @@ class UsersForm(forms.ModelForm):
             # self.fields['signature'].required = True
             
 
-    def clean_aadhar_number(self):
-        aadhar = self.cleaned_data.get('aadhar_number')
-        if not aadhar.isdigit() or len(aadhar) != 12:
-            raise ValidationError("Aadhar number must be exactly 12 digits.")
-        if Users.objects.exclude(pk=self.instance.pk).filter(aadhar_number=aadhar).exists():
-            raise ValidationError("Users with this Aadhar number already exists..")
-        return aadhar
+    def clean_pan_no(self):
+        pan = self.cleaned_data.get('pan_no')
+        if not pan or not re.match(r'^[a-zA-Z0-9]{10}$', pan):
+            raise ValidationError("PAN number must be exactly 10 alphanumeric characters.")
+        if Candidate.objects.exclude(pk=self.instance.pk).filter(pan_no=pan).exists():
+            raise ValidationError("Candidate with this PAN number already exists.")
+        return pan
 
     def clean_mobile(self):
         mobile = self.cleaned_data.get('mobile')
@@ -96,11 +107,11 @@ class UsersForm(forms.ModelForm):
             raise ValidationError("Mobile number must be exactly 10 digits.")
         # Check if mobile number already exists (excluding current instance)
         if self.instance and self.instance.pk:
-            if Users.objects.exclude(pk=self.instance.pk).filter(mobile=mobile).exists():
-                raise ValidationError("Users with this mobile number already exists.")
+            if Candidate.objects.exclude(pk=self.instance.pk).filter(mobile=mobile).exists():
+                raise ValidationError("Candidate with this mobile number already exists.")
         else:
-            if Users.objects.filter(mobile=mobile).exists():
-                raise ValidationError("Users with this mobile number already exists.")
+            if Candidate.objects.filter(mobile=mobile).exists():
+                raise ValidationError("Candidate with this mobile number already exists.")
         return mobile
 
     def clean_alternative_mobile(self):
@@ -231,7 +242,18 @@ class UsersForm(forms.ModelForm):
                 raise ValidationError(f"Certificate file size should not exceed {max_size_mb}MB.")
         return certificate
 
-class UserRegistrationForm(forms.ModelForm):
+class CandidateRegistrationForm(forms.ModelForm):
+    mobile_country_code = forms.ChoiceField(
+        choices=[('+91', '+91 (IND)'), ('+1', '+1 (USA/CAN)'), ('+44', '+44 (UK)'), ('+61', '+61 (AUS)')],
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select', 'style': 'max-width: 120px;'}),
+    )
+    alt_mobile_country_code = forms.ChoiceField(
+        choices=[('+91', '+91 (IND)'), ('+1', '+1 (USA/CAN)'), ('+44', '+44 (UK)'), ('+61', '+61 (AUS)')],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select', 'style': 'max-width: 120px;'}),
+    )
+
     other_skills = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'form-control',
@@ -255,24 +277,24 @@ class UserRegistrationForm(forms.ModelForm):
 
     # Override primary_skills field to include empty choice
     primary_skills = forms.ChoiceField(
-        choices=[('', 'Select your Primary Skills')] + Users.get_primary_skills_choices(),
+        choices=[('', 'Select your Primary Skills')] + Candidate.get_primary_skills_choices(),
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'}),
     )
 
     def __init__(self, *args, **kwargs):
-        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+        super(CandidateRegistrationForm, self).__init__(*args, **kwargs)
         # Set the max attribute for the dob field to today's date to disable future dates
         self.fields['dob'].widget.attrs['max'] = date.today().strftime('%Y-%m-%d')
 
     class Meta:
-        model = Users
+        model = Candidate
         fields = [
-            'first_name', 'last_name', 'gender', 'dob', 'email', 'mobile',
-            'alternative_mobile', 'address', 'city', 'pincode', 'primary_skills',
+            'first_name', 'last_name', 'gender', 'dob', 'email', 'mobile_country_code', 'mobile',
+            'alt_mobile_country_code', 'alternative_mobile', 'address', 'city', 'pincode', 'primary_skills',
             'other_skills', 'highest_qualification', 'specific_qualification', 'stream',
             'college_or_university', 'highest_qualification_percentage', 'cgpa', 'training_certification', 'certificate',
-            'photo', 'resume', 'id_proof', 'aadhar_number', 'reference', 'referred_by'
+            'photo', 'resume', 'id_proof', 'pan_no', 'reference', 'referred_by'
         ]
 
         widgets = {
@@ -358,9 +380,9 @@ class UserRegistrationForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': '.pdf,.jpg,.jpeg,.png'
             }),
-            'aadhar_number': forms.TextInput(attrs={
+            'pan_no': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter 12-digit Aadhar number'
+                'placeholder': 'Enter 10-character PAN number'
             }),
             'reference': forms.Select(attrs={'class': 'form-control'}),
             'referred_by': forms.TextInput(attrs={
@@ -386,11 +408,11 @@ class UserRegistrationForm(forms.ModelForm):
         if not re.match(r'^\d{10}$', mobile):
             raise ValidationError("Mobile number must be exactly 10 digits.")
         if self.instance and self.instance.pk:
-            if Users.objects.exclude(pk=self.instance.pk).filter(mobile=mobile).exists():
-                raise ValidationError("Users with this mobile number already exists.")
+            if Candidate.objects.exclude(pk=self.instance.pk).filter(mobile=mobile).exists():
+                raise ValidationError("Candidate with this mobile number already exists.")
         else:
-            if Users.objects.filter(mobile=mobile).exists():
-                raise ValidationError("Users with this mobile number already exists.")
+            if Candidate.objects.filter(mobile=mobile).exists():
+                raise ValidationError("Candidate with this mobile number already exists.")
         return mobile
 
     def clean_alternative_mobile(self):
@@ -399,13 +421,13 @@ class UserRegistrationForm(forms.ModelForm):
             raise ValidationError("Alternative mobile number must be exactly 10 digits.")
         return alt_mobile
 
-    def clean_aadhar_number(self):
-        aadhar = self.cleaned_data.get('aadhar_number')
-        if not aadhar.isdigit() or len(aadhar) != 12:
-            raise ValidationError("Aadhar number must be exactly 12 digits.")
-        if Users.objects.exclude(pk=self.instance.pk).filter(aadhar_number=aadhar).exists():
-            raise ValidationError("Users with this Aadhar number already exists.")
-        return aadhar
+    def clean_pan_no(self):
+        pan = self.cleaned_data.get('pan_no')
+        if not pan or not re.match(r'^[a-zA-Z0-9]{10}$', pan):
+            raise ValidationError("PAN number must be exactly 10 alphanumeric characters.")
+        if Candidate.objects.exclude(pk=self.instance.pk).filter(pan_no=pan).exists():
+            raise ValidationError("Candidate with this PAN number already exists.")
+        return pan
 
     def clean_dob(self):
         dob = self.cleaned_data.get('dob')
@@ -504,7 +526,7 @@ class UserRegistrationForm(forms.ModelForm):
 
     def clean_primary_skills(self):
         primary_skills = self.cleaned_data.get('primary_skills')
-        valid_skills = [skill[0] for skill in Users.get_primary_skills_choices()]
+        valid_skills = [skill[0] for skill in Candidate.get_primary_skills_choices()]
         if primary_skills not in valid_skills:
             raise ValidationError("Please select a valid primary skill.")
         return primary_skills
@@ -559,14 +581,14 @@ class UserLoginForm(forms.Form):
         
         if registration_id and dob:
             try:
-                user = Users.objects.get(
+                user = Candidate.objects.get(
                     registration_id=registration_id,
                     dob=dob,
                     is_active=True,
                     deleted=False
                 )
                 cleaned_data['user'] = user
-            except Users.DoesNotExist:
+            except Candidate.DoesNotExist:
                 raise ValidationError("Invalid registration ID or date of birth.")
         
         return cleaned_data

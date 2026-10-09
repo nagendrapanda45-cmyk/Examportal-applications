@@ -14,7 +14,7 @@
         
 <div class="card-header pb-0 text-center">
     <img src="{% static 'img/logo.png' %}" alt="Logo" style="max-height: 60px;" class="mb-3">
-    <h4 class="font-weight-bolder">User Registration Form</h4>
+    <h4 class="font-weight-bolder">Candidate Registration Form</h4>
 </div>
 
         <div class="card-body pt-4">
@@ -85,10 +85,10 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Aadhar Number <span class="required">*</span></label>
-                                {{ form.aadhar_number }}
-                                {% if form.aadhar_number.errors %}
-                                    <div class="text-danger small">{{ form.aadhar_number.errors.0 }}</div>
+                                <label class="form-label">PAN Number <span class="required">*</span></label>
+                                {{ form.pan_no }}
+                                {% if form.pan_no.errors %}
+                                    <div class="text-danger small">{{ form.pan_no.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -107,14 +107,20 @@
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Mobile <span class="required">*</span></label>
-                                {{ form.mobile }}
+                                <div class="input-group">
+                                    {{ form.mobile_country_code }}
+                                    {{ form.mobile }}
+                                </div>
                                 {% if form.mobile.errors %}
                                     <div class="text-danger small">{{ form.mobile.errors.0 }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Alternative Mobile</label>
-                                {{ form.alternative_mobile }}
+                                <div class="input-group">
+                                    {{ form.alt_mobile_country_code }}
+                                    {{ form.alternative_mobile }}
+                                </div>
                                 {% if form.alternative_mobile.errors %}
                                     <div class="text-danger small">{{ form.alternative_mobile.errors.0 }}</div>
                                 {% endif %}
@@ -439,15 +445,15 @@
             }
         });
 
-        // 2. Aadhar Number: Only numbers. Warn if letters typed.
-        const aadharEl = document.querySelector('#id_aadhar_number');
-        if (aadharEl) {
-            aadharEl.addEventListener('input', function(e) {
+        // 2. PAN Number: Alphanumeric characters. Block special characters.
+        const panEl = document.querySelector('#id_pan_no');
+        if (panEl) {
+            panEl.addEventListener('input', function(e) {
                 const originalValue = this.value;
-                const newValue = originalValue.replace(/[^0-9]/g, '');
+                const newValue = originalValue.replace(/[^a-zA-Z0-9]/g, '');
                 if (originalValue !== newValue) {
                     this.value = newValue;
-                    showWarning('Only numbers are allowed in Aadhar Number.');
+                    showWarning('Only alphanumeric characters are allowed in PAN Number.');
                 }
             });
         }
