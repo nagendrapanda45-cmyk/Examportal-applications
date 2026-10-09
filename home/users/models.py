@@ -279,6 +279,9 @@ class Candidate(models.Model):
     gt_images = models.JSONField(default=list)
     tt_images= models.JSONField(default=list)
     
+    registration_rating = models.IntegerField(null=True, blank=True)
+    registration_feedback = models.TextField(null=True, blank=True)
+    
     # resolution_mismatch_count = models.IntegerField(default=0)
 
     def _generate_user_id_and_registration_id(self):
