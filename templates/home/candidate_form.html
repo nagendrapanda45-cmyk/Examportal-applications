@@ -2,6 +2,19 @@
 {% block content %}
 <div class="container mt-5">
   <h2>User Form</h2>
+  {% if form.instance.pk %}
+  <div class="card mb-4 border-info">
+    <div class="card-body bg-light">
+      <h5 class="card-title text-info">Registration Feedback</h5>
+      <p class="card-text mb-1">
+        <strong>Rating:</strong> {% if form.instance.registration_rating %}{{ form.instance.registration_rating }} ⭐{% else %}No rating provided{% endif %}
+      </p>
+      <p class="card-text mb-0">
+        <strong>Feedback:</strong> {{ form.instance.registration_feedback|default:"No feedback provided" }}
+      </p>
+    </div>
+  </div>
+  {% endif %}
   <form method="post" enctype="multipart/form-data">{% csrf_token %}
     {% for field in form %}
       {% if field.name == 'mobile' %}

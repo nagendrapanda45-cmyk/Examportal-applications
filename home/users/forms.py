@@ -299,7 +299,8 @@ class CandidateForm(forms.ModelForm):
         # ADDED 'user_confirmation_status' TO THE LIST BELOW TO FIX THE ERROR
         exclude = [
             'user_id', 'registration_id', 'uploaded_at', 'deleted', 'registered_at', 
-            'password', 'is_active', 'is_staff', 'is_superuser', 'user_confirmation_status'
+            'password', 'is_active', 'is_staff', 'is_superuser', 'user_confirmation_status',
+            'registration_rating', 'registration_feedback'
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),

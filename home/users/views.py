@@ -386,10 +386,16 @@ def user_pdf_view(request, pk):
     fields = [
         ("Registration ID", user.registration_id),
         ("Registered At", user.registered_at.strftime('%Y-%m-%d %H:%M:%S')),
+        ("Registration Rating", f"{user.registration_rating} Stars" if user.registration_rating else "N/A"),
     ]
     for label, value in fields:
         y = check_page_break(y, 0.3 * inch)
         p.drawString(col1_x, y, f"{label}: {value}")
+        y -= 0.3 * inch
+
+    if user.registration_feedback:
+        y = check_page_break(y, 0.6 * inch)
+        y = draw_wrapped_text("Feedback", user.registration_feedback, col1_x, y, right_margin - col1_x)
         y -= 0.3 * inch
     
     # Finalize PDF

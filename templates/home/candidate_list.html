@@ -1,0 +1,58 @@
+{% extends 'layouts/base.html' %} {% block content %}
+<div class="container mt-5">
+  <h2>User List</h2>
+  <a href="{% url 'user_create' %}" class="btn btn-success mb-3"
+    >+ Add New Profile</a
+  >
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Reg ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Mobile</th>
+        <th>Rating</th>
+        <th>Feedback</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in page_obj %}
+      <tr>
+        <td>{{ user.registration_id }}</td>
+        <td>{{ user.full_name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.mobile }}</td>
+        <td>{% if user.registration_rating %}{{ user.registration_rating }} ⭐{% else %}-{% endif %}</td>
+        <td>{{ user.registration_feedback|default:"-"|truncatechars:30 }}</td>
+        <td>
+          <a href="{% url 'user_edit' user.pk %}" class="btn btn-sm btn-warning"
+            >Edit</a
+          >
+          <a
+            href="{% url 'user_delete' user.pk %}"
+            class="btn btn-sm btn-danger"
+            >Delete</a
+          >
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+  {% if page_obj.has_other_pages %}
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mt-4">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search_query={{ search_query }}{% endif %}">Previous</a></li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search_query={{ search_query }}{% endif %}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+  
+</div>
+{% endblock %}
