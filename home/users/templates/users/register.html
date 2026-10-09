@@ -526,6 +526,17 @@
                     errorMsg = 'Last name cannot exceed 30 characters.';
                 }
 
+                // Cross-field country code validation
+                const altMobile = document.querySelector('#id_alternative_mobile');
+                const mobileCc = document.querySelector('#id_mobile_country_code');
+                const altMobileCc = document.querySelector('#id_alt_mobile_country_code');
+                
+                if (altMobile && altMobile.value.trim() !== '') {
+                    if (mobileCc && altMobileCc && mobileCc.value !== altMobileCc.value) {
+                        errorMsg = 'Country codes must match! Please select the same country code for both your Mobile and Alternative Mobile numbers.';
+                    }
+                }
+
                 if (errorMsg) {
                     e.preventDefault();
                     if (typeof Swal !== 'undefined') {

@@ -36,4 +36,32 @@
     <a href="{% url 'candidate_list' %}" class="btn btn-secondary mt-3">Cancel</a>
   </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const altMobile = document.querySelector('#id_alternative_mobile');
+            const mobileCc = document.querySelector('#id_mobile_country_code');
+            const altMobileCc = document.querySelector('#id_alt_mobile_country_code');
+            
+            if (altMobile && altMobile.value.trim() !== '') {
+                if (mobileCc && altMobileCc && mobileCc.value !== altMobileCc.value) {
+                    e.preventDefault();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: 'Country codes must match! Please select the same country code for both your Mobile and Alternative Mobile numbers.',
+                        });
+                    } else {
+                        alert('Country codes must match! Please select the same country code for both your Mobile and Alternative Mobile numbers.');
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
