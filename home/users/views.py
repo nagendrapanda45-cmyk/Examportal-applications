@@ -1,15 +1,15 @@
 from Role_based_Access.decorators import module_access_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from .models import Users
-from .forms import UsersForm
+from .models import Candidate
+from .forms import CandidateForm
 from django.utils.crypto import get_random_string
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
-from .forms import UserRegistrationForm, UserLoginForm
-from .models import Users, Instruction, Tests,Configuration
+from .forms import CandidateRegistrationForm, UserLoginForm
+from .models import Candidate, Instruction, Tests,Configuration
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime
@@ -54,12 +54,12 @@ def get_config_value(key, default=None, cast_type=None):
         return default
 @login_required
 @module_access_required('Manage Candidate')
-def user_list_view(request):
+def candidate_list_view(request):
     query = request.GET.get('q')
     from_date = request.GET.get('from_date')
     to_date = request.GET.get('to_date')
     
-    users = Users.objects.filter(deleted=False).order_by('-user_id')
+    users = Candidate.objects.filter(deleted=False).order_by('-user_id')
     
     # # Generate confirmation tokens for users without tokens and pending status
     # for user in users.filter(confirmation_token__isnull=True, user_confirmation_status=0):
@@ -100,10 +100,10 @@ def user_list_view(request):
             pass
     
     # Pagination
-    paginator = Paginator(users, 100)
+    paginator = Paginator(users, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'user_list.html', {
+    return render(request, 'candidate_list.html', {
         'page_obj': page_obj,
         'from_date': from_date,
         'to_date': to_date
@@ -119,7 +119,7 @@ def user_create_view(request):
     config = {c.key: c.value for c in Configuration.objects.filter(key__in=config_keys)}
     
     if request.method == 'POST':
-        form = UsersForm(request.POST, request.FILES)
+        form = CandidateForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
             # FIX: Explicitly set the action_status to 'registered' for admin-created users
@@ -165,7 +165,7 @@ def user_create_view(request):
         else:
             pass # No generic error message needed. Errors will show on the form.
     else:
-        form = UsersForm()
+        form = CandidateForm()
 
     context = {
         'form': form,
@@ -174,11 +174,11 @@ def user_create_view(request):
         'id_proof_size_kb': int(config.get(f'id_proof_max_size_kb_{current_year}', 1024)),
         'certificate_size_mb': round(int(config.get(f'certificate_max_size_mb_{current_year}', 5))),
     }
-    return render(request, 'user_form.html', context)
+    return render(request, 'candidate_form.html', context)
 
 @login_required
 def user_edit_view(request, pk):
-    user = get_object_or_404(Users, pk=pk)
+    user = get_object_or_404(Candidate, pk=pk)
     config_keys = [
         f'photo_max_size_kb_{current_year}', f'resume_max_size_mb_{current_year}',
         f'id_proof_max_size_kb_{current_year}', f'certificate_max_size_mb_{current_year}'
@@ -186,12 +186,12 @@ def user_edit_view(request, pk):
     config = {c.key: c.value for c in Configuration.objects.filter(key__in=config_keys)}
     
     if request.method == 'POST':
-        form = UsersForm(request.POST, request.FILES, instance=user)
+        form = CandidateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             return redirect('user_list')
     else:
-        form = UsersForm(instance=user)
+        form = CandidateForm(instance=user)
     
     context = {
         'form': form,
@@ -200,20 +200,20 @@ def user_edit_view(request, pk):
         'id_proof_size_kb': int(config.get(f'id_proof_max_size_kb_{current_year}', 1024)),
         'certificate_size_mb': round(int(config.get(f'certificate_max_size_mb_{current_year}', 5))),
     }
-    return render(request, 'user_form.html', context)
+    return render(request, 'candidate_form.html', context)
 
 # ... (rest of the views.py file remains unchanged)
 # The rest of your code from views.py is correct, so I am omitting it for brevity.
 # I will just paste the functions that were present in your original code.
 @login_required
 def user_delete_view(request, pk):
-    user = get_object_or_404(Users, pk=pk)
+    user = get_object_or_404(Candidate, pk=pk)
     user.deleted = True
     user.save()
     return redirect('user_list')
 @login_required
 def user_pdf_view(request, pk):
-    user = get_object_or_404(Users, pk=pk)
+    user = get_object_or_404(Candidate, pk=pk)
     
     # Create a file-like buffer to receive PDF data
     buffer = io.BytesIO()
@@ -277,7 +277,7 @@ def user_pdf_view(request, pk):
         ("Last Name", user.last_name),
         ("Gender", user.gender),
         ("Date of Birth", str(user.dob) if user.dob else "N/A"),
-        ("Aadhar Number", user.aadhar_number),
+        ("PAN Number", user.pan_no),
     ]
     for i, (label, value) in enumerate(fields):
         y = check_page_break(y, 0.3 * inch)
@@ -411,7 +411,7 @@ def user_pdf_view(request, pk):
 #Geetha views# views.py
 
 @csrf_protect
-def user_register(request):
+def candidate_register(request):
     current_year = str(datetime.now().year)
     config_keys = [
         f'photo_max_size_kb_{current_year}', f'resume_max_size_mb_{current_year}',
@@ -421,7 +421,7 @@ def user_register(request):
     config = {c.key: c.value for c in Configuration.objects.filter(key__in=config_keys)}
 
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST, request.FILES)
+        form = CandidateRegistrationForm(request.POST, request.FILES)
 
         # RECAPTCHA VALIDATION
         recaptcha_response = request.POST.get('g-recaptcha-response')
@@ -454,23 +454,35 @@ def user_register(request):
             user.registration_id = f"REG-{year}-{dob_str}-INTITIN{user.user_id:06d}"
             user.save(update_fields=['registration_id'])
             
-            # Send confirmation email
-            subject = f"Registration Confirmation - Freshers Drive {current_year}"
+            # Send marketing confirmation email
+            subject = "Welcome to Intelligenz IT! Your Registration is Confirmed 🚀"
             from_email = settings.DEFAULT_FROM_EMAIL
             to_email = [user.email]
-
-            context = {
-                'first_name': user.first_name,
-                'registration_id': user.registration_id,
-                'config': {
-                    'current_year': str(datetime.now().year),
-                    'contact_numbers': config.get(f'contact_numbers_{current_year}' ),
-                    'recruitment_drive_dates': config.get(f'recruitment_drive_dates_{current_year}')
-                }
-            }
-            text_content = render_to_string('emails/registration_confirmation.txt', context)
-            html_content = render_to_string('emails/registration_confirmation.html', context)
-
+            
+            html_content = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                <div style="max-width: 600px; margin: 0 auto; border: 1px solid #e91e63; border-radius: 10px; overflow: hidden;">
+                    <div style="background-color: #e91e63; color: white; padding: 20px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 24px;">Welcome to Intelligenz IT Pvt Ltd!</h1>
+                    </div>
+                    <div style="padding: 30px; background-color: #fcfcfc;">
+                        <p style="font-size: 18px; font-weight: bold; color: #e91e63;">Hello {user.first_name},</p>
+                        <p style="font-size: 16px;">Congratulations! <strong>Your registration was successful.</strong></p>
+                        <p style="font-size: 16px;">We are thrilled to welcome you to our exclusive talent network. At Intelligenz IT, we believe in empowering the next generation of tech leaders.</p>
+                        <div style="background-color: #ffeef4; border-left: 4px solid #e91e63; padding: 15px; margin: 20px 0;">
+                            <p style="margin: 0; font-size: 15px;"><strong>What's Next?</strong><br>Our HR team is currently reviewing your profile and will connect with you shortly via call or email with your next steps.</p>
+                        </div>
+                        <p style="font-size: 16px;">Your Registration ID: <strong>{user.registration_id}</strong></p>
+                        <p style="font-size: 16px;">Get ready for an exciting journey ahead!</p>
+                        <p style="margin-top: 30px; font-size: 14px; color: #777;">Best Regards,<br><strong>Intelligenz IT HR Team</strong></p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            text_content = f"Hello {user.first_name}, Your registration was successful. Our HR team will connect with you shortly via call or email. Welcome to Intelligenz IT Pvt Ltd! Your Registration ID is {user.registration_id}."
+            
             msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
             msg.attach_alternative(html_content, "text/html")
             try:
@@ -485,14 +497,16 @@ def user_register(request):
                 user.registration_mail_sent = False
                 user.action_status = 'pending'  # Keep status as pending if email fails
                 user.save(update_fields=['registration_mail_sent', 'action_status'])
+                
             request.session['registration_id'] = user.registration_id
             request.session['first_name'] = user.first_name
             request.session['last_name'] = user.last_name
+            request.session['registered_candidate_id'] = user.user_id
             return redirect('registration_success')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        form = UserRegistrationForm()
+        form = CandidateRegistrationForm()
 
     context = {
         'form': form,
@@ -518,9 +532,34 @@ def registration_success(request):
         'current_time': current_time
     })
 
+import json
+@csrf_exempt
+def submit_registration_feedback(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            rating = data.get('rating')
+            comment = data.get('comment', '')
+            candidate_id = request.session.get('registered_candidate_id')
+
+            if not candidate_id:
+                return JsonResponse({'success': False, 'error': 'No candidate found in session.'}, status=400)
+
+            candidate = Candidate.objects.get(pk=candidate_id)
+            candidate.registration_rating = rating
+            candidate.registration_feedback = comment
+            candidate.save(update_fields=['registration_rating', 'registration_feedback'])
+
+            return JsonResponse({'success': True, 'message': 'Thank you for your feedback!'})
+        except Candidate.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Candidate not found.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+
 @login_required
 def send_exam_details(request, pk):
-    user = get_object_or_404(Users, pk=pk)
+    user = get_object_or_404(Candidate, pk=pk)
     current_year = datetime.now().year  # 2025
 
     # Fetch configuration data
@@ -682,7 +721,7 @@ def send_exam_details(request, pk):
 
 
 @csrf_protect
-def user_login(request):
+def candidate_login(request):
     # Redirect if user already logged in
     if request.session.get('user_id'):
         return redirect('user_dashboard')
@@ -795,32 +834,32 @@ def user_login(request):
     return render(request, 'users/login.html', {'form': form})
 
 @csrf_protect
-def user_logout(request):
+def candidate_logout(request):
     if request.session.get('user_id'):
         try:
-            user = Users.objects.get(user_id=request.session['user_id'])
+            user = Candidate.objects.get(user_id=request.session['user_id'])
             user.active_session_key = None
             user.save(update_fields=['active_session_key'])
-        except Users.DoesNotExist:
+        except Candidate.DoesNotExist:
             pass
 
     request.session.flush()
     messages.success(request, 'Logged out successfully.')
-    return redirect('user_login')
+    return redirect('candidate_login')
 
 
 
 def user_dashboard(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     try:
-        user = Users.objects.get(user_id=user_id, is_active=True, deleted=False)
-    except Users.DoesNotExist:
+        user = Candidate.objects.get(user_id=user_id, is_active=True, deleted=False)
+    except Candidate.DoesNotExist:
         messages.error(request, 'User not found or account is inactive.')
         request.session.flush()
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     return render(request, 'users/dashboard.html', {
         'user': user,
@@ -831,10 +870,10 @@ def user_dashboard(request):
 def test_selection(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     try:
-        user = Users.objects.get(user_id=user_id, is_active=True, deleted=False)
+        user = Candidate.objects.get(user_id=user_id, is_active=True, deleted=False)
         # Check if general test is completed in database
         general_test_completed = Tests.objects.filter(
             user=user, 
@@ -853,22 +892,22 @@ def test_selection(request):
         }
         return render(request, 'users/test_selection.html', context)
         
-    except Users.DoesNotExist:
-        return redirect('user_login')
+    except Candidate.DoesNotExist:
+        return redirect('candidate_login')
 
 @csrf_protect
 def instructions_view(request, test_type):
     user_id = request.session.get('user_id')
     if not user_id:
         messages.warning(request, 'Please log in to view instructions.')
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     if not test_type or test_type not in ['GT', 'TT']:
         messages.error(request, 'Invalid or missing test type.')
         return redirect('test_selection')
 
     try:
-        user = Users.objects.get(user_id=user_id, is_active=True, deleted=False)
+        user = Candidate.objects.get(user_id=user_id, is_active=True, deleted=False)
         user_invite = UserInvite.objects.filter(user=user, is_mail_sent=True).order_by('-invitation_date').first()
         if not user_invite or not user_invite.date_of_exam or not user_invite.start_time_slot:
             messages.error(request, 'No valid exam schedule found. Please contact support.')
@@ -910,10 +949,10 @@ def instructions_view(request, test_type):
             'start_time_iso': start_time_iso,
             'end_time_iso': end_time_iso
         })
-    except Users.DoesNotExist:
+    except Candidate.DoesNotExist:
         messages.error(request, 'User not found or account is inactive.')
         request.session.flush()
-        return redirect('user_login')
+        return redirect('candidate_login')
     except Exception as e:
         logger.error(f"Error in instructions_view for user {user_id}: {str(e)}")
         messages.error(request, 'An error occurred. Please contact support.')
@@ -925,7 +964,7 @@ def start_exam(request):
     user_id = request.session.get('user_id')
     if not user_id:
         messages.warning(request, 'Please log in to start the exam.')
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     test_type = request.GET.get('test_type')
     if not test_type or test_type not in ['GT', 'TT']:
@@ -933,11 +972,11 @@ def start_exam(request):
         return redirect('test_selection')
 
     try:
-        user = Users.objects.get(user_id=user_id, is_active=True, deleted=False)
-    except Users.DoesNotExist:
+        user = Candidate.objects.get(user_id=user_id, is_active=True, deleted=False)
+    except Candidate.DoesNotExist:
         messages.error(request, 'User not found or account is inactive.')
         request.session.flush()
-        return redirect('user_login')
+        return redirect('candidate_login')
 
 
 
@@ -957,7 +996,7 @@ def check_registration_id(request):
     if request.method == 'GET':
         reg_id = request.GET.get('registration_id')
         if reg_id:
-            exists = Users.objects.filter(registration_id=reg_id).exists()
+            exists = Candidate.objects.filter(registration_id=reg_id).exists()
             return JsonResponse({'exists': exists})
     return JsonResponse({'exists': False})
 
@@ -966,7 +1005,7 @@ def check_registration_id(request):
 def language_selection(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     if request.method == 'POST':
         lang_id = request.POST.get('programming_language')
@@ -988,10 +1027,10 @@ def submit_test(request):
     if request.method == 'POST':
         user_id = request.session.get('user_id')
         if not user_id:
-            return redirect('user_login')
+            return redirect('candidate_login')
 
         try:
-            user = Users.objects.get(user_id=user_id)
+            user = Candidate.objects.get(user_id=user_id)
             # Update or create test record with is_submitted=1
             test, created = Tests.objects.update_or_create(
                 user=user,
@@ -1006,22 +1045,22 @@ def submit_test(request):
             messages.success(request, 'Test submitted successfully!')
             return redirect('test_selection')
             
-        except Users.DoesNotExist:
-            return redirect('user_login')
+        except Candidate.DoesNotExist:
+            return redirect('candidate_login')
 
 from .models import FinalResult
 
 def user_dashboard(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     try:
-        user = Users.objects.get(user_id=user_id, is_active=True, deleted=False)
-    except Users.DoesNotExist:
+        user = Candidate.objects.get(user_id=user_id, is_active=True, deleted=False)
+    except Candidate.DoesNotExist:
         messages.error(request, 'User not found or account is inactive.')
         request.session.flush()
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     # Check status of General Test and Technical Test
     general_test_done = Tests.objects.filter(user=user, test_type='GT', is_submitted=True).exists()
@@ -1048,7 +1087,7 @@ def capture_photo(request):
             format, imgstr = image_data.split(';base64,')
             ext = format.split('/')[-1]
             try:
-                user = Users.objects.get(user_id=user_id)
+                user = Candidate.objects.get(user_id=user_id)
                 reg_id = user.registration_id
                 # Save in media/<registration_id>/exam_photo.<ext>
                 user_folder = os.path.join(settings.MEDIA_ROOT, reg_id)
@@ -1059,14 +1098,14 @@ def capture_photo(request):
                 user.camera_photo.save(file_path, data)
                 user.save()
                 return JsonResponse({'success': True})
-            except Users.DoesNotExist:
+            except Candidate.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'User not found'})
         return JsonResponse({'success': False, 'error': 'No image data'})
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from home.users.models import Users
+from home.users.models import Candidate
 from django.contrib.gis.geoip2 import GeoIP2
 
 
@@ -1078,8 +1117,8 @@ def update_location(request):
             return JsonResponse({"success": False, "error": "User not logged in"})
         
         try:
-            user = Users.objects.get(user_id=user_id)
-        except Users.DoesNotExist:
+            user = Candidate.objects.get(user_id=user_id)
+        except Candidate.DoesNotExist:
             return JsonResponse({"success": False, "error": "User not found"})
         
         # Get client IP

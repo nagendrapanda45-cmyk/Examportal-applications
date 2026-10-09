@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Successful</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        body { background-color: #f9f9f9; }
         .success-container {
             max-width: 500px;
             margin: 50px auto;
@@ -35,6 +37,68 @@
             margin-top: 10px;
             color: #333;
         }
+        
+        /* Feedback Form Styles */
+        .feedback-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #e91e63;
+        }
+        .feedback-section h4 {
+            color: #e91e63;
+            margin-bottom: 15px;
+        }
+        .stars {
+            display: inline-block;
+            direction: rtl;
+        }
+        .stars i {
+            font-size: 28px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .stars i:hover,
+        .stars i:hover ~ i,
+        .stars i.active,
+        .stars i.active ~ i {
+            color: #e91e63;
+        }
+        .feedback-comment {
+            width: 100%;
+            height: 80px;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .feedback-comment:focus {
+            outline: none;
+            border-color: #e91e63;
+        }
+        .btn-submit-feedback {
+            background-color: #e91e63;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn-submit-feedback:hover {
+            background-color: #c2185b;
+        }
+        .feedback-success {
+            display: none;
+            color: #e91e63;
+            font-weight: bold;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -45,6 +109,86 @@
         <p style="color: #555; font-size: 14px; margin-top: 5px;">Registered on: {{ current_time }}</p>
         <p>Thank you for registering with Intelligenz IT Info Solutions Pvt. Ltd.</p>
         <p>You will receive a confirmation email with further details.</p>
+
+        <div class="feedback-section" id="feedback-section">
+            <h4>How was your registration experience?</h4>
+            <div class="stars" id="star-rating">
+                <i class="fas fa-star" data-value="5"></i>
+                <i class="fas fa-star" data-value="4"></i>
+                <i class="fas fa-star" data-value="3"></i>
+                <i class="fas fa-star" data-value="2"></i>
+                <i class="fas fa-star" data-value="1"></i>
+            </div>
+            <textarea id="feedback-comment" class="feedback-comment" placeholder="Any comments or suggestions? (Optional)"></textarea>
+            <button class="btn-submit-feedback" id="submit-feedback-btn">Submit Feedback</button>
+        </div>
+        <div class="feedback-success" id="feedback-success">
+            Thank you for your feedback!
+        </div>
     </div>
+
+    <script>
+        let currentRating = 0;
+        const stars = document.querySelectorAll('.stars i');
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                currentRating = this.getAttribute('data-value');
+                stars.forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.getElementById('submit-feedback-btn').addEventListener('click', function() {
+            const comment = document.getElementById('feedback-comment').value;
+            
+            if (currentRating === 0) {
+                alert('Please select a star rating.');
+                return;
+            }
+
+            const data = {
+                rating: currentRating,
+                comment: comment
+            };
+
+            fetch('/submit-registration-feedback/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    document.getElementById('feedback-section').style.display = 'none';
+                    document.getElementById('feedback-success').style.display = 'block';
+                } else {
+                    alert('Error submitting feedback. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            });
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 </body>
 </html>
