@@ -83,6 +83,14 @@ def mindmap_view(request):
         return HttpResponse(content, content_type='text/html')
     return HttpResponse("Mind Map Visual not found.", status=404)
 
+def naukri_architecture_view(request):
+    html_path = os.path.join(settings.BASE_DIR, 'TalentAssess_360_Naukri_AI_Architecture.html')
+    if os.path.exists(html_path):
+        with open(html_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='text/html')
+    return HttpResponse("Architecture Visual not found.", status=404)
+
 logger=logging.getLogger(__name__)
 
 current_year = datetime.now().year

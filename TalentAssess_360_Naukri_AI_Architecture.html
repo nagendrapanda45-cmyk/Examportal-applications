@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intelligenz IT - AI Naukri Candidate Sourcing Architecture</title>
+  <!-- Mermaid JS for Interactive Vector Diagram Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      line-height: 1.6;
+      padding: 30px 20px;
+    }
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .header-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+      padding: 40px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .header-title h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .header-title p {
+      color: #cbd5e1;
+      font-size: 15px;
+    }
+    .btn-download {
+      background: #e11d48;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .btn-download:hover {
+      background: #be123c;
+      transform: translateY(-2px);
+    }
+    .section-card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid #334155;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+    }
+    .section-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .diagram-box {
+      background: #0b1329;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #1e293b;
+      overflow-x: auto;
+      text-align: center;
+    }
+    .diagram-box svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .card-item {
+      background: #0f172a;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+    .card-item h3 {
+      font-size: 16px;
+      color: #f1f5f9;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-item p, .card-item ul {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+    .card-item ul {
+      list-style-type: disc;
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+    .card-item li {
+      margin-bottom: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    .badge-blue { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .badge-green { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+    .badge-purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+    .badge-amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+    .resource-link {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .resource-link:hover {
+      text-decoration: underline;
+    }
+
+    @media print {
+      body { background: white; color: black; }
+      .header-card, .section-card { background: white; border: 1px solid #ccc; color: black; }
+      .btn-download { display: none; }
+      .diagram-box { background: white; border: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="printable-area">
+  <!-- Header -->
+  <div class="header-card">
+    <div class="header-title">
+      <h1>Intelligenz IT — AI Naukri Talent Sourcing Architecture</h1>
+      <p>Automated Sourcing, AI Semantic Matching & Proctored Examination Pipeline</p>
+    </div>
+    <div>
+      <button class="btn-download" onclick="window.print()">
+        📥 Download / Print PDF Architecture
+      </button>
+    </div>
+  </div>
+
+  <!-- Full-fledged Vector Diagram -->
+  <div class="section-card">
+    <h2>📐 Complete Architectural & Data Flow Diagram</h2>
+    <div class="diagram-box">
+      <div class="mermaid">
+flowchart TB
+    %% STYLING
+    classDef recruiter fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff;
+    classDef naukri fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#fff;
+    classDef ai fill:#581c87,stroke:#c084fc,stroke-width:2px,color:#fff;
+    classDef portal fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#fff;
+    classDef exam fill:#831843,stroke:#f472b6,stroke-width:2px,color:#fff;
+
+    subgraph Phase1["STAGE 1: RECRUITER DEMAND DEFINITION"]
+        HR[Recruiter / Hiring Manager]:::recruiter
+        JDForm["Job Requirement Console<br/>• Target Role & Experience (e.g. 2-4 Yrs)<br/>• Must-Have Skills (Python, Django, React)<br/>• Notice Period & Location Filters"]:::recruiter
+        HR -->|Inputs Requirements| JDForm
+    end
+
+    subgraph Phase2["STAGE 2: NAUKRI PROFILE SOURCING & INGESTION"]
+        NaukriAuth["Naukri Resdex Enterprise API / Resume Webhook"]:::naukri
+        CrawlerWorker["Automated Extraction Engine<br/>• Decodes Profiles & Resumes (PDF/DOCX)<br/>• Captures CTC, Notice Period, Phone, Email"]:::naukri
+        JDForm -->|API Trigger / Search Query| NaukriAuth
+        NaukriAuth -->|Candidate Stream| CrawlerWorker
+    end
+
+    subgraph Phase3["STAGE 3: GEMINI AI SEMANTIC MATCHING & SCORING"]
+        AIEngine["Gemini AI Evaluation Model<br/>• Semantic Skill Matching (Not Just Keywords)<br/>• Projects & Work Experience Verification<br/>• 0 - 100% Fitment Scoring Matrix"]:::ai
+        DecisionNode{"AI Match Score >= Threshold?<br/>(e.g., 75%)"}:::ai
+        CrawlerWorker -->|Sends Resume Text + Job Spec| AIEngine
+        AIEngine -->|Outputs JSON Assessment| DecisionNode
+    end
+
+    subgraph Phase4["STAGE 4: AUTOMATED EXAM PORTAL ONBOARDING"]
+        MySQL_DB["MySQL Database (`candidates` Table)<br/>• Registration ID: Auto-Generated<br/>• Action Status: 'AI_Qualified'<br/>• Match Score & Resume Dossier Stored"]:::portal
+        RejectArchive["Candidate Archived / Talent Pool<br/>(Status: 'Low_Match_Stored')"]:::portal
+        DecisionNode -- "Yes (Score >= 75%)" --> MySQL_DB
+        DecisionNode -- "No (Score < 75%)" --> RejectArchive
+    end
+
+    subgraph Phase5["STAGE 5: AUTO DISPATCH & SECURE TESTING"]
+        EmailScheduler["Automated Email Dispatcher (`user_invite`)<br/>• Generates Unique Exam Token URL<br/>• Dispatches Official Branded Call Letter"]:::exam
+        CandidateUser["Candidate Inbox<br/>Receives Call Letter & Slot"]:::exam
+        ExamZone["Anti-Cheat Proctored Exam Zone<br/>• AI Webcam 1-Person Tracking<br/>• Screen/Tab/Shortcut Locking"]:::exam
+        MySQL_DB -->|Triggers Invite| EmailScheduler
+        EmailScheduler -->|Sends Invite| CandidateUser
+        CandidateUser -->|Clicks Link| ExamZone
+    end
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Feasibility & Reference Documentation -->
+  <div class="section-card">
+    <h2>📚 Technical Feasibility & Official Reference Resources</h2>
+    <div class="grid-2">
+      
+      <!-- Card 1: Naukri Integration Resources -->
+      <div class="card-item">
+        <h3>🏢 1. Naukri Integration Methods</h3>
+        <p>How our application connects with Naukri effectively:</p>
+        <ul>
+          <li>
+            <strong>Naukri Resdex Enterprise API:</strong> Official developer integration provided by Info Edge (Naukri.com) for enterprise ATS systems to search, view, and fetch candidate CVs directly into software.
+          </li>
+          <li>
+            <strong>Naukri Resume Forwarding Webhook / Mail Parser:</strong> When applicants apply to Naukri postings, their profiles are routed through an automated ingestion email hook that extracts data straight into Django.
+          </li>
+          <li>
+            <strong>Playwright/Selenium Authenticated Agent:</strong> Headless authenticated worker for enterprise recruiter accounts with session management and proxy rotation.
+          </li>
+        </ul>
+        <div style="margin-top: 15px;">
+          <span class="badge badge-green">Resdex REST API</span>
+          <span class="badge badge-blue">JSON / XML Feeds</span>
+          <span class="badge badge-amber">ATS Webhooks</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Gemini AI Scoring Engine -->
+      <div class="card-item">
+        <h3>🤖 2. Gemini AI Semantic Matcher</h3>
+        <p>How the AI accurately determines suitable profiles:</p>
+        <ul>
+          <li>
+            <strong>Beyond Keyword Matching:</strong> Traditional ATS only counts words. Gemini AI understands contextual synonyms (e.g. knowing that <em>FastAPI</em> or <em>Flask</em> relates to Python backend experience).
+          </li>
+          <li>
+            <strong>Structured Output Schema:</strong> Gemini outputs strict JSON containing fitment percentage, verified projects, and red flags.
+          </li>
+          <li>
+            <strong>High Speed & Low Cost:</strong> Gemini 1.5 Flash / Flash-Lite processes full multi-page resumes in sub-second latency with negligible cost.
+          </li>
+        </ul>
+        <div style="margin-top: 15px;">
+          <span class="badge badge-purple">Google Gemini API</span>
+          <span class="badge badge-blue">PyPDF2 / pdfplumber</span>
+          <span class="badge badge-green">JSON Structured Outputs</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Database & Django Schema -->
+      <div class="card-item">
+        <h3>🗄️ 3. Database & Django Pipeline</h3>
+        <p>Seamlessly fits our existing MySQL database:</p>
+        <ul>
+          <li>
+            <strong>Auto-Creation in `candidates`:</strong> Sourced candidates are created with `action_status = 'AI_Qualified'` without manual recruiter entry.
+          </li>
+          <li>
+            <strong>Integration with `candidate_invites`:</strong> Automatically pairs candidate with the newly updated WYSIWYG Call Letter template.
+          </li>
+          <li>
+            <strong>Zero Human Intervention:</strong> Reduces recruitment turnaround time from 5 days to 15 minutes!
+          </li>
+        </ul>
+        <div style="margin-top: 15px;">
+          <span class="badge badge-blue">Django 4.x</span>
+          <span class="badge badge-amber">MySQL 8.0</span>
+          <span class="badge badge-green">Celery / Redis / Background Tasks</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Reference Links -->
+      <div class="card-item">
+        <h3>🔗 4. Reference Resources & Documentation</h3>
+        <p>Official technical documentation and guides:</p>
+        <ul>
+          <li>
+            <a href="https://ai.google.dev/gemini-api/docs" target="_blank" class="resource-link">
+              ↗ Google Gemini API Documentation (Structured Data & Resume Parsing)
+            </a>
+          </li>
+          <li>
+            <a href="https://www.naukri.com/enterprise" target="_blank" class="resource-link">
+              ↗ Naukri Resdex & Enterprise Integration Portal
+            </a>
+          </li>
+          <li>
+            <a href="https://playwright.dev/python/docs/intro" target="_blank" class="resource-link">
+              ↗ Playwright Python Documentation (Headless Web Automation)
+            </a>
+          </li>
+          <li>
+            <a href="https://docs.celeryq.dev/en/stable/" target="_blank" class="resource-link">
+              ↗ Celery Asynchronous Task Queue for Django
+            </a>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+  });
+</script>
+</body>
+</html>
