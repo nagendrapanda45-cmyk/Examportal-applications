@@ -7,8 +7,6 @@ MODULE_CHOICES = [
     ('Dashboard', 'Dashboard'),
     ('Manage Role', 'Manage Role'),
     ('Manage Candidate', 'Manage Candidate'),
-    ('Candidate Invites', 'Candidate Invites'),
-    ('Manage Emails Templates', 'Manage Emails Templates'),
     ('Manage Questions', 'Manage Questions'),
     ('Manage Tests', 'Manage Tests'),
     ('General-Test Generation', 'General-Test Generation'),

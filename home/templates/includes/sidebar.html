@@ -69,26 +69,6 @@
         </a>                
     </li>
     {% endif %}
-    {% if request.user|has_module_access:'Candidate Invites' %}
-    <li class="nav-item">
-        <a class="nav-link text-white {% if request.path == '/invite/invite/' %} active {% endif %}" href="{% url 'user_invite_list' %}">
-            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="material-icons opacity-10">mail</i>
-            </div>
-            <span class="nav-link-text ms-1">Candidate Invites</span>
-        </a>
-    </li>
-    {% endif %}
-    {% if request.user|has_module_access:'Manage Emails Templates' %}
-    <li class="nav-item">
-       <a class="nav-link text-white {% if request.path == '/invite/email-templates/' %} active {% endif %}" href="{% url 'email_template_list' %}">
-            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="material-icons opacity-10">email</i>
-            </div>
-            <span class="nav-link-text ms-1">Manage Emails Templates</span>
-        </a>
-    </li>
-    {% endif %}
     {% if request.user|has_module_access:'Manage Questions' %}
     <li class="nav-item">
         <a class="nav-link text-white {% if request.path == '/questions/' %} active {% endif %}" href="{% url 'question_list' %}">

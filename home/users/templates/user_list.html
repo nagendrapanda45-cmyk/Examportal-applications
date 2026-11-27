@@ -28,6 +28,12 @@
                                     <a href="{% url 'user_list' %}" class="btn bg-gradient-secondary mb-0">Reset</a>
                                 </div>
                                 <div class="col text-end">
+                                    <a class="btn bg-gradient-info mb-0 me-2" href="{% url 'user_invite_list' %}">
+                                        <i class="material-symbols-rounded text-sm">mail</i> CANDIDATE INVITES
+                                    </a>
+                                    <a class="btn bg-gradient-primary mb-0 me-2" href="{% url 'email_template_list' %}">
+                                        <i class="material-symbols-rounded text-sm">email</i> MANAGE EMAIL TEMPLATES
+                                    </a>
                                     <a class="btn bg-gradient-dark mb-0 me-2" href="{% url 'export_users' %}?{% if query %}q={{ query|urlencode }}&{% endif %}{% if from_date %}from_date={{ from_date }}&{% endif %}{% if to_date %}to_date={{ to_date }}{% endif %}">
                                         <i class="material-symbols-rounded text-sm"></i> EXPORT CANDIDATE
                                     </a>
