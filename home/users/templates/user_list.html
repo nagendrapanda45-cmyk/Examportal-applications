@@ -7,18 +7,26 @@
                 <div class="card-body px-0 pb-2">
                     <div class="px-3 pt-3">
                         <form method="GET" action="{% url 'user_list' %}">
-                            <div class="row g-2 align-items-center mb-3">
-                                <div class="col-md-3 col-lg-3">
+                            <div class="row g-3 align-items-end mb-3">
+                                <div class="col-md-3">
                                     <label class="form-label">*From Registered Date</label>
                                     <input type="date" name="from_date" class="form-control" placeholder="From Date" value="{% if from_date %}{{ from_date }}{% endif %}">
                                 </div>
-                                <div class="col-md-3 col-lg-3">
+                                <div class="col-md-3">
                                     <label class="form-label">*To Registered Date</label>
                                     <input type="date" name="to_date" class="form-control" placeholder="To Date" value="{{ to_date }}">
                                 </div>
+                                <div class="col-md-6 text-md-end d-flex flex-wrap justify-content-md-end gap-2">
+                                    <a class="btn bg-gradient-info mb-0" href="{% url 'user_invite_list' %}">
+                                        <i class="material-symbols-rounded text-sm align-middle me-1">mail</i> Candidate Invites
+                                    </a>
+                                    <a class="btn bg-gradient-primary mb-0" href="{% url 'email_template_list' %}">
+                                        <i class="material-symbols-rounded text-sm align-middle me-1">email</i> Manage Email Templates
+                                    </a>
+                                </div>
                             </div>
                             <div class="row g-2 align-items-center">
-                                <div class="col-md-6 col-lg-6">
+                                <div class="col-md-5 col-lg-5">
                                     <input type="text" name="q" class="form-control" placeholder="Search by name, email, registration ID, or phone number" value="{{ request.GET.q }}">
                                 </div>
                                 <div class="col-auto">
@@ -27,18 +35,12 @@
                                 <div class="col-auto">
                                     <a href="{% url 'user_list' %}" class="btn bg-gradient-secondary mb-0">Reset</a>
                                 </div>
-                                <div class="col text-end">
-                                    <a class="btn bg-gradient-info mb-0 me-2" href="{% url 'user_invite_list' %}">
-                                        <i class="material-symbols-rounded text-sm">mail</i> CANDIDATE INVITES
-                                    </a>
-                                    <a class="btn bg-gradient-primary mb-0 me-2" href="{% url 'email_template_list' %}">
-                                        <i class="material-symbols-rounded text-sm">email</i> MANAGE EMAIL TEMPLATES
-                                    </a>
-                                    <a class="btn bg-gradient-dark mb-0 me-2" href="{% url 'export_users' %}?{% if query %}q={{ query|urlencode }}&{% endif %}{% if from_date %}from_date={{ from_date }}&{% endif %}{% if to_date %}to_date={{ to_date }}{% endif %}">
-                                        <i class="material-symbols-rounded text-sm"></i> EXPORT CANDIDATE
+                                <div class="col text-end d-flex flex-wrap justify-content-end gap-2">
+                                    <a class="btn bg-gradient-dark mb-0" href="{% url 'export_users' %}?{% if query %}q={{ query|urlencode }}&{% endif %}{% if from_date %}from_date={{ from_date }}&{% endif %}{% if to_date %}to_date={{ to_date }}{% endif %}">
+                                        <i class="material-symbols-rounded text-sm align-middle me-1">download</i> Export Candidate
                                     </a>
                                     <a class="btn bg-gradient-dark mb-0" href="/candidates/create/">
-                                        <i class="material-symbols-rounded text-sm"></i> ADD NEW CANDIDATE
+                                        <i class="material-symbols-rounded text-sm align-middle me-1">person_add</i> Add New Candidate
                                     </a>
                                 </div>
                             </div>
