@@ -1,0 +1,90 @@
+flowchart TB
+    %% =======================================================
+    %% INTELLIGENZ IT - DUAL-TRACK AI TALENT ASSESSMENT SYSTEM
+    %% Sourcing, AI Screening, Dual Tracks & Anti-Cheat Testing
+    %% =======================================================
+
+    %% STYLES & COLOR THEME
+    classDef naukri fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#fff;
+    classDef ai fill:#3b0764,stroke:#c084fc,stroke-width:2px,color:#fff;
+    classDef client fill:#0369a1,stroke:#38bdf8,stroke-width:2px,color:#fff;
+    classDef internal fill:#4c1d95,stroke:#a855f7,stroke-width:2px,color:#fff;
+    classDef exam fill:#831843,stroke:#f472b6,stroke-width:2px,color:#fff;
+    classDef final fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#fff;
+    classDef pool fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#94a3b8;
+
+    %% -------------------------------------------------------
+    %% 1. SOURCING STAGE
+    %% -------------------------------------------------------
+    subgraph SOURCING["1. AUTONOMOUS SOURCING ENGINE"]
+        NaukriFeed["Naukri Resdex Enterprise Feed<br/>• Real-Time Candidate CV Stream<br/>• Verified CTC, Experience, Notice Period"]:::naukri
+        StreamParser["Resume & Data Parser<br/>• PDF / Word Text Extraction<br/>• Standardized Candidate Structuring"]:::naukri
+        NaukriFeed --> StreamParser
+    end
+
+    %% -------------------------------------------------------
+    %% 2. AI EVALUATION STAGE
+    %% -------------------------------------------------------
+    subgraph AI_CORE["2. GEMINI AI SEMANTIC SCREENING"]
+        JD_Match["AI Job Description Matching Model<br/>• Analyzes Projects & Tech Stack Depth<br/>• Calculates Exact Match Score (0 - 100%)"]:::ai
+        Gatekeeper{"Fitment Score & Track Router<br/>Client vs Internal Eligibility"}:::ai
+        StreamParser --> JD_Match
+        JD_Match --> Gatekeeper
+    end
+
+    %% -------------------------------------------------------
+    %% 3A. CLIENT TRACK
+    %% -------------------------------------------------------
+    subgraph CLIENT_TRACK["3A. CLIENT-FACING RECRUITMENT PORTAL"]
+        ClientPortal["Client Hiring Stream<br/>• Client-Specific Job Specs (Infosys, TCS, Banks)<br/>• Custom Client Cutoffs & Benchmarks<br/>• White-Labeled Corporate Branding"]:::client
+        ClientDB["Candidates Table (client_requisition)<br/>Action Status: 'Client_Shortlisted'"]:::client
+        ClientInvite["Client Email Dispatcher<br/>Personalized Call Letter with Client Exam Token"]:::client
+
+        ClientPortal --> ClientDB
+        ClientDB --> ClientInvite
+    end
+
+    %% -------------------------------------------------------
+    %% 3B. INTERNAL TRACK
+    %% -------------------------------------------------------
+    subgraph INTERNAL_TRACK["3B. INTELLIGENZ IT INTERNAL HIRING PORTAL"]
+        InternalPortal["Internal R&D Hiring Stream<br/>• AI Engineers, Full Stack, QA, Leadership<br/>• Culture-Fit & Standard Corporate Bands<br/>• Direct Recruiter Control Dashboard"]:::internal
+        InternalDB["Candidates Table (internal_requisition)<br/>Action Status: 'Internal_Shortlisted'"]:::internal
+        InternalInvite["Internal Email Dispatcher<br/>Official Intelligenz IT Examination Token"]:::internal
+
+        InternalPortal --> InternalDB
+        InternalDB --> InternalInvite
+    end
+
+    %% Routing Decisions
+    Gatekeeper -- "Matches Client Job Req (Score >= 75%)" --> ClientPortal
+    Gatekeeper -- "Matches Internal Opening (Score >= 75%)" --> InternalPortal
+    Gatekeeper -- "Score < 75%" --> TalentPool["Archived in General Talent Repository"]:::pool
+
+    %% -------------------------------------------------------
+    %% 4. PROCTORED TESTING ZONE (SHARED BY BOTH TRACKS)
+    %% -------------------------------------------------------
+    subgraph TESTING_ZONE["4. PROCTORED DUAL EXAMINATION ZONE (BOTH TRACKS)"]
+        direction TB
+        GT["STEP 1: General Aptitude & Reasoning Test (GT)<br/>Logical Thinking, Quantitative, Communication"]:::exam
+        TT["STEP 2: In-Depth Technical Coding Test (TT)<br/>Python, Java, React, SQL with Live Code Runner"]:::exam
+        Proctoring["AI Anti-Cheat Defense Layer<br/>• AI 1-Person Webcam Tracking (Disqualify if 2+ People)<br/>• Disabled Shortcuts, DevTools, Screenshots (PrtScr)<br/>• Dual-Monitor & Earphone/USB Traps"]:::exam
+
+        GT --> TT
+        Proctoring -.->|Enforces Real-Time Security| GT
+        Proctoring -.->|Enforces Real-Time Security| TT
+    end
+
+    ClientInvite -->|Candidate Clicks Link| GT
+    InternalInvite -->|Candidate Clicks Link| GT
+
+    %% -------------------------------------------------------
+    %% 5. EXECUTIVE DECISION & OUTPUT
+    %% -------------------------------------------------------
+    subgraph DECISION_MATRIX["5. EXECUTIVE DECISION & ONBOARDING"]
+        ClientDossier["Client Evaluation Matrix<br/>Instant Shareable PDF Dossier for Client HR"]:::final
+        InternalOffer["Intelligenz IT Offer Pipeline<br/>Direct Final Interview / Salary Negotiation"]:::final
+    end
+
+    TT -- "Client Stream Pass" --> ClientDossier
+    TT -- "Internal Stream Pass" --> InternalOffer
