@@ -4,29 +4,69 @@
 {% block title %} Edit Email Template {% endblock title %}
 
 {% block content %}
-<!-- Ace editor CSS (optional, for basic styling) -->
+<!-- Quill Rich Text Editor CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
 <style>
-  #editor {
-    height: 300px;
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: #070707;
+  .ql-toolbar.ql-snow {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    background: #f8f9fa;
+    border: 1px solid #d2d6da;
+  }
+  .ql-container.ql-snow {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border: 1px solid #d2d6da;
+    border-top: none;
+    font-size: 15px;
+    font-family: inherit;
+    min-height: 260px;
+    background: #ffffff;
+  }
+  .tag-btn {
+    margin: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    transition: all 0.2s;
+  }
+  .tag-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+  }
+  .template-preset-btn {
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 6px 14px;
+    margin-right: 6px;
+    margin-bottom: 6px;
   }
 </style>
 
 <div class="container-fluid py-4">
   <div class="row">
     <div class="col-md-12">
-      <div class="card">
+      <div class="card shadow-sm">
         <div class="card-header pb-0">
-          <h4 class="font-weight-bolder">Edit Email Template</h4>
-          <p class="mb-0 text-sm">Please update the template details</p>
+          <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+              <h4 class="font-weight-bolder text-dark mb-1">Edit Email Template</h4>
+              <p class="mb-0 text-sm text-secondary">Update your email text easily without touching any HTML code.</p>
+            </div>
+            <div>
+              <a href="{% url 'email_template_list' %}" class="btn btn-outline-secondary btn-sm mb-0">Back to Templates</a>
+            </div>
+          </div>
         </div>
-        <div class="card-body pt-4">
+
+        <div class="card-body pt-3">
           {% if form.errors %}
-          <div class="alert alert-danger">
-            <ul>
+          <div class="alert alert-danger text-white">
+            <ul class="mb-0">
               {% for field in form %}
               {% for error in field.errors %}
               <li><strong>{{ field.label }}:</strong> {{ error }}</li>
@@ -39,31 +79,86 @@
           </div>
           {% endif %}
 
-          <form method="post" enctype="multipart/form-data">
+          <form method="post" id="emailTemplateForm">
             {% csrf_token %}
             <div class="row">
-              <div class="col-md-12 form-group">
-                {{ form.email_template.label_tag }}
+              <div class="col-md-6 form-group mb-3">
+                <label class="form-control-label font-weight-bold">Template Type <span class="text-danger">*</span></label>
                 {{ form.email_template }}
               </div>
 
-              <div class="col-md-12 form-group">
-                {{ form.subject.label_tag }}
+              <div class="col-md-6 form-group mb-3">
+                <label class="form-control-label font-weight-bold">Email Subject <span class="text-danger">*</span></label>
                 {{ form.subject }}
               </div>
 
-              <div class="col-md-12 form-group">
-                <label for="editor">Email Context</label>
-                <!-- Ace editor container -->
-                <div id="editor"></div>
-                <!-- Hidden field -->
+              <!-- Quick Presets -->
+              <div class="col-md-12 mb-3">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="d-flex align-items-center justify-content-between flex-wrap">
+                    <span class="font-weight-bold text-xs text-uppercase text-secondary mb-2 mb-md-0">
+                      ⚡ Quick Formats:
+                    </span>
+                    <div>
+                      <button type="button" class="btn btn-sm btn-outline-primary template-preset-btn mb-1" onclick="loadCallLetter()">
+                        ✉️ Load Call Letter & Exam Link
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-info template-preset-btn mb-1" onclick="loadReminder()">
+                        ⏰ Load Exam Reminder
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary template-preset-btn mb-1" onclick="clearEditor()">
+                        🗑️ Clear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Variable Pills -->
+              <div class="col-md-12 mb-2">
+                <label class="form-control-label font-weight-bold mb-1">
+                  🎯 Click to Insert Candidate & Exam Details:
+                </label>
+                <div class="p-2 border rounded-3 bg-white d-flex flex-wrap align-items-center">
+                  <button type="button" class="btn btn-sm bg-gradient-primary tag-btn text-white" onclick="insertVariable('{{ user.first_name }} {{ user.last_name }}')">
+                    + Candidate Name
+                  </button>
+                  <button type="button" class="btn btn-sm bg-gradient-success tag-btn text-white" onclick="insertExamButton()">
+                    + Start Exam Button / Link
+                  </button>
+                  <button type="button" class="btn btn-sm bg-gradient-info tag-btn text-white" onclick="insertVariable('{{ exam.date }}')">
+                    + Exam Date
+                  </button>
+                  <button type="button" class="btn btn-sm bg-gradient-warning tag-btn text-white" onclick="insertVariable('{{ exam.time_slot }}')">
+                    + Exam Time Slot
+                  </button>
+                  <button type="button" class="btn btn-sm bg-gradient-secondary tag-btn text-white" onclick="insertVariable('{{ user.registration_id }}')">
+                    + Registration ID
+                  </button>
+                  <button type="button" class="btn btn-sm bg-gradient-dark tag-btn text-white" onclick="insertVariable('{{ venue.company_name }}')">
+                    + Company Name
+                  </button>
+                  <button type="button" class="btn btn-sm bg-gradient-light tag-btn text-dark border" onclick="insertVariable('{{ contact.email }}')">
+                    + Support Email
+                  </button>
+                  <button type="button" class="btn btn-sm bg-gradient-light tag-btn text-dark border" onclick="insertVariable('{{ contact.phone }}')">
+                    + Support Phone
+                  </button>
+                </div>
+              </div>
+
+              <!-- Visual Editor -->
+              <div class="col-md-12 form-group mb-3">
+                <label class="form-control-label font-weight-bold">Email Message Body <span class="text-danger">*</span></label>
+                <div id="quill-editor"></div>
+                <!-- Hidden input connected to Django form -->
                 {{ form.email_context }}
               </div>
             </div>
 
-            <div class="text-end">
-              <button type="submit" class="btn btn-primary btn-lg">Update</button>
-              <a href="{% url 'email_template_list' %}" class="btn bg-gradient-dark btn-lg">Cancel</a>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <a href="{% url 'email_template_list' %}" class="btn btn-light btn-lg me-2">Cancel</a>
+              <button type="submit" class="btn bg-gradient-primary btn-lg">Save Template</button>
             </div>
           </form>
         </div>
@@ -72,33 +167,97 @@
   </div>
 </div>
 
-<!-- Ace editor JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.0/ace.min.js"></script>
+<!-- Quill JS Library -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <script>
-  // Initialize Ace editor
-  var editor = ace.edit("editor", {
-    mode: "ace/mode/html", // Set syntax highlighting for HTML
-    theme: "ace/theme/monokai", // Optional: Choose a theme
-    tabSize: 2,
-    useSoftTabs: true,
-    wrap: true // Enable word wrapping
+  var quill = new Quill('#quill-editor', {
+    theme: 'snow',
+    placeholder: 'Write your email here just like in Gmail or Microsoft Word...',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['link', 'clean']
+      ]
+    }
   });
 
-  // If editing an existing template, pre-fill content
+  // Preload existing content
   var existingContent = document.getElementById('email_context').value;
-  if (existingContent) {
-    editor.setValue(existingContent, -1); // -1 to move cursor to start
+  if (existingContent && existingContent.trim() !== '') {
+    quill.root.innerHTML = existingContent;
   }
 
-  // Copy Ace content to hidden input on change
-  editor.session.on('change', function () {
-    document.getElementById('email_context').value = editor.getValue();
-  });
+  function insertVariable(text) {
+    var range = quill.getSelection(true);
+    quill.insertText(range.index, text);
+    quill.setSelection(range.index + text.length);
+  }
 
-  // Ensure content is synced on form submission
-  document.querySelector('form').onsubmit = function () {
-    document.getElementById('email_context').value = editor.getValue();
+  function insertExamButton() {
+    var range = quill.getSelection(true);
+    var buttonHtml = '<p><a href="{{ user.confirmation_url }}" style="display:inline-block;padding:12px 24px;background-color:#e91e63;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;">👉 Click Here to Confirm Attendance &amp; Start Exam</a></p><p>Or use this direct link: {{ user.confirmation_url }}</p>';
+    quill.clipboard.dangerouslyPasteHTML(range.index, buttonHtml);
+  }
+
+  function loadCallLetter() {
+    var callLetterHtml = `
+      <p>Dear <strong>{{ user.first_name }} {{ user.last_name }}</strong>,</p>
+      <p>We are pleased to invite you for the Online Technical Assessment as part of the <strong>{{ venue.company_name }}</strong> recruitment process.</p>
+      
+      <p><strong>Assessment Details:</strong></p>
+      <ul>
+        <li><strong>Registration ID:</strong> {{ user.registration_id }}</li>
+        <li><strong>Exam Date:</strong> {{ exam.date }}</li>
+        <li><strong>Time Slot:</strong> {{ exam.time_slot }}</li>
+        <li><strong>Mode:</strong> Online Proctored Exam</li>
+      </ul>
+
+      <p>Please click the button below to confirm your attendance and access the online examination portal:</p>
+      <p><a href="{{ user.confirmation_url }}" style="display:inline-block;padding:12px 24px;background-color:#e91e63;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;">👉 Confirm Attendance &amp; Start Exam</a></p>
+      <p>Direct Link: {{ user.confirmation_url }}</p>
+
+      <p><strong>Important Guidelines:</strong></p>
+      <ol>
+        <li>Make sure your laptop webcam and microphone are working.</li>
+        <li>Ensure a stable and uninterrupted internet connection.</li>
+        <li>Do not switch tabs or open other browser windows during the assessment.</li>
+      </ol>
+
+      <p>If you have any questions, feel free to contact us at <a href="mailto:{{ contact.email }}">{{ contact.email }}</a> or call {{ contact.phone }}.</p>
+      
+      <p>Best Regards,<br><strong>Talent Acquisition Team</strong><br>{{ venue.company_name }}</p>
+    `;
+    quill.root.innerHTML = callLetterHtml;
+  }
+
+  function loadReminder() {
+    var reminderHtml = `
+      <p>Dear <strong>{{ user.first_name }} {{ user.last_name }}</strong>,</p>
+      <p>This is a quick reminder that your online test with <strong>{{ venue.company_name }}</strong> is scheduled for today.</p>
+      
+      <p><strong>Your Slot:</strong> {{ exam.date }} at {{ exam.time_slot }}</p>
+      <p>Please log in 10 minutes prior to the start time.</p>
+      
+      <p><a href="{{ user.confirmation_url }}" style="display:inline-block;padding:12px 24px;background-color:#1a73e8;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;">👉 Click Here to Open Exam Portal</a></p>
+      
+      <p>Best regards,<br>Recruitment Team</p>
+    `;
+    quill.root.innerHTML = reminderHtml;
+  }
+
+  function clearEditor() {
+    if (confirm("Are you sure you want to clear the editor?")) {
+      quill.setText('');
+    }
+  }
+
+  document.getElementById('emailTemplateForm').onsubmit = function() {
+    document.getElementById('email_context').value = quill.root.innerHTML;
   };
 </script>
 {% endblock content %}
