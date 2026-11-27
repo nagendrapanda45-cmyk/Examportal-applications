@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intelligenz IT — Dual-Track Enterprise Talent Assessment Architecture (CEO Executive Brief)</title>
+  <!-- Mermaid JS -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #090d16;
+      color: #f1f5f9;
+      line-height: 1.6;
+      padding: 30px 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .ceo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      padding: 6px 14px;
+      border-radius: 30px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .header-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #172554 50%, #0f172a 100%);
+      padding: 40px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .header-title h1 {
+      font-size: 30px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .header-title p {
+      color: #94a3b8;
+      font-size: 16px;
+      max-width: 800px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-download {
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(225, 29, 72, 0.6);
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .metric-card {
+      background: #131c31;
+      padding: 24px;
+      border-radius: 14px;
+      border: 1px solid #1e293b;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+    }
+    .metric-card.blue::before { background: #38bdf8; }
+    .metric-card.purple::before { background: #a855f7; }
+    .metric-card.pink::before { background: #ec4899; }
+    .metric-card.green::before { background: #22c55e; }
+    .metric-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .metric-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+    .metric-sub {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .section-card {
+      background: #111a2e;
+      border-radius: 18px;
+      padding: 35px;
+      margin-bottom: 30px;
+      border: 1px solid #1e293b;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    .section-header {
+      margin-bottom: 25px;
+    }
+    .section-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-header p {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .diagram-box {
+      background: #090e1a;
+      padding: 30px;
+      border-radius: 14px;
+      border: 1px solid #1e293b;
+      overflow-x: auto;
+      text-align: center;
+    }
+    .diagram-box svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    .tracks-comparison {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 25px;
+      margin-top: 25px;
+    }
+    .track-box {
+      background: #0d1527;
+      border-radius: 14px;
+      padding: 28px;
+      border: 1px solid #1e293b;
+    }
+    .track-box.client { border-top: 4px solid #38bdf8; }
+    .track-box.internal { border-top: 4px solid #a855f7; }
+    .track-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+    }
+    .track-box.client .track-badge { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .track-box.internal .track-badge { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+    .track-box h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+    .track-box ul {
+      list-style-type: none;
+    }
+    .track-box li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 12px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .track-box li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      font-weight: 800;
+      color: #22c55e;
+    }
+
+    @media print {
+      body { background: white !important; color: black !important; padding: 0; }
+      .header-card, .section-card, .metric-card, .track-box { background: white !important; border: 1px solid #ccc !important; color: black !important; }
+      .header-title h1, .metric-val, .track-box h3 { color: black !important; }
+      .btn-download { display: none !important; }
+      .diagram-box { background: white !important; border: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- Header -->
+  <div class="header-card">
+    <div class="header-title">
+      <div class="ceo-badge">EXECUTIVE ARCHITECTURE BRIEF FOR CEO & BOARD</div>
+      <h1>Intelligenz IT — Dual-Track AI Assessment Ecosystem</h1>
+      <p>Sourcing automation from Naukri with segregated pipelines for <strong>Client-Facing Deployment</strong> and <strong>Internal Enterprise Hiring</strong>, secured by AI Proctored Testing.</p>
+    </div>
+    <div class="btn-group">
+      <button class="btn-download" onclick="window.print()">
+        🖨️ Export PDF for Leadership Review
+      </button>
+    </div>
+  </div>
+
+  <!-- Executive ROI Metrics -->
+  <div class="metrics-grid">
+    <div class="metric-card blue">
+      <div class="metric-title">Recruitment Turnaround</div>
+      <div class="metric-val">15 Minutes</div>
+      <div class="metric-sub">Down from 5-7 days manual screening</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-title">Cost Per Hire</div>
+      <div class="metric-val">-72% Reduction</div>
+      <div class="metric-sub">Zero recruiter hunting hours required</div>
+    </div>
+    <div class="metric-card pink">
+      <div class="metric-title">Proctoring Accuracy</div>
+      <div class="metric-val">100% Anti-Cheat</div>
+      <div class="metric-sub">AI single-person camera & hardware locks</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-title">Dual Business Streams</div>
+      <div class="metric-val">Clients + Internal</div>
+      <div class="metric-sub">Dedicated portals & custom cutoffs</div>
+    </div>
+  </div>
+
+  <!-- Master Mermaid Architecture -->
+  <div class="section-card">
+    <div class="section-header">
+      <h2>🏛️ Complete Dual-Track System Architecture</h2>
+      <p>How profiles flow from Naukri into AI Screening, split across Client & Internal portals, and complete General + Technical Examinations.</p>
+    </div>
+
+    <div class="diagram-box">
+      <div class="mermaid">
+flowchart TB
+    %% NODE STYLES
+    classDef naukri fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#fff;
+    classDef ai fill:#3b0764,stroke:#c084fc,stroke-width:2px,color:#fff;
+    classDef client fill:#0369a1,stroke:#38bdf8,stroke-width:2px,color:#fff;
+    classDef internal fill:#4c1d95,stroke:#a855f7,stroke-width:2px,color:#fff;
+    classDef exam fill:#831843,stroke:#f472b6,stroke-width:2px,color:#fff;
+    classDef final fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#fff;
+
+    subgraph SOURCING["1. AUTONOMOUS SOURCING ENGINE"]
+        NaukriFeed["Naukri Resdex Enterprise Feed<br/>• Real-Time Candidate CVs<br/>• Verified CTC, Experience, Notice Period"]:::naukri
+        StreamParser["Resume & Data Parser<br/>• PDF / Word Text Extraction<br/>• Standardized Candidate Structuring"]:::naukri
+        NaukriFeed --> StreamParser
+    end
+
+    subgraph AI_CORE["2. GEMINI AI SEMANTIC SCREENING"]
+        JD_Match["AI Job Description Matching Model<br/>• Analyzes Projects & Tech Stack Depth<br/>• Calculates Exact Match Score (0 - 100%)"]:::ai
+        Gatekeeper{"Fitment Score &amp; Track Router<br/>Client vs Internal Eligibility"}:::ai
+        StreamParser --> JD_Match
+        JD_Match --> Gatekeeper
+    end
+
+    subgraph CLIENT_TRACK["3A. CLIENT-FACING RECRUITMENT PORTAL"]
+        ClientPortal["Client Hiring Stream<br/>• Client-Specific Job Specs (Infosys, TCS, Banks)<br/>• Custom Client Cutoffs & Benchmarks<br/>• White-Labeled Corporate Branding"]:::client
+        ClientDB["Candidates Table (`client_requisition`)<br/>Action Status: 'Client_Shortlisted'"]:::client
+        ClientInvite["Client Email Dispatcher<br/>Personalized Call Letter with Client Exam Token"]:::client
+
+        ClientPortal --> ClientDB
+        ClientDB --> ClientInvite
+    end
+
+    subgraph INTERNAL_TRACK["3B. INTELLIGENZ IT INTERNAL HIRING PORTAL"]
+        InternalPortal["Internal R&amp;D Hiring Stream<br/>• AI Engineers, Full Stack, QA, Leadership<br/>• Culture-Fit & Standard Corporate Bands<br/>• Direct Recruiter Control Dashboard"]:::internal
+        InternalDB["Candidates Table (`internal_requisition`)<br/>Action Status: 'Internal_Shortlisted'"]:::internal
+        InternalInvite["Internal Email Dispatcher<br/>Official Intelligenz IT Examination Token"]:::internal
+
+        InternalPortal --> InternalDB
+        InternalDB --> InternalInvite
+    end
+
+    Gatekeeper -- "Matches Client Job Req (Score >= 75%)" --> ClientPortal
+    Gatekeeper -- "Matches Internal Opening (Score >= 75%)" --> InternalPortal
+    Gatekeeper -- "Score &lt; 75%" --> TalentPool["Archived in General Talent Repository"]:::naukri
+
+    subgraph TESTING_ZONE["4. PROCTORED DUAL EXAMINATION ZONE (BOTH TRACKS)"]
+        direction TB
+        GT["STEP 1: General Aptitude &amp; Reasoning Test (GT)<br/>Logical Thinking, Quantitative, Communication"]:::exam
+        TT["STEP 2: In-Depth Technical Coding Test (TT)<br/>Python, Java, React, SQL with Live Code Runner"]:::exam
+        Proctoring["AI Anti-Cheat Defense Layer<br/>• 1-Person Face Detection (Instant Disqualification if 2+ People)<br/>• Disabled Shortcuts, DevTools, Screenshots (PrtScr)<br/>• Dual-Monitor &amp; Earphone/USB Traps"]:::exam
+
+        GT --> TT
+        Proctoring -.->|Enforces Real-Time Security| GT
+        Proctoring -.->|Enforces Real-Time Security| TT
+    end
+
+    ClientInvite -->|Candidate Clicks Link| GT
+    InternalInvite -->|Candidate Clicks Link| GT
+
+    subgraph DECISION_MATRIX["5. EXECUTIVE DECISION &amp; ONBOARDING"]
+        ClientDossier["Client Evaluation Matrix<br/>Instant Shareable PDF Dossier for Client HR"]:::final
+        InternalOffer["Intelligenz IT Offer Pipeline<br/>Direct Final Interview / Salary Negotiation"]:::final
+    end
+
+    TT -- "Client Stream Pass" --> ClientDossier
+    TT -- "Internal Stream Pass" --> InternalOffer
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive Comparison -->
+  <div class="section-card">
+    <div class="section-header">
+      <h2>⚖️ Client-Facing Track vs. Internal Enterprise Track</h2>
+      <p>How the platform cleanly isolates both operational demands while utilizing shared AI and proctoring engines.</p>
+    </div>
+
+    <div class="tracks-comparison">
+      
+      <!-- Client Track Box -->
+      <div class="track-box client">
+        <span class="track-badge">Commercial Stream</span>
+        <h3>🌐 Client-Facing Recruitment Portal</h3>
+        <ul>
+          <li><strong>Purpose:</strong> Fulfilling external client client contracts, staffing mandates, and dedicated client hiring drives.</li>
+          <li><strong>Customization:</strong> Client-specific test sets, tailored difficulty cutoffs, and client branding headers in test links.</li>
+          <li><strong>Evaluation Matrix:</strong> Automatically outputs formatted executive PDF profiles and scorecards to share with client hiring managers.</li>
+          <li><strong>Revenue Impact:</strong> Enables Intelligenz IT to act as an automated high-margin Recruitment-as-a-Service (RaaS) partner.</li>
+        </ul>
+      </div>
+
+      <!-- Internal Track Box -->
+      <div class="track-box internal">
+        <span class="track-badge">Internal Stream</span>
+        <h3>🏢 Intelligenz IT Internal Hiring Portal</h3>
+        <ul>
+          <li><strong>Purpose:</strong> Sourcing and onboarding core engineering, AI R&D, product managers, and leadership teams for Intelligenz IT.</li>
+          <li><strong>Rigorous Testing:</strong> Multi-tiered general aptitude (GT) + hands-on technical coding (TT) with zero tolerance for cheating.</li>
+          <li><strong>Recruiter Dashboard:</strong> Integrated inside existing `Manage Candidate` with 1-click candidate invites and custom WYSIWYG email templates.</li>
+          <li><strong>Company Impact:</strong> Eliminates agency commissions and ensures top 1% technical talent entering our payroll.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+  });
+</script>
+</body>
+</html>

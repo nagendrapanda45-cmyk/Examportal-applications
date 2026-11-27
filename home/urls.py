@@ -16,6 +16,7 @@ urlpatterns = [
     path('login/', views.login_router, name='login'),
     path('mindmap/', views.mindmap_view, name='mindmap_view'),
     path('naukri-architecture/', views.naukri_architecture_view, name='naukri_architecture_view'),
+    path('ceo-architecture/', views.ceo_architecture_view, name='ceo_architecture_view'),
     # Test URLs
     path('tests/', views.test_list, name='test_list'),
     path('tests/view/<int:pk>/', views.test_view, name='test_view'),
