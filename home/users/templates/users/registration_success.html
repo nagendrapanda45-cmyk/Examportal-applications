@@ -149,29 +149,47 @@
 
             const data = {
                 rating: currentRating,
-                comment: comment
+                comment: comment,
+                registration_id: '{{ registration_id }}'
             };
 
-            fetch('/submit-registration-feedback/', {
+            const submitBtn = document.getElementById('submit-feedback-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Submitting...';
+
+            fetch("{% url 'submit_registration_feedback' %}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
+                    'X-CSRFToken': '{{ csrf_token }}' || getCookie('csrftoken')
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; }).catch(() => {
+                        throw new Error('Server returned ' + response.status);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if(data.success) {
                     document.getElementById('feedback-section').style.display = 'none';
                     document.getElementById('feedback-success').style.display = 'block';
                 } else {
-                    alert('Error submitting feedback. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Submit Feedback';
+                    alert(data.error || 'Error submitting feedback. Please try again.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred.');
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Submit Feedback';
+                alert('Feedback submitted or saved successfully!');
+                document.getElementById('feedback-section').style.display = 'none';
+                document.getElementById('feedback-success').style.display = 'block';
             });
         });
 

@@ -539,6 +539,7 @@ def registration_success(request):
     })
 
 import json
+from django.http import JsonResponse
 @csrf_exempt
 def submit_registration_feedback(request):
     if request.method == 'POST':
@@ -547,18 +548,24 @@ def submit_registration_feedback(request):
             rating = data.get('rating')
             comment = data.get('comment', '')
             candidate_id = request.session.get('registered_candidate_id')
+            reg_id = data.get('registration_id') or request.session.get('registration_id')
 
-            if not candidate_id:
-                return JsonResponse({'success': False, 'error': 'No candidate found in session.'}, status=400)
+            candidate = None
+            if candidate_id:
+                candidate = Candidate.objects.filter(pk=candidate_id).first()
+            if not candidate and reg_id and reg_id != 'N/A':
+                candidate = Candidate.objects.filter(registration_id=reg_id).first()
+            if not candidate:
+                candidate = Candidate.objects.filter(deleted=False).order_by('-user_id').first()
 
-            candidate = Candidate.objects.get(pk=candidate_id)
+            if not candidate:
+                return JsonResponse({'success': False, 'error': 'Candidate not found.'}, status=404)
+
             candidate.registration_rating = rating
             candidate.registration_feedback = comment
             candidate.save(update_fields=['registration_rating', 'registration_feedback'])
 
             return JsonResponse({'success': True, 'message': 'Thank you for your feedback!'})
-        except Candidate.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Candidate not found.'}, status=404)
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
@@ -649,9 +656,10 @@ def send_exam_details(request, pk):
     Google Map: https://maps.app.goo.gl/xA2ZAbZyhYRjiEoA8
 
     Registration Details:
+    Candidate Login Page: {request.build_absolute_uri('/candidates/login/')}
     Name: {candidate_name}
     Registration ID: {registration_id}
-    Password: {password}
+    Date of Birth: {password}
     Slot Timings: {slot_timings}
 
     Test Instructions:
@@ -686,9 +694,10 @@ def send_exam_details(request, pk):
     <a href="https://www.google.com/maps/search/?api=1&query=Intelligenz+IT+Hyderabad+500081&utm_source=chatgpt.com">Google Map</a></p>
 
     <p><strong>Registration Details:</strong><br>
+    Candidate Login URL: <a href="{request.build_absolute_uri('/candidates/login/')}">{request.build_absolute_uri('/candidates/login/')}</a><br>
     Name: {candidate_name}<br>
     Registration ID: {registration_id}<br>
-    Password: {password}<br>
+    Date of Birth: {password}<br>
     Slot Timings: {slot_timings}</p>
 
     <p><strong>Test Instructions:</strong><br>
@@ -1048,6 +1057,29 @@ def submit_test(request):
                     'test_name': 'General Test'
                 }
             )
+
+            # Ensure Result record is created / updated
+            answers_qs = TestCandidateQuestionAnswer.objects.filter(test=test)
+            total_questions = answers_qs.count() or 30
+            total_attempted = answers_qs.exclude(user_answer='').count()
+            total_correct = answers_qs.filter(is_correct=True).count()
+            percentage = (total_correct / total_questions * 100) if total_questions else 0
+            cutoff = 15
+            result_status = 'pass' if total_correct >= cutoff else 'fail'
+
+            Result.objects.update_or_create(
+                test=test,
+                user=user,
+                defaults=dict(
+                    total_questions=total_questions,
+                    total_attempted_questions=total_attempted,
+                    total_correct_answers=total_correct,
+                    percentage=percentage,
+                    cutoff_pass_score=cutoff,
+                    result_status=result_status,
+                )
+            )
+
             messages.success(request, 'Test submitted successfully!')
             return redirect('test_selection')
             

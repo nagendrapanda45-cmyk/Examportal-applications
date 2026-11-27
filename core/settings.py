@@ -114,7 +114,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
-# AUTH_USER_MODEL='home.Users'
+# AUTH_USER_MODEL='home.Candidate'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -227,6 +227,9 @@ RECAPTCHA_SECRET_KEY = '6LcgVYsrAAAAAEMlQ8LsW7upUO3UMBylSYq7X-jL'
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600 #100MB
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app',
+    'https://*.ngrok.io',
+    'https://*.loca.lt',
     'https://registration.intelligenzit.com',
     'https://www.registration.intelligenzit.com',
     'http://www.registration.intelligenzit.com',

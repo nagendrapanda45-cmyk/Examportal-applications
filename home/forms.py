@@ -1,6 +1,6 @@
 from django import forms
 import logging
-from home.users.models import Tests, Instruction, Users
+from home.users.models import Tests, Instruction, Candidate
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
@@ -21,7 +21,7 @@ User = get_user_model()
 class TestForm(forms.ModelForm):
     start_time = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
     user = forms.ModelChoiceField(
-        queryset=Users.objects.filter(is_active=True, deleted=False),
+        queryset=Candidate.objects.filter(is_active=True, deleted=False),
         required=True,
         to_field_name='registration_id',
         label='User Registration ID'
@@ -41,7 +41,7 @@ class TestForm(forms.ModelForm):
         now = timezone.now().strftime('%Y-%m-%dT%H:%M')
         self.fields['start_time'].widget.attrs['min'] = now
         if self.request and not self.request.user.is_staff:
-            self.fields['user'].queryset = Users.objects.filter(id=self.request.user.id, is_active=True, deleted=False, is_superuser=False)
+            self.fields['user'].queryset = Candidate.objects.filter(id=self.request.user.id, is_active=True, deleted=False, is_superuser=False)
             self.fields['user'].initial = self.request.user
             self.fields['user'].widget.attrs['readonly'] = True
         # Customize dropdown display

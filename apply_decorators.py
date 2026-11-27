@@ -20,7 +20,7 @@ replacements = {
         ('delete_employee', "Manage Role"),
     ],
     r"home\users\views.py": [
-        ('user_list_view', "Manage Candidate"),
+        ('candidate_list_view', "Manage Candidate"),
     ],
     r"user_invite\views.py": [
         ('user_invite_list_view', "Candidate Invites"),

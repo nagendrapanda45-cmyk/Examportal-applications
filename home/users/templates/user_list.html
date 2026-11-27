@@ -72,7 +72,7 @@
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">DOB</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Registered At</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action Status</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ProfileImage</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Feedback</th>
                                     <th class="text-secondary opacity-7">Actions</th>
                                 </tr>
                             </thead>
@@ -107,6 +107,18 @@
                                         {% if user.photo %}
                                         <img src="{{ user.photo.url }}" alt="Profile Photo" style="max-width: 50px; max-height: 50px; display: block; margin: 0 auto;"> {% else %}
                                         <h6 class="mb-0 text-sm">No Photo</h6>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        {% if user.registration_rating %}
+                                            <span class="badge bg-gradient-warning text-dark font-weight-bold">⭐ {{ user.registration_rating }}/5</span>
+                                            {% if user.registration_feedback %}
+                                                <div class="text-xs text-muted mt-1" style="max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 auto;" title="{{ user.registration_feedback }}">
+                                                    "{{ user.registration_feedback }}"
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-xs text-secondary">-</span>
                                         {% endif %}
                                     </td>
                                     <td class="align-middle">

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib.sessions.models import Session
 from django.contrib import messages
-from home.users.models import Tests, TestUserQuestionAnswer, Users, Result, Question, Configuration, Instruction
+from home.users.models import Tests, TestUserQuestionAnswer, Candidate, Result, Question, Configuration, Instruction
 from django.http import JsonResponse, HttpResponseForbidden,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
@@ -25,7 +25,7 @@ def login_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if not request.session.get('user_id'):
-            return redirect('user_login')
+            return redirect('candidate_login')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -99,8 +99,8 @@ def start_test(request):
         return HttpResponseForbidden("Please use Chrome, Firefox, or Edge on Desktop.")
     
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
-    except Users.DoesNotExist:
+        user = Candidate.objects.get(user_id=request.session['user_id'])
+    except Candidate.DoesNotExist:
         return render(request, 'error.html', {'message': 'User not found. Please log in again.'})
 
     # prevent retake
@@ -230,9 +230,9 @@ def start_test(request):
 def test_page(request, question_index):
     
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
-    except Users.DoesNotExist:
-        return redirect('user_login')
+        user = Candidate.objects.get(user_id=request.session['user_id'])
+    except Candidate.DoesNotExist:
+        return redirect('candidate_login')
 
     if 'test_id' not in request.session or 'question_ids' not in request.session:
         return redirect('start_test')
@@ -346,10 +346,10 @@ def test_page(request, question_index):
 @login_required
 def submit_test(request):
     if 'test_id' not in request.session:
-        return redirect('user_login')
+        return redirect('candidate_login')
     try:
         test = Tests.objects.get(test_id=request.session['test_id'])
-        user = Users.objects.get(user_id=request.session['user_id'])
+        user = Candidate.objects.get(user_id=request.session['user_id'])
         current_time = timezone.now()
 
         # # Save current
@@ -436,15 +436,15 @@ def submit_test(request):
 
     messages.success(request, 'General Test submitted successfully!')
     if request.POST.get('action') == 'submit_and_logout':
-        return redirect('user_logout')
+        return redirect('candidate_logout')
     return redirect('test_selection')
 
 @login_required
 def select_language(request):
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
-    except Users.DoesNotExist:
-        return redirect('user_login')
+        user = Candidate.objects.get(user_id=request.session['user_id'])
+    except Candidate.DoesNotExist:
+        return redirect('candidate_login')
 
     if Tests.objects.filter(user=user,test_type='TT').exists():
         return redirect('test_selection')
@@ -476,9 +476,9 @@ def select_language(request):
 @login_required
 def start_technical_test(request):
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
-    except Users.DoesNotExist:
-        return redirect('user_login')
+        user = Candidate.objects.get(user_id=request.session['user_id'])
+    except Candidate.DoesNotExist:
+        return redirect('candidate_login')
 
     selected_language = request.session.get('selected_language')
     if not selected_language:
@@ -645,7 +645,7 @@ def technical_test_page(request, question_index):
         return redirect('select_language')
 
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
+        user = Candidate.objects.get(user_id=request.session['user_id'])
         test = Tests.objects.get(test_id=request.session['test_id'])
     except Tests.DoesNotExist:
         return render(request, 'error.html', {'message': 'Test not found.'})
@@ -761,7 +761,7 @@ def submit_technical_test(request):
 
     try:
         test = Tests.objects.get(test_id=request.session['test_id'])
-        user = Users.objects.get(user_id=request.session['user_id'])
+        user = Candidate.objects.get(user_id=request.session['user_id'])
         current_time = timezone.now()
 
         # # Save current
@@ -873,7 +873,7 @@ def submit_technical_test(request):
 
     messages.success(request, 'Technical Test submitted successfully!')
     if request.POST.get('action') == 'submit_and_logout':
-        return redirect('user_logout')
+        return redirect('candidate_logout')
     return redirect('test_selection')
 
 
@@ -939,7 +939,7 @@ def captureScreenshot(request):
         if photo_type not in ['GT', 'TT', 'INST']:
             return JsonResponse({'success': False, 'error': 'Invalid photo type'}, status=400)
 
-        user = Users.objects.get(user_id=user_id)
+        user = Candidate.objects.get(user_id=user_id)
 
         # verify active test for GT/TT
         if photo_type in ['GT', 'TT']:
@@ -974,7 +974,7 @@ def captureScreenshot(request):
         user.save()
 
         return JsonResponse({'success': True, 'message': 'Screenshot captured successfully'})
-    except Users.DoesNotExist:
+    except Candidate.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
     except Tests.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Test not found'}, status=404)
@@ -1002,8 +1002,8 @@ def log_browser(request):
             return JsonResponse({'status': 'error', 'message': 'User not authenticated'}, status=401)
 
         try:
-            user = Users.objects.get(user_id=user_id)
-        except Users.DoesNotExist:
+            user = Candidate.objects.get(user_id=user_id)
+        except Candidate.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'User not found'}, status=404)
 
         test = Tests.objects.filter(user=user, is_submitted=False).order_by('-created_at').first()

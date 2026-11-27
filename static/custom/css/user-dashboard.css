@@ -32,6 +32,15 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   /* border-left: 4px solid #667eea; */
   border-left: 4px solid #ec407a;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.info-card p {
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  margin-bottom: 0.5rem;
 }
 .btn-exam {
  background: linear-gradient(195deg, #ec407a 0%, #d81b60 100%);

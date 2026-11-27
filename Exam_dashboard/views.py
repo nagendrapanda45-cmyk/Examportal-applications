@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib.sessions.models import Session
 from django.contrib import messages
-from home.users.models import Tests, TestUserQuestionAnswer, Users, Result, Question, Configuration, Instruction
+from home.users.models import Tests, TestCandidateQuestionAnswer, Candidate, Result, Question, Configuration, Instruction
 from django.http import JsonResponse, HttpResponseForbidden,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
@@ -87,16 +87,16 @@ def fetch_questions_by_ids_in_order(ids):
     return [qmap[i] for i in ids]
 
 def bulk_create_test_answers(user, test, questions):
-    """Create TestUserQuestionAnswer rows in bulk for given question objects."""
+    """Create TestCandidateQuestionAnswer rows in bulk for given question objects."""
     objs = []
     for q in questions:
-        objs.append(TestUserQuestionAnswer(
+        objs.append(TestCandidateQuestionAnswer(
             user=user, test=test, question=q, user_answer='',
             actual_answer=getattr(q, 'correct_answer', ''), is_correct=None, score=0,
             status='not_answered', submitted_at=None, end_time=None,
             option_order='A,B,C,D'
         ))
-    TestUserQuestionAnswer.objects.bulk_create(objs)
+    TestCandidateQuestionAnswer.objects.bulk_create(objs)
 
 def enqueue_screenshot_processing(user_id, photo_type, registration_id, data_bytes, ext):
     """Enqueue or write screenshot; returns file_path or None immediately."""
@@ -129,7 +129,7 @@ def login_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if not request.session.get('user_id'):
-            return redirect('user_login')
+            return redirect('candidate_login')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -194,8 +194,8 @@ def start_test(request):
         return HttpResponseForbidden("Please use Chrome, Firefox, or Edge on Desktop.")
     
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
-    except Users.DoesNotExist:
+        user = Candidate.objects.get(user_id=request.session['user_id'])
+    except Candidate.DoesNotExist:
         return JsonResponse({'error': 'User not found. Please log in again.'}, status=400)
 
     # Prevent retake after submission
@@ -213,7 +213,7 @@ def start_test(request):
         if test:
             # Reuse existing test
             selected_ids = list(
-                TestUserQuestionAnswer.objects.filter(test=test).values_list("question_id", flat=True)
+                TestCandidateQuestionAnswer.objects.filter(test=test).values_list("question_id", flat=True)
             )
             # selected_ids = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]  # temp
             questions = Question.objects.filter(question_id__in=selected_ids).values(
@@ -303,8 +303,8 @@ def assign_test_questions(user_id):
     try:
         current_year = timezone.now().year
         try:
-            user = Users.objects.get(user_id=user_id)
-        except Users.DoesNotExist:
+            user = Candidate.objects.get(user_id=user_id)
+        except Candidate.DoesNotExist:
             return {'error': 'User not found.', 'status': 400}
  
         try:
@@ -390,13 +390,13 @@ def assign_test_questions(user_id):
         except Exception as e:
             return {'error': f'Error creating Tests record: {str(e)}', 'status': 500}
  
-        # Create TestUserQuestionAnswer records
+        # Create TestCandidateQuestionAnswer records
         try:
             bulk_create_test_answers(user, test, questions)
-            logger.info(f"Created {len(selected_ids)} TestUserQuestionAnswer records for {user.email}, test_type=GT")
+            logger.info(f"Created {len(selected_ids)} TestCandidateQuestionAnswer records for {user.email}, test_type=GT")
         except Exception as e:
             test.delete()  # Rollback Tests record
-            return {'error': f'Error creating TestUserQuestionAnswer records: {str(e)}', 'status': 500}
+            return {'error': f'Error creating TestCandidateQuestionAnswer records: {str(e)}', 'status': 500}
  
         # Store pre-assigned questions
         try:
@@ -408,7 +408,7 @@ def assign_test_questions(user_id):
             }
         except Exception as e:
             test.delete()  # Rollback Tests record
-            TestUserQuestionAnswer.objects.filter(test=test).delete()  # Rollback answers
+            TestCandidateQuestionAnswer.objects.filter(test=test).delete()  # Rollback answers
             return {'error': f'Error storing pre-assigned questions: {str(e)}', 'status': 500}
  
     except Exception as e:
@@ -416,9 +416,9 @@ def assign_test_questions(user_id):
 @login_required
 def test_page(request):
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
-    except Users.DoesNotExist:
-        return redirect('user_login')
+        user = Candidate.objects.get(user_id=request.session['user_id'])
+    except Candidate.DoesNotExist:
+        return redirect('candidate_login')
 
     if 'test_id' not in request.session:
         return redirect('start_test')
@@ -450,7 +450,7 @@ def test_page(request):
 
 #     try:
 #         test = Tests.objects.get(test_id=request.session['test_id'])
-#         user = Users.objects.get(user_id=request.session['user_id'])
+#         user = Candidate.objects.get(user_id=request.session['user_id'])
 #         current_time = timezone.now()
 
 #         if request.method == 'POST':
@@ -465,7 +465,7 @@ def test_page(request):
 
 #             # ✅ Get all questions assigned to this test
 #             all_questions = Question.objects.filter(
-#                 testuserquestionanswer__test=test
+#                 TestCandidateQuestionAnswer__test=test
 #             ).distinct()
 
 #             # Process answers atomically
@@ -491,7 +491,7 @@ def test_page(request):
 #                         mark_review = False
 #                         status = 'not_answered'
 
-#                     TestUserQuestionAnswer.objects.update_or_create(
+#                     TestCandidateQuestionAnswer.objects.update_or_create(
 #                         user=user,
 #                         test=test,
 #                         question=question,
@@ -519,7 +519,7 @@ def test_page(request):
 #         test.save()
 
 #         # Compute results
-#         answers_qs = TestUserQuestionAnswer.objects.filter(test=test)
+#         answers_qs = TestCandidateQuestionAnswer.objects.filter(test=test)
 #         total_questions = get_config_value('gt_total_questions', 30, int)
 #         total_attempted = answers_qs.exclude(user_answer='').count()
 #         total_correct = answers_qs.filter(is_correct=True).count()
@@ -554,12 +554,23 @@ def test_page(request):
 
 
 def submit_test(request):
-    if 'test_id' not in request.session:
+    user_id = request.session.get('user_id')
+    test_id = request.session.get('test_id')
+
+    if not test_id and user_id:
+        active_test = Tests.objects.filter(user_id=user_id, test_type='GT', is_submitted=False).last()
+        if not active_test:
+            active_test = Tests.objects.filter(user_id=user_id, test_type='GT').last()
+        if active_test:
+            test_id = active_test.test_id
+            request.session['test_id'] = test_id
+
+    if not test_id:
         return JsonResponse({'error': 'No active test found.'}, status=400)
 
     try:
-        test = Tests.objects.get(test_id=request.session['test_id'])
-        user = Users.objects.get(user_id=request.session['user_id'])
+        test = Tests.objects.get(test_id=test_id)
+        user = Candidate.objects.get(user_id=user_id if user_id else test.user_id)
         current_time = datetime.now()  # ✅ naive datetime since USE_TZ=False
 
         if request.method == 'POST':
@@ -573,7 +584,7 @@ def submit_test(request):
             )
 
             all_questions = Question.objects.filter(
-                testuserquestionanswer__test=test
+                TestCandidateQuestionAnswer__test=test
             ).distinct()
 
             to_create, to_update = [], []
@@ -581,7 +592,7 @@ def submit_test(request):
             with transaction.atomic():
                 existing_answers = {
                     a.question_id: a
-                    for a in TestUserQuestionAnswer.objects.filter(test=test, user=user)
+                    for a in TestCandidateQuestionAnswer.objects.filter(test=test, user=user)
                 }
 
                 for question in all_questions:
@@ -635,7 +646,7 @@ def submit_test(request):
                         obj.submitted_at = current_time
                         to_update.append(obj)
                     else:
-                        to_create.append(TestUserQuestionAnswer(
+                        to_create.append(TestCandidateQuestionAnswer(
                             user=user,
                             test=test,
                             question=question,
@@ -653,9 +664,9 @@ def submit_test(request):
 
                 # ✅ Bulk insert & update
                 if to_create:
-                    TestUserQuestionAnswer.objects.bulk_create(to_create, batch_size=20)
+                    TestCandidateQuestionAnswer.objects.bulk_create(to_create, batch_size=20)
                 if to_update:
-                    TestUserQuestionAnswer.objects.bulk_update(
+                    TestCandidateQuestionAnswer.objects.bulk_update(
                         to_update,
                         fields=[
                             'user_answer', 'actual_answer', 'is_correct', 'score',
@@ -674,7 +685,7 @@ def submit_test(request):
             test.save()
 
             # ✅ Compute results
-            answers_qs = TestUserQuestionAnswer.objects.filter(test=test)
+            answers_qs = TestCandidateQuestionAnswer.objects.filter(test=test)
             total_questions = get_config_value('gt_total_questions', 30, int)
             total_attempted = answers_qs.exclude(user_answer='').count()
             total_correct = answers_qs.filter(is_correct=True).count()
@@ -712,9 +723,9 @@ def submit_test(request):
 @login_required
 def select_language(request):
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
-    except Users.DoesNotExist:
-        return redirect('user_login')
+        user = Candidate.objects.get(user_id=request.session['user_id'])
+    except Candidate.DoesNotExist:
+        return redirect('candidate_login')
 
     # Prevent starting a new test if one is already submitted
     if Tests.objects.filter(user=user, test_type='TT', is_submitted=True).exists():
@@ -754,10 +765,10 @@ def start_technical_test(request):
         return JsonResponse({'error': 'Please use Chrome, Firefox, or Edge on Desktop.'}, status=403)
 
     try:
-        user = Users.objects.get(user_id=request.session['user_id'])
+        user = Candidate.objects.get(user_id=request.session['user_id'])
         data = json.loads(request.body)
         selected_language = data.get('language')
-    except Users.DoesNotExist:
+    except Candidate.DoesNotExist:
         return JsonResponse({'error': 'User not found. Please log in again.'}, status=400)
     except (json.JSONDecodeError, KeyError):
         return JsonResponse({'error': 'Invalid request body.'}, status=400)
@@ -780,7 +791,7 @@ def start_technical_test(request):
         if test:
             # resumed order: use attempt_id (your PK) — previously caused "id" error
             selected_ids = list(
-                TestUserQuestionAnswer.objects.filter(test=test)
+                TestCandidateQuestionAnswer.objects.filter(test=test)
                 .order_by('attempt_id')
                 .values_list("question_id", flat=True)
             )
@@ -880,7 +891,7 @@ def start_technical_test(request):
                 is_active=True, is_submitted=False, suspicious_activity_count=0, test_status=1
             )
 
-            # create TestUserQuestionAnswer rows
+            # create TestCandidateQuestionAnswer rows
             question_objects = Question.objects.filter(question_id__in=selected_ids)
             # If your helper expects ordered_questions list, pass that. Ensure bulk_create_test_answers respects order.
             bulk_create_test_answers(user, test, question_objects)
@@ -922,13 +933,13 @@ def technical_test_page(request):
 
     try:
         test = Tests.objects.get(test_id=request.session['tt_test_id'])
-        user = Users.objects.get(user_id=request.session['user_id'])
-    except (Tests.DoesNotExist, Users.DoesNotExist):
+        user = Candidate.objects.get(user_id=request.session['user_id'])
+    except (Tests.DoesNotExist, Candidate.DoesNotExist):
         request.session.pop('tt_test_id', None)
         return redirect('select_language')
 
-    # derive total_questions from TestUserQuestionAnswer rows for the test (reliable)
-    total_questions = TestUserQuestionAnswer.objects.filter(test=test).count()
+    # derive total_questions from TestCandidateQuestionAnswer rows for the test (reliable)
+    total_questions = TestCandidateQuestionAnswer.objects.filter(test=test).count()
 
     context = {
         'test': test,
@@ -957,7 +968,7 @@ def technical_test_page(request):
 
 #     try:
 #         test = Tests.objects.get(test_id=request.session['tt_test_id'])
-#         user = Users.objects.get(user_id=request.session['user_id'])
+#         user = Candidate.objects.get(user_id=request.session['user_id'])
 #         current_time = timezone.now()
 
 #         if request.method == 'POST':
@@ -966,7 +977,7 @@ def technical_test_page(request):
 #             suspicious_activity_count = data.get('suspicious_activity_count', test.suspicious_activity_count)
 #             resolution_mismatch_count = data.get('resolution_mismatch_count', test.resolution_mismatch_count)
 
-#             all_questions = Question.objects.filter(testuserquestionanswer__test=test).distinct()
+#             all_questions = Question.objects.filter(TestCandidateQuestionAnswer__test=test).distinct()
 
 #             with transaction.atomic():
 #                 for question in all_questions:
@@ -981,7 +992,7 @@ def technical_test_page(request):
 
 #                     actual_answer = question.correct_answer if question.is_multichoice else question.technical_question_answer
 
-#                     TestUserQuestionAnswer.objects.update_or_create(
+#                     TestCandidateQuestionAnswer.objects.update_or_create(
 #                         user=user, test=test, question=question,
 #                         defaults={
 #                             'user_answer': user_answer,
@@ -1004,7 +1015,7 @@ def technical_test_page(request):
 #             test.save()
 
 #             # Compute results
-#             answers_qs = TestUserQuestionAnswer.objects.filter(test=test)
+#             answers_qs = TestCandidateQuestionAnswer.objects.filter(test=test)
 #             total_questions = get_config_value('tt_total_questions', 10, int)
 #             total_attempted = answers_qs.exclude(user_answer='').count()
 #             total_correct = answers_qs.filter(is_correct=True).count()
@@ -1062,7 +1073,7 @@ def submit_technical_test(request):
 
     try:
         test = Tests.objects.get(test_id=request.session['tt_test_id'])
-        user = Users.objects.get(user_id=request.session['user_id'])
+        user = Candidate.objects.get(user_id=request.session['user_id'])
         current_time = timezone.now()
 
         if request.method == 'POST':
@@ -1076,7 +1087,7 @@ def submit_technical_test(request):
             )
 
             all_questions = Question.objects.filter(
-                testuserquestionanswer__test=test
+                TestCandidateQuestionAnswer__test=test
             ).distinct()
 
             to_create, to_update = [], []
@@ -1085,7 +1096,7 @@ def submit_technical_test(request):
                 # Cache existing answers
                 existing_answers = {
                     a.question_id: a
-                    for a in TestUserQuestionAnswer.objects.filter(test=test, user=user)
+                    for a in TestCandidateQuestionAnswer.objects.filter(test=test, user=user)
                 }
 
                 for question in all_questions:
@@ -1136,7 +1147,7 @@ def submit_technical_test(request):
                         obj.submitted_at = current_time
                         to_update.append(obj)
                     else:
-                        to_create.append(TestUserQuestionAnswer(
+                        to_create.append(TestCandidateQuestionAnswer(
                             user=user,
                             test=test,
                             question=question,
@@ -1154,9 +1165,9 @@ def submit_technical_test(request):
 
                 # Bulk operations (batch_size = 20)
                 if to_create:
-                    TestUserQuestionAnswer.objects.bulk_create(to_create, batch_size=20)
+                    TestCandidateQuestionAnswer.objects.bulk_create(to_create, batch_size=20)
                 if to_update:
-                    TestUserQuestionAnswer.objects.bulk_update(
+                    TestCandidateQuestionAnswer.objects.bulk_update(
                         to_update,
                         fields=[
                             'user_answer', 'actual_answer', 'is_correct', 'score',
@@ -1175,7 +1186,7 @@ def submit_technical_test(request):
             test.save()
 
             # Compute results
-            answers_qs = TestUserQuestionAnswer.objects.filter(test=test)
+            answers_qs = TestCandidateQuestionAnswer.objects.filter(test=test)
             total_questions = get_config_value('tt_total_questions', 10, int)
             total_attempted = answers_qs.exclude(user_answer='').count()
             total_correct = answers_qs.filter(is_correct=True).count()
@@ -1297,7 +1308,7 @@ def captureScreenshot(request):
         if photo_type not in ['GT', 'TT', 'INST']:
             return JsonResponse({'success': False, 'error': 'Invalid photo type'}, status=400)
 
-        user = Users.objects.get(user_id=user_id)
+        user = Candidate.objects.get(user_id=user_id)
 
         # verify active test for GT/TT
         if photo_type in ['GT', 'TT']:
@@ -1329,7 +1340,7 @@ def captureScreenshot(request):
         else:
             # processed/queued by background worker
             return JsonResponse({'success': True, 'message': 'Screenshot queued for processing.'})
-    except Users.DoesNotExist:
+    except Candidate.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
     except Tests.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Test not found'}, status=404)
@@ -1352,8 +1363,8 @@ def log_browser(request):
             return JsonResponse({'status': 'error', 'message': 'User not authenticated'}, status=401)
 
         try:
-            user = Users.objects.get(user_id=user_id)
-        except Users.DoesNotExist:
+            user = Candidate.objects.get(user_id=user_id)
+        except Candidate.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'User not found'}, status=404)
 
         test = Tests.objects.filter(user=user, is_submitted=False).order_by('-created_at').first()

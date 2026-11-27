@@ -4,12 +4,27 @@
 <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 bg-gradient-dark" id="sidenav-main">
     <div class="sidenav-header">
         <i class="fas fa-times p-3 cursor-pointer text-white opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-        <a class="navbar-brand m-0" href="/admin/">
-            <img src="{% static 'img/logo.png' %}" class="navbar-brand-img h-100" alt="main_logo">
+        <a class="navbar-brand m-0" href="/admin/" style="display: flex; align-items: center; justify-content: center; padding: 10px;">
+            <img src="{% static 'img/logo.png' %}" alt="main_logo" style="width: 100%; height: auto; max-height: 50px; object-fit: contain;">
         </a>
     </div>
     <hr class="horizontal light mt-0 mb-2">
-    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
+    <style>
+        #sidenav-collapse-main::-webkit-scrollbar {
+            width: 6px;
+        }
+        #sidenav-collapse-main::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #sidenav-collapse-main::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        #sidenav-collapse-main::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main" style="overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 160px); height: auto;">
 
         <ul class="navbar-nav">
     {% if request.user|has_module_access:'Dashboard' %}
@@ -36,21 +51,21 @@
     {% endif %}
     {% if request.user|has_module_access:'Manage Role' %}
     <li class="nav-item">
-        <a class="nav-link text-white {% if request.path == '/role_based_access/manage_employees/' %} active {% endif %}" href="{% url 'manage_employees' %}">
+        <a class="nav-link text-white {% if request.path == '/role_based_access/manage_roles/' %} active {% endif %}" href="{% url 'manage_employees' %}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="material-icons opacity-10">people</i>
             </div>
-            <span class="nav-link-text ms-1">Manage Employees</span>
+            <span class="nav-link-text ms-1">Manage Role</span>
         </a>
     </li>
     {% endif %}
     {% if request.user|has_module_access:'Manage Candidate' %}
     <li class="nav-item">
-        <a class="nav-link text-white {% if request.path == '/users/list/' %} active {% endif %}" href="{% url 'user_list' %}">
+        <a class="nav-link text-white {% if request.path == '/candidates/list/' %} active {% endif %}" href="{% url 'user_list' %}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="material-icons opacity-10">people</i>
             </div>
-            <span class="nav-link-text ms-1">Manage Users</span>
+            <span class="nav-link-text ms-1">Manage Candidate</span>
         </a>                
     </li>
     {% endif %}
@@ -60,7 +75,7 @@
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="material-icons opacity-10">mail</i>
             </div>
-            <span class="nav-link-text ms-1">User Invites</span>
+            <span class="nav-link-text ms-1">Candidate Invites</span>
         </a>
     </li>
     {% endif %}

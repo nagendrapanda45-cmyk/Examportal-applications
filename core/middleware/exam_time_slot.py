@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.shortcuts import redirect
 from django.contrib import messages
 from user_invite.models import UserInvite
-from home.users.models import Users, Configuration
+from home.users.models import Candidate, Configuration
 from datetime import datetime, timedelta
 import logging
 import re
@@ -29,14 +29,14 @@ class ExamTimeSlotMiddleware:
             return self.get_response(request)
 
         try:
-            user = Users.objects.get(user_id=request.session.get('user_id'), is_active=True, deleted=False)
+            user = Candidate.objects.get(user_id=request.session.get('user_id'), is_active=True, deleted=False)
             user_invite = UserInvite.objects.filter(user=user, is_mail_sent=True).order_by('-invitation_date').first()
             
             if not user_invite or not user_invite.date_of_exam or not user_invite.start_time_slot:
                 messages.error(request, "No valid exam schedule found. Please contact support.")
                 request.session.flush()
                 logger.error(f"Session expired: No valid UserInvite for user ID {user.user_id}.")
-                return redirect('user_login')
+                return redirect('candidate_login')
 
             login_window_minutes = self.get_config_value('login_window_duration', 30, int)
             try:
@@ -45,7 +45,7 @@ class ExamTimeSlotMiddleware:
                 logger.error(f"Invalid date/time format for user {user.email}: date_of_exam={user_invite.date_of_exam}, start_time_slot={user_invite.start_time_slot}, error={str(e)}")
                 messages.error(request, "Invalid exam schedule data. Please contact support.")
                 request.session.flush()
-                return redirect('user_login')
+                return redirect('candidate_login')
 
             end_datetime = start_datetime + timedelta(minutes=login_window_minutes)
             current_datetime = timezone.now()
@@ -59,16 +59,16 @@ class ExamTimeSlotMiddleware:
 
             request.session['exam_end'] = end_datetime.isoformat()
 
-        except Users.DoesNotExist:
+        except Candidate.DoesNotExist:
             messages.error(request, "User not found or account is inactive.")
             request.session.flush()
             logger.error(f"Session expired: User ID {request.session.get('user_id')} not found or inactive.")
-            return redirect('user_login')
+            return redirect('candidate_login')
         except Exception as e:
             messages.error(request, "An error occurred. Please contact support.")
             request.session.flush()
             logger.error(f"Error in middleware for user ID {request.session.get('user_id')}: {str(e)}")
-            return redirect('user_login')
+            return redirect('candidate_login')
 
         return self.get_response(request)
 

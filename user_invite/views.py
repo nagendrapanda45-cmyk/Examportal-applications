@@ -1,5 +1,5 @@
 from Role_based_Access.decorators import module_access_required
-from home.users.models import Users
+from home.users.models import Candidate
 from .models import UserInvite
 from .models import EmailTemplate
 from .forms import EmailTemplateForm
@@ -35,7 +35,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.utils import timezone
 from datetime import date, datetime as dt
-from .models import Users, UserInvite, EmailTemplate
+from .models import Candidate, UserInvite, EmailTemplate
 from django.core.paginator import Paginator
 
 @module_access_required('Candidate Invites')
@@ -53,7 +53,7 @@ def user_invite_list_view(request):
     email_templates = EmailTemplate.objects.filter(is_deleted=False)
 
     # Default sorting by registered_at in descending order
-    users = Users.objects.filter(deleted=False).select_related('userinvite').order_by('-user_id')
+    users = Candidate.objects.filter(deleted=False).select_related('userinvite').order_by('-user_id')
 
     if query:
         users = users.filter(
@@ -122,13 +122,13 @@ def user_invite_list_view(request):
         current_sort = 'desc'
 
     # Pagination
-    paginator = Paginator(users, 100)
+    paginator = Paginator(users, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     # Calculate counts
-    total_users_count = Users.objects.filter(deleted=False).count()
-    templates_sent_count = Users.objects.filter(deleted=False, userinvite__is_bulk_mail_sent=True).count()
+    total_users_count = Candidate.objects.filter(deleted=False).count()
+    templates_sent_count = Candidate.objects.filter(deleted=False, userinvite__is_bulk_mail_sent=True).count()
 
     context = {
         'page_obj': page_obj,
@@ -153,7 +153,7 @@ from django.contrib import messages
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template import Template, Context
 from django.conf import settings
-from .models import Users, EmailTemplate, Configuration, UserInvite
+from .models import Candidate, EmailTemplate, Configuration, UserInvite
 from django.utils.html import strip_tags
 from django.utils import timezone
 from datetime import datetime as dt
@@ -215,7 +215,7 @@ def send_bulk_email(request):
         return redirect('user_invite_list')
 
     # Filter active users
-    users = Users.objects.filter(
+    users = Candidate.objects.filter(
         user_id__in=selected_ids,
         deleted=False
     ).prefetch_related('userinvite')
@@ -253,7 +253,7 @@ def send_bulk_email(request):
                             # Check if this is a call letter and if one was already sent (successfully)
                             if is_call_letter:
                                 # Check if any successful call letter was sent before
-                                previous_call_letter_sent = UserInvite.objects.filter(
+                                previous_call_letter_sent = UserInvite.objects.select_related('user').filter(
                                     user=user,
                                     email_type_sent__icontains='call_letter',
                                     is_mail_sent=True
@@ -407,7 +407,7 @@ def email_template_delete(request, email_id):
 def confirm_registration(request, registration_id, confirmation_token):
     logger.debug(f"Querying for registration_id={registration_id}, confirmation_token={confirmation_token}")
     user = get_object_or_404(
-        Users,
+        Candidate,
         registration_id=registration_id,
         confirmation_token=confirmation_token,
         deleted=False
@@ -439,9 +439,9 @@ def download_bulk_pdfs(request):
     
     # Get users - all if none selected
     if selected_ids:
-        users = Users.objects.filter(user_id__in=selected_ids, deleted=False)
+        users = Candidate.objects.filter(user_id__in=selected_ids, deleted=False)
     else:
-        users = Users.objects.filter(deleted=False)
+        users = Candidate.objects.filter(deleted=False)
     
     # Create zip file in memory
     zip_buffer = BytesIO()

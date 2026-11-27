@@ -11,6 +11,13 @@
     <link href="{% static 'custom/css/cdn-jsdelivr-bootstrap.min.css' %}" rel="stylesheet" />
     <link href="{% static 'custom/css/cdnjs-cloudflare-font-awesome.min.css' %}" rel="stylesheet" />
     <link href="{% static 'custom/css/user-dashboard.css' %}" rel="stylesheet" />
+    <style>
+        .info-card, .info-card p, .profile-card, .profile-card p, .stats-card {
+            word-wrap: break-word !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -126,7 +133,7 @@
                         <p><strong>Address:</strong> {{ user.address }}</p>
                         <p><strong>City:</strong> {{ user.city }}</p>
                         <p><strong>Pincode:</strong> {{ user.pincode }}</p>
-                        <p><strong>Aadhar Number:</strong> {{ user.aadhar_number }}</p>
+                        <p><strong>PAN Number:</strong> {{ user.pan_no }}</p>
                     </div>
                 </div>
             </div>

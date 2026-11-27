@@ -1,18 +1,43 @@
 # # middleware/restrict_public.py
 from django.http import HttpResponseForbidden
 
-ALLOWED_PATHS = ['/candidates/register','/candidates/registration-success','/static/custom/css/cdn-jsdelivr-bootstrap.min.css',
-'/static/custom/css/cdnjs-cloudflare-font-awesome.min.css','/static/custom/css/user-register.css','/metrics']
-INTERNAL_IP_RANGES = ['192.168.1', '172.168.1','127.0.0.1','13.232.128','0.0.0.0','49.249.160.198','183.82.6.191','13.232.128.222']  # Adjust to your internal network ranges
-# INTERNAL_IP_RANGES = ['172.168.1.0/24','192.168.1.0/24']  # Adjust to your internal network ranges
+ALLOWED_PATHS = [
+    '/', '',
+    '/dashboard', '/dashboard/',
+    '/login', '/login/',
+    '/mindmap', '/mindmap/',
+    '/candidates/register', '/candidates/register/',
+    '/candidates/registration-success', '/candidates/registration-success/',
+    '/candidates/submit-registration-feedback', '/candidates/submit-registration-feedback/',
+    '/submit-registration-feedback', '/submit-registration-feedback/',
+    '/candidates/check-registration', '/candidates/check-registration/',
+    '/candidates/login', '/candidates/login/',
+    '/candidates/dashboard', '/candidates/dashboard/',
+    '/results', '/results/',
+    '/qr/list', '/qr/list/',
+    '/metrics'
+]
+
+INTERNAL_IP_RANGES = [
+    '127.0.0.1', '::1', 'localhost',
+    '192.168.', '172.', '10.',
+    '13.232.128', '0.0.0.0', '49.249.160.198', '183.82.6.191', '13.232.128.222'
+]
 
 class RestrictPublicAccessMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        path = request.path
+        if (
+            path in ALLOWED_PATHS
+            or any(path.startswith(p) for p in ['/static/', '/media/', '/candidates/', '/exam_dashboard/', '/submit-registration-feedback', '/mindmap/', '/dashboard/', '/admin/', '/results/', '/qr/', '/tests/', '/role_based_access/', '/invite/', '/email_scheduler/', '/configurations/'])
+        ):
+            return self.get_response(request)
+
         ip = request.META.get('REMOTE_ADDR', '')
-        if request.path not in ALLOWED_PATHS and not any(ip.startswith(r) for r in INTERNAL_IP_RANGES):
+        if not any(ip.startswith(r) for r in INTERNAL_IP_RANGES):
             return HttpResponseForbidden("Access Denied")
         return self.get_response(request)
 

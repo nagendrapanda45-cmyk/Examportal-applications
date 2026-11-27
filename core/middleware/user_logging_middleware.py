@@ -3,7 +3,7 @@
 # # import logging
 # # from django.db import connection
 # # from django.conf import settings
-# # from home.users.models import Users  # your custom table
+# # from home.users.models import Candidate  # your custom table
 
 
 # # class UserRequestLoggingMiddleware:
@@ -37,11 +37,11 @@
 # #             print(f"[Middleware] Authenticated user detected: auth_user.id={request.user.id}")
 # #             try:
 # #                 # Map auth_user → your custom users table
-# #                 custom_user = Users.objects.get(user=request.user)
+# #                 custom_user = Candidate.objects.get(user=request.user)
 # #                 user_id = custom_user.user_id
 # #                 print(f"[Middleware] Found custom user mapping: users.user_id={user_id}")
 # #                 log_file = os.path.join(self.logs_dir, f"user_{user_id}.log")
-# #             except Users.DoesNotExist:
+# #             except Candidate.DoesNotExist:
 # #                 print(f"[Middleware] No mapping found in users table for auth_user.id={request.user.id}")
 # #                 log_file = os.path.join(self.logs_dir, f"authuser_{request.user.id}.log")
 # #         else:
@@ -73,7 +73,7 @@
 # import sqlparse
 # from django.db import connection
 # from django.conf import settings
-# from home.users.models import Users  # your custom table
+# from home.users.models import Candidate  # your custom table
 
 
 # class UserRequestLoggingMiddleware:
@@ -112,11 +112,11 @@
 #             print(f"[Middleware] Authenticated user detected: auth_user.id={request.user.id}")
 #             try:
 #                 # Map auth_user → your custom users table
-#                 custom_user = Users.objects.get(user=request.user)
+#                 custom_user = Candidate.objects.get(user=request.user)
 #                 user_id = custom_user.user_id
 #                 print(f"[Middleware] Found custom user mapping: users.user_id={user_id}")
 #                 log_file = os.path.join(self.logs_dir, f"user_{user_id}.log")
-#             except Users.DoesNotExist:
+#             except Candidate.DoesNotExist:
 #                 print(f"[Middleware] No mapping found in users table for auth_user.id={request.user.id}")
 #                 log_file = os.path.join(self.logs_dir, f"authuser_{request.user.id}.log")
 #         else:
@@ -153,7 +153,7 @@
 # import sqlparse
 # from django.db import connection
 # from django.conf import settings
-# from home.users.models import Users
+# from home.users.models import Candidate
 
 
 # class UserRequestLoggingMiddleware:
@@ -183,10 +183,10 @@
 #         # 🔹 Detect user
 #         if hasattr(request, "user") and request.user.is_authenticated:
 #             try:
-#                 custom_user = Users.objects.get(user=request.user)
+#                 custom_user = Candidate.objects.get(user=request.user)
 #                 user_id = custom_user.user_id
 #                 log_file = os.path.join(self.logs_dir, f"user_{user_id}.log")
-#             except Users.DoesNotExist:
+#             except Candidate.DoesNotExist:
 #                 user_id = f"auth_{request.user.id}"
 #                 log_file = os.path.join(self.logs_dir, f"authuser_{request.user.id}.log")
 #         else:
@@ -258,7 +258,7 @@
 # import sqlparse
 # from django.db import connection
 # from django.conf import settings
-# from home.users.models import Users
+# from home.users.models import Candidate
 
 
 # class UserRequestLoggingMiddleware:
@@ -287,10 +287,10 @@
 #         # 🔹 Detect user
 #         if hasattr(request, "user") and request.user.is_authenticated:
 #             try:
-#                 custom_user = Users.objects.get(user=request.user)
+#                 custom_user = Candidate.objects.get(user=request.user)
 #                 user_id = custom_user.user_id
 #                 log_file = os.path.join(self.logs_dir, f"user_{user_id}.log")
-#             except Users.DoesNotExist:
+#             except Candidate.DoesNotExist:
 #                 user_id = f"auth_{request.user.id}"
 #                 log_file = os.path.join(self.logs_dir, f"authuser_{request.user.id}.log")
 #         else:
@@ -365,7 +365,7 @@
 # import sqlparse
 # from django.db import connection
 # from django.conf import settings
-# from home.users.models import Users
+# from home.users.models import Candidate
 
 # # Dictionary to keep per-user stats in-memory during server runtime
 # USER_STATS = {}
@@ -397,11 +397,11 @@
 #         user_key = "anonymous"
 #         if hasattr(request, "user") and request.user.is_authenticated:
 #             try:
-#                 custom_user = Users.objects.get(email=request.user.email)  # or map properly
+#                 custom_user = Candidate.objects.get(email=request.user.email)  # or map properly
 #                 user_id = custom_user.user_id
 #                 log_file = os.path.join(self.logs_dir, f"user_{user_id}.log")
 #                 user_key = str(user_id)
-#             except Users.DoesNotExist:
+#             except Candidate.DoesNotExist:
 #                 pass
 
 #         # Setup logger
@@ -471,7 +471,7 @@
 # import sqlparse
 # from django.db import connection
 # from django.conf import settings
-# from home.users.models import Users
+# from home.users.models import Candidate
 
 # # In-memory per-user stats
 # USER_STATS = {}
@@ -500,12 +500,12 @@
 
 #         if hasattr(request, "user") and request.user.is_authenticated:
 #             try:
-#                 # Map by email or any unique field in Users
-#                 custom_user = Users.objects.get(email=request.user.email)
+#                 # Map by email or any unique field in Candidate
+#                 custom_user = Candidate.objects.get(email=request.user.email)
 #                 user_id = custom_user.user_id
 #                 log_file = os.path.join(self.logs_dir, f"user_{user_id}.log")
 #                 user_key = str(user_id)
-#             except Users.DoesNotExist:
+#             except Candidate.DoesNotExist:
 #                 pass
 
 #         # Logger setup
@@ -587,7 +587,7 @@
 # import sqlparse
 # from django.db import connection
 # from django.conf import settings
-# from home.users.models import Users
+# from home.users.models import Candidate
 
 # # Per-user stats dictionary
 # user_stats = {}
@@ -612,11 +612,11 @@
 #         # Determine user identity
 #         if hasattr(request, "user") and request.user.is_authenticated:
 #             try:
-#                 custom_user = Users.objects.get(email=request.user.email)
+#                 custom_user = Candidate.objects.get(email=request.user.email)
 #                 user_id = custom_user.user_id
 #                 log_file = os.path.join(self.logs_dir, f"user_{user_id}.log")
 #                 user_key = str(user_id)
-#             except Users.DoesNotExist:
+#             except Candidate.DoesNotExist:
 #                 log_file = os.path.join(self.logs_dir, f"authuser_{request.user.id}.log")
 #                 user_key = f"authuser_{request.user.id}"
 #         else:
@@ -705,7 +705,7 @@
 # import sqlparse
 # from django.db import connection
 # from django.conf import settings
-# from home.users.models import Users
+# from home.users.models import Candidate
 
 # # Global per-user stats dictionary
 # user_stats = {}
@@ -731,11 +731,11 @@
 #         # Determine user identity
 #         if hasattr(request, "user") and request.user.is_authenticated:
 #             try:
-#                 custom_user = Users.objects.get(email=request.user.email)
+#                 custom_user = Candidate.objects.get(email=request.user.email)
 #                 user_id = custom_user.user_id
 #                 log_file = os.path.join(self.logs_dir, f"user_{user_id}.log")
 #                 user_key = str(user_id)
-#             except Users.DoesNotExist:
+#             except Candidate.DoesNotExist:
 #                 log_file = os.path.join(self.logs_dir, f"authuser_{request.user.id}.log")
 #                 user_key = f"authuser_{request.user.id}"
 #         else:

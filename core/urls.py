@@ -42,6 +42,9 @@ urlpatterns = [
     path('', include('home.urls')),
     #path("", include('admin_material.urls')),
     path('candidates/', include('home.users.urls')),
+    path('submit-registration-feedback/', include([
+        path('', lambda request: __import__('home.users.views', fromlist=['submit_registration_feedback']).submit_registration_feedback(request)),
+    ])),
     path('questions/', include('questions.urls')),
     path('exam_dashboard/', include('Exam_dashboard.urls')),
     path('qr/', include('qr_generator.urls')),

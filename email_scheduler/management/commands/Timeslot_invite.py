@@ -3,7 +3,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
-from home.users.models import Users
+from home.users.models import Candidate
 from user_invite.models import UserInvite
 import logging
 import time
@@ -11,7 +11,7 @@ import socket
 from smtplib import SMTPException, SMTPRecipientsRefused
 from datetime import date, datetime, timedelta
 from Exam_dashboard.views import assign_test_questions,get_config_value,bulk_create_test_answers
-from home.users.models import Tests, TestUserQuestionAnswer,Question
+from home.users.models import Tests, TestCandidateQuestionAnswer,Question
 
 
 
@@ -40,18 +40,18 @@ class Command(BaseCommand):
         # )
         # deleted_test_count = unsubmitted_tests.count()
         # if deleted_test_count > 0:
-        #     # Delete associated TestUserQuestionAnswer records
-        #     deleted_answer_count = TestUserQuestionAnswer.objects.filter(
+        #     # Delete associated TestCandidateQuestionAnswer records
+        #     deleted_answer_count = TestCandidateQuestionAnswer.objects.filter(
         #         test__in=unsubmitted_tests
         #     ).delete()
         #     # Delete Tests records
         #     unsubmitted_tests.delete()
-        #     self.stdout.write(f"🗑️ Deleted {deleted_test_count} un-submitted tests and {deleted_answer_count} TestUserQuestionAnswer records from {yesterday}.")
+        #     self.stdout.write(f"🗑️ Deleted {deleted_test_count} un-submitted tests and {deleted_answer_count} TestCandidateQuestionAnswer records from {yesterday}.")
         # else:
         #     self.stdout.write(f"✅ No un-submitted tests from {yesterday} to delete.")
 
         # ✅ Fetch users who haven't been invited
-        users = Users.objects.filter(
+        users = Candidate.objects.filter(
             invite_mail_status=False,
             is_active=True,
             deleted=False
@@ -145,7 +145,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"❌ Error sending email to {user.email}: {error_message}")
                 logger.exception(f"Error sending email to {user.email}: {error_message}")
 
-                # ✅ Store exception in Users table
+                # ✅ Store exception in Candidate table
                 user.invite_mail_status = False
                 user.invite_email_exception = error_message
                 user.save(update_fields=["invite_mail_status", "invite_email_exception"])

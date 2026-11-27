@@ -12,6 +12,9 @@ from .views import (
 urlpatterns = [
     #Default path
     path('', views.index, name='index'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
+    path('login/', views.login_router, name='login'),
+    path('mindmap/', views.mindmap_view, name='mindmap_view'),
     # Test URLs
     path('tests/', views.test_list, name='test_list'),
     path('tests/view/<int:pk>/', views.test_view, name='test_view'),

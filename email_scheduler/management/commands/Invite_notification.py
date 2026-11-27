@@ -3,7 +3,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
-from home.users.models import Users, Configuration  # Import from home.users app
+from home.users.models import Candidate, Configuration  # Import from home.users app
 import logging
 import time
 import socket
@@ -27,10 +27,10 @@ class Command(BaseCommand):
         config = {c.key: c.value for c in Configuration.objects.filter(key__in=config_keys)}
         
         # Debug: Check total users
-        total_users = Users.objects.count()
+        total_users = Candidate.objects.count()
         self.stdout.write(f"Total users in database: {total_users}")
         
-        users = Users.objects.filter(
+        users = Candidate.objects.filter(
             Notify_mail_status=False,
             is_active=True,
             deleted=False
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 if not re.match(EMAIL_REGEX, user.email):
                     self.stdout.write(f"❌ Invalid email format: {user.email}")
                     logger.warning(f"Invalid email format: {user.email}")
-                    Users.objects.filter(user_id=user.user_id).update(is_email_valid=False)
+                    Candidate.objects.filter(user_id=user.user_id).update(is_email_valid=False)
                     failed_user_ids.append(user.user_id)
                     continue  # Skip sending email
 
@@ -107,7 +107,7 @@ class Command(BaseCommand):
                 # Only update Notify_mail_status for users whose emails were sent successfully
                 successful_user_ids = [uid for uid in user_ids if uid not in failed_user_ids]
                 if successful_user_ids:
-                    Users.objects.filter(user_id__in=successful_user_ids).update(Notify_mail_status=True)
+                    Candidate.objects.filter(user_id__in=successful_user_ids).update(Notify_mail_status=True)
                     logger.info(f"Sent batch {i//batch_size + 1}: {len(successful_user_ids)} emails")
                     self.stdout.write(f"Sent batch {i//batch_size + 1}: {len(successful_user_ids)} emails")
                 if failed_user_ids:

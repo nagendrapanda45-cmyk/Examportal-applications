@@ -22,7 +22,7 @@ def qr_list(request):
             Q(id__icontains=query)
         )
     # Pagination
-    paginator = Paginator(qr_codes_all, 10)  # Show 10 users per page
+    paginator = Paginator(qr_codes_all, 50)  # Show 10 users per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     

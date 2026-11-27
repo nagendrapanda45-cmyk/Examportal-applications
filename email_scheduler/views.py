@@ -27,7 +27,7 @@ def export_tests_excel(request):
                t.resolution_mismatch_count,
                COUNT(t.resolution_mismatch_count) AS total_resolution_mismatch_users
         FROM tests t
-        INNER JOIN user_invites ui ON ui.user_id = t.user_id
+        INNER JOIN candidate_invites ui ON ui.user_id = t.user_id
         WHERE t.is_submitted = 1
     """
 
@@ -87,7 +87,7 @@ def export_tests_excel(request):
 def export_exam_summary(request):
     """
     Export exam summary with counts:
-    - Total Invited: Count from user_invites table, grouped by date_of_exam and start_time_slot
+    - Total Invited: Count from candidate_invites table, grouped by date_of_exam and start_time_slot
     - Exam Attended Count: Per test type based on start_time not null
     - Final Submission: Per test type (is_submitted = 1)
     - Auto Submission: Per test type (suspicious >= 9 OR resolution >= 3)
@@ -111,7 +111,7 @@ def export_exam_summary(request):
             date_of_exam,
             start_time_slot,
             COUNT(DISTINCT user_id) as total_invited
-        FROM user_invites
+        FROM candidate_invites
         WHERE 1=1
     """
     
@@ -158,7 +158,7 @@ def export_exam_summary(request):
                     THEN t.user_id ELSE NULL 
                 END) AS auto_submission
 
-        FROM user_invites ui
+        FROM candidate_invites ui
         LEFT JOIN tests t ON ui.user_id = t.user_id
         WHERE 1=1
         AND t.test_type IS NOT NULL
@@ -245,9 +245,9 @@ def export_browser_details(request):
             t.browser_used, 
             t.suspicious_activity_count,  
             t.resolution_mismatch_count 
-        FROM users us 
+        FROM candidates us 
         JOIN tests t ON us.user_id = t.user_id 
-        JOIN user_invites ui ON t.user_id = ui.user_id  
+        JOIN candidate_invites ui ON t.user_id = ui.user_id  
         WHERE 1=1
           AND (t.test_type IN ('GT', 'TT'))
           AND (t.suspicious_activity_count >= 9 OR t.resolution_mismatch_count >= 3)

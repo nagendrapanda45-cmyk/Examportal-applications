@@ -329,6 +329,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static 'js/tenserflow.js' %}"></script>
 <script src="{% static 'js/coco-ssd.js' %}"></script>
 <script>
@@ -900,10 +901,21 @@ async function submitTest(autoSubmit = false) {
             let personCount = 0;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            const videoW = video.videoWidth || 640;
+            const videoH = video.videoHeight || 480;
+            const minPersonArea = (videoW * videoH) * 0.05; // Filter out background people smaller than 5% of webcam
+
             for (const prediction of predictions) {
-                if (prediction.class === 'person' && prediction.score > 0.5) {
-                    personCount++;
+                if (prediction.class === 'person' && prediction.score > 0.45) {
                     const [x, y, width, height] = prediction.bbox;
+                    const boxArea = width * height;
+
+                    // Ignore people who are far away in the background
+                    if (boxArea < minPersonArea && height < (videoH * 0.32)) {
+                        continue;
+                    }
+
+                    personCount++;
                     ctx.beginPath();
                     ctx.rect(x, y, width, height);
                     ctx.lineWidth = 2;
@@ -914,54 +926,60 @@ async function submitTest(autoSubmit = false) {
                 }
             }
 
-            const currentTime = Date.now();
-                if ((personCount === 0 || personCount > 1) && currentTime - lastAlertTime > configData.alert_cooldown) {
-                    lastAlertTime = currentTime;
-
-                    // Increment local suspicious activity
-                    testState.suspicious_activity_count += 1;
-                    localStorage.setItem('testState', JSON.stringify(testState));
-
-                    suspiciousCountEl.textContent = testState.suspicious_activity_count;
-
-                    // Check thresholds
-                    let freezePopup = false;
-                    let autoSubmit = false;
-
-                    if (testState.suspicious_activity_count % configData.freeze_threshold === 0 &&
-                        testState.suspicious_activity_count < configData.max_freeze_count) {
-                        freezePopup = true;
-                    }
-                    if (testState.suspicious_activity_count >= configData.max_freeze_count) {
-                        autoSubmit = true;
-                    }
-
-                    // Act accordingly
-                    if (autoSubmit) {
-                        submitTest(true);
-                    } else if (freezePopup) {
-                        showFreezePopup();
-                        // Optional: auto-hide freeze popup after freeze_timer
-                        setTimeout(() => {
-                            document.getElementById("freezePopup").style.display = "none";
-                            modelPaused = false;
-                        }, configData.freeze_timer * 1000);
-                    } else if (personCount === 0) {
-                        showAlert("No person detected! Please ensure you are visible in the webcam.");
-                        statusEl.textContent = "No Person Detected";
-                        statusEl.style.color = "red";
-                    } else if (personCount > 1) {
-                        showAlert("Multiple persons detected! Only one person should be visible during the test.");
-                        statusEl.textContent = "Multiple Persons Detected";
-                        statusEl.style.color = "red";
-                    }
-                } else if (personCount === 1) {
-                    statusEl.textContent = "Person Detected!";
-                    statusEl.style.color = "green";
-
+            // Real-time status update on every frame
+            if (personCount === 1) {
+                statusEl.textContent = "Person Detected!";
+                statusEl.style.color = "green";
+                const alertContainer = document.getElementById('alertContainer');
+                if (alertContainer && alertContainer.textContent.includes('No person detected')) {
+                    alertContainer.style.display = 'none';
+                    alertContainer.classList.remove('alert-show');
+                }
+            } else if (personCount > 1) {
+                statusEl.textContent = "Multiple Persons Detected (" + personCount + ")";
+                statusEl.style.color = "red";
             } else {
                 statusEl.textContent = "No Person Detected";
                 statusEl.style.color = "red";
+            }
+
+            const currentTime = Date.now();
+            if ((personCount === 0 || personCount > 1) && currentTime - lastAlertTime > configData.alert_cooldown) {
+                lastAlertTime = currentTime;
+
+                // Increment local suspicious activity
+                testState.suspicious_activity_count += 1;
+                localStorage.setItem('testState', JSON.stringify(testState));
+
+                suspiciousCountEl.textContent = testState.suspicious_activity_count;
+
+                // Check thresholds
+                let freezePopup = false;
+                let autoSubmit = false;
+
+                if (testState.suspicious_activity_count % configData.freeze_threshold === 0 &&
+                    testState.suspicious_activity_count < configData.max_freeze_count) {
+                    freezePopup = true;
+                }
+                if (testState.suspicious_activity_count >= configData.max_freeze_count) {
+                    autoSubmit = true;
+                }
+
+                // Act accordingly
+                if (autoSubmit) {
+                    submitTest(true);
+                } else if (freezePopup) {
+                    showFreezePopup();
+                    // Optional: auto-hide freeze popup after freeze_timer
+                    setTimeout(() => {
+                        document.getElementById("freezePopup").style.display = "none";
+                        modelPaused = false;
+                    }, configData.freeze_timer * 1000);
+                } else if (personCount === 0) {
+                    showAlert("No person detected! Please ensure you are visible in the webcam.");
+                } else if (personCount > 1) {
+                    showAlert("Multiple persons detected! Only one person should be visible during the test.");
+                }
             }
 
             requestAnimationFrame(detectFrame);
@@ -1076,26 +1094,56 @@ async function submitTest(autoSubmit = false) {
 }
 
 
-    let tabSwitchCount = 0;
-    document.addEventListener('visibilitychange', function() {
-        try {
-            if (document.visibilityState === 'hidden') {
-                tabSwitchCount++;
-                if (tabSwitchCount >= 3) {
-                    submitTest(true);
-                } else if (tabSwitchCount >= 1) {
-                    const warningDiv = document.getElementById('tab-switch-warning');
-                    warningDiv.style.display = 'block';
-                    setTimeout(() => {
-                        warningDiv.style.display = 'none';
-                    }, 5000);
-                }
-            }
-        } catch (error) {
-            console.error("Error handling tab switch:", error);
-            showAlert("Error handling tab switch: " + error.message, "error");
+    // ROBUST ANTI-CHEAT SYSTEM
+    function triggerCheat(reason) {
+        Swal.fire({
+            title: 'Anti-Cheat Violation!',
+            text: reason,
+            icon: 'error',
+            confirmButtonColor: '#e91e63',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then(() => {
+            window.location.href = "{% url 'user_login' %}";
+        });
+    }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            triggerCheat("Tab switching is strictly prohibited. You have been flagged as a cheater.");
         }
     });
+
+    window.addEventListener("blur", () => {
+        triggerCheat("Tab switching is strictly prohibited. You have been flagged as a cheater.");
+    });
+
+    function checkDualMonitor() {
+        if (window.screen.isExtended) {
+            triggerCheat("Dual monitor setup detected. This is strictly prohibited.");
+        }
+    }
+    setInterval(checkDualMonitor, 2000);
+
+    const sessionKey = "exam_active_session";
+    const currentSessionId = Date.now().toString() + Math.random().toString();
+    localStorage.setItem(sessionKey, currentSessionId);
+    window.addEventListener("storage", (e) => {
+        if (e.key === sessionKey && e.newValue !== currentSessionId) {
+            triggerCheat("Concurrent login detected. You can only take the exam in one tab/browser.");
+        }
+    });
+    setInterval(() => {
+        if (localStorage.getItem(sessionKey) !== currentSessionId) {
+            triggerCheat("Concurrent login detected. You can only take the exam in one tab/browser.");
+        }
+    }, 2000);
+
+    if (navigator.mediaDevices && navigator.mediaDevices.ondevicechange !== undefined) {
+        navigator.mediaDevices.ondevicechange = (event) => {
+            triggerCheat("Hardware change detected (e.g., new USB plugged in). This is strictly prohibited.");
+        };
+    }
 
     async function init() {
         try {

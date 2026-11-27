@@ -215,6 +215,7 @@
     <script src="/static/js/tf.min.js"></script>
     <script src="/static/js/blazeface.min.js"></script>
     <script src="{% static 'custom/js/cdn-jsdelivr-bootstrap.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         let cameraTestsPassed = false;
         let isWithinTimeWindow = false;
@@ -256,29 +257,50 @@
             if (declarationChecked && cameraTestsPassed && isWithinTimeWindow) {
                 startBtn.disabled = false;
                 startBtn.onclick = function () {
-                    if (confirm('Are you sure you want to start the Exam? The timer will begin immediately.')) {
-                        // Call start_test first
-                        fetch("{% url 'start_test' %}", {
-                            method: "POST",
-                            headers: {
-                                "X-CSRFToken": "{{ csrf_token }}",
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({})
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.error) {
-                                alert(data.error);
-                            } else {
-                                // Now redirect to test page
-                                window.location.href = "{% url 'test_page' %}";
-                            }
-                        })
-                        .catch(err => {
-                            alert("Error starting test: " + err);
-                        });
-                    }
+                    Swal.fire({
+                        title: 'Are you sure you want to start the Exam?',
+                        html: `
+                            <div style="text-align: left;">
+                                <p>The timer will begin immediately. Please follow these strict rules:</p>
+                                <ul>
+                                    <li>Don't switch functionality like don't open any new tab when the exam starts.</li>
+                                    <li>Don't open mobile or any accessories.</li>
+                                    <li>Don't add external plugins.</li>
+                                    <li>Don't move your eye or head too much.</li>
+                                    <li>Sit silently and start work.</li>
+                                </ul>
+                                <h3 style="color: #e91e63; text-align: center; margin-top: 20px;"><strong>Best of luck from Intelligenz IT!</strong></h3>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'I Understand & Proceed',
+                        confirmButtonColor: '#e91e63'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Call start_test first
+                            fetch("{% url 'start_test' %}", {
+                                method: "POST",
+                                headers: {
+                                    "X-CSRFToken": "{{ csrf_token }}",
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({})
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.error) {
+                                    alert(data.error);
+                                } else {
+                                    // Now redirect to test page
+                                    window.location.href = "{% url 'test_page' %}";
+                                }
+                            })
+                            .catch(err => {
+                                alert("Error starting test: " + err);
+                            });
+                        }
+                    });
                 };
             } else {
                 startBtn.disabled = true;

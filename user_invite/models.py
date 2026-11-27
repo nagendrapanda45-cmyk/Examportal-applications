@@ -1,12 +1,12 @@
 # from django.db import models
-# from home.users.models import Configuration, Users
+# from home.users.models import Configuration, Candidate
 # from django.utils import timezone
 
 # class UserInvite(models.Model):
 #     """
 #     Model to track user invitations for the exam portal.
 #     """
-#     user = models.OneToOneField(Users, on_delete=models.CASCADE, primary_key=True)
+#     user = models.OneToOneField(Candidate, on_delete=models.CASCADE, primary_key=True)
 #     invited_status = models.CharField(
 #         max_length=20,
 #         choices=[('registered', 'Registered'), ('invited', 'Invited')],
@@ -60,14 +60,14 @@
 #         return self.email_template
 # user_invite/models.py
 from django.db import models
-from home.users.models import Configuration, Users
+from home.users.models import Configuration, Candidate
 from django.utils import timezone
 
 class UserInvite(models.Model):
     """
     Model to track user invitations for the exam portal.
     """
-    user = models.OneToOneField(Users, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(Candidate, on_delete=models.CASCADE, primary_key=True)
     invited_status = models.CharField(
         max_length=20,
         choices=[('registered', 'Registered'), ('invited', 'Invited')],
@@ -80,8 +80,8 @@ class UserInvite(models.Model):
     end_time_slot = models.TimeField(null=True, blank=True, help_text="End time slot of the exam")
     is_mail_sent = models.BooleanField(default=False, help_text="Indicates if the email was sent")
     is_bulk_mail_sent = models.BooleanField(default=False, help_text="Indicates if bulk email was sent")
-    is_deleted = models.BooleanField(default=False, help_text="Soft delete flag")
-    created_at = models.DateTimeField(auto_now_add=True, help_text="Date and time when the invite was created")
+    is_deleted = models.BooleanField(default=False, help_text="Soft delete flag", db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, help_text="Date and time when the invite was created", db_index=True)
     email_template_used = models.CharField(max_length=100, null=True, blank=True)
     pre_assigned_questions = models.JSONField(blank=True, null=True)  # Store {'GT': [ids], 'TT': [ids]}
 
@@ -106,7 +106,7 @@ class UserInvite(models.Model):
     )
 
     class Meta:
-        db_table = 'user_invites'
+        db_table = 'candidate_invites'
         verbose_name = 'Profile Invite'
         verbose_name_plural = 'Candidate Invites'
 
@@ -135,8 +135,8 @@ class EmailTemplate(models.Model):
     subject = models.CharField(max_length=200, blank=False, null=False, default="")
 
     email_context = models.TextField()
-    is_deleted = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

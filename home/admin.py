@@ -1,7 +1,7 @@
 # home/admin.py
 from django.contrib.admin import AdminSite
 from django.shortcuts import render
-from home.users.models import Users, Question, Tests, Result,Configuration
+from home.users.models import Candidate, Question, Tests, Result,Configuration
 from django.db.models import Count, Avg
 import json
 from django.utils.http import urlencode
@@ -13,7 +13,7 @@ class CustomAdminSite(AdminSite):
     def index(self, request, extra_context=None):
         if not self.has_permission(request):
             return self.login(request, extra_context)
-        total_users = Users.objects.filter(deleted=False).count()
+        total_users = Candidate.objects.filter(deleted=False).count()
         total_questions = Question.objects.filter(deleted=False).count()
         total_tests = Tests.objects.filter(is_submitted=1).count()
         total_results = Result.objects.count()
@@ -54,7 +54,7 @@ class CustomAdminSite(AdminSite):
 
         context = {
             **self.each_context(request),
-            'total_users': Users.objects.filter(deleted=False).count(),
+            'total_users': Candidate.objects.filter(deleted=False).count(),
             'total_questions': Question.objects.filter(deleted=False).count(),
             'total_tests': Tests.objects.filter(is_submitted=1).count(),
             'total_results': Result.objects.count(),

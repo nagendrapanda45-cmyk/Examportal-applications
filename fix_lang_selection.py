@@ -10,7 +10,7 @@ pattern = r"def language_selection\(request\):.*?return redirect\('instructions_
 replacement = """def language_selection(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('user_login')
+        return redirect('candidate_login')
 
     if request.method == 'POST':
         lang_id = request.POST.get('programming_language')

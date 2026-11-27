@@ -7,8 +7,8 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from django.db.models import Q
 from django.conf import settings
-from home.users.models import Tests, Instruction, Result, Question, TestUserQuestionAnswer, GenerateTest, GenerateTestQuestions
-from home.users.models import Users
+from home.users.models import Tests, Instruction, Result, Question, TestCandidateQuestionAnswer, GenerateTest, GenerateTestQuestions
+from home.users.models import Candidate
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
@@ -53,9 +53,35 @@ import json
 
 
 # ... (rest of your views.py file from index to result_view) ...
-@module_access_required('Dashboard')
-def index(request):
+def dashboard_view(request):
+    if request.user.is_authenticated:
+        if request.user.is_staff or request.user.is_superuser:
+            return redirect('admin:index')
+        return redirect('candidate_dashboard')
+    if request.session.get('user_id'):
+        return redirect('candidate_dashboard')
     return redirect('admin:index')
+
+def login_router(request):
+    if request.session.get('user_id'):
+        return redirect('candidate_dashboard')
+    return redirect('admin:login')
+
+def index(request):
+    return dashboard_view(request)
+
+def mindmap_view(request):
+    html_path = os.path.join(settings.BASE_DIR, 'TalentAssess_360_MindMap_Visual.html')
+    if os.path.exists(html_path):
+        with open(html_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='text/html')
+    downloads_path = r'C:\Users\User\Downloads\TalentAssess_360_MindMap_Visual.html'
+    if os.path.exists(downloads_path):
+        with open(downloads_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='text/html')
+    return HttpResponse("Mind Map Visual not found.", status=404)
 
 logger=logging.getLogger(__name__)
 
@@ -101,7 +127,7 @@ def test_list(request):
     if updated_count > 0:
         logger.info(f"test_list view: Auto-submitted {updated_count} test(s) at {now}")
  
-    paginator = Paginator(tests, 10)
+    paginator = Paginator(tests, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'home/tests/test_list.html', {
@@ -113,7 +139,7 @@ def test_list(request):
 @login_required
 def test_view(request, pk):
     test = get_object_or_404(
-        Tests.objects.select_related('user').prefetch_related('testuserquestionanswer_set__question'),
+        Tests.objects.select_related('user').prefetch_related('TestCandidateQuestionAnswer_set__question'),
         pk=pk
     )
     if not request.user.is_staff and test.user != request.user:
@@ -122,7 +148,7 @@ def test_view(request, pk):
             'message': "You are not authorized to view this test."
         }, status=403)
  
-    question_answers = TestUserQuestionAnswer.objects.filter(
+    question_answers = TestCandidateQuestionAnswer.objects.filter(
         test=test,
         user=test.user,
         user_answer__isnull=False
@@ -139,7 +165,7 @@ def test_view(request, pk):
                 qa.save()
  
         total_attempted_questions = question_answers.count()
-        total_questions = TestUserQuestionAnswer.objects.filter(
+        total_questions = TestCandidateQuestionAnswer.objects.filter(
             test=test,
             user=test.user
         ).count()
@@ -198,7 +224,7 @@ def test_view(request, pk):
         messages.success(request, "Test results updated successfully!")
         return redirect('test_view', pk=test.pk)
  
-    paginator = Paginator(question_answers, 10)
+    paginator = Paginator(question_answers, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
  
@@ -258,7 +284,7 @@ def instruction_list(request):
         instructions = instructions.filter(test_type=test_type)
 
     test_type_choices = Instruction.TEST_TYPE_CHOICES
-    paginator = Paginator(instructions, 10)
+    paginator = Paginator(instructions, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -328,7 +354,7 @@ def result_list(request):
     if result_status:
         results = results.filter(result_status=result_status.upper())
  
-    paginator = Paginator(results.order_by('-result_id'), 10)
+    paginator = Paginator(results.order_by('-result_id'), 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
  
@@ -689,7 +715,7 @@ def generate_test(request):
     sets = GenerateTest.objects.filter(test_type=test_type.upper()).order_by('-created_at')
     if search_query:
         sets = sets.filter(set_name__icontains=search_query)
-    paginator = Paginator(sets, 10)
+    paginator = Paginator(sets, 50)
     page_obj = paginator.get_page(page_number)
     
     # Format the set name for display purposes
@@ -918,7 +944,7 @@ def export_users(request):
     
     try:
         # Start with base queryset
-        users = Users.objects.filter(deleted=False)
+        users = Candidate.objects.filter(deleted=False)
         
         # Apply filters if provided
         if query:
@@ -1085,7 +1111,7 @@ def import_status(request):
                         continue
 
                     # Verify user exists with matching user_id and registration_id
-                    user = Users.objects.filter(user_id=user_id, registration_id=registration_id).first()
+                    user = Candidate.objects.filter(user_id=user_id, registration_id=registration_id).first()
                     if not user:
                         logger.warning(f"No user found with user_id: {user_id} and registration_id: {registration_id}")
                         continue
@@ -1135,7 +1161,7 @@ def import_status(request):
                     else:
                         technical_score = None
 
-                    # Update action_status in Users model
+                    # Update action_status in Candidate model
                     user.action_status = str(row['action_status']).strip()
                     user.save()
 
@@ -1175,8 +1201,8 @@ def import_status(request):
 @module_access_required('Dashboard')
 def index(request):
     if not request.user.is_authenticated:
-        return redirect('user_login')
-    total_users = Users.objects.filter(deleted=False).count()
+        return redirect('candidate_login')
+    total_users = Candidate.objects.filter(deleted=False).count()
     total_questions = Question.objects.filter(deleted=False).count()
     total_tests = Tests.objects.filter(is_submitted=1).count()
     total_results = Result.objects.count()
@@ -1266,7 +1292,7 @@ def final_result_list(request):
  
     # Sort by final_result_id in descending order
     final_results = final_results.order_by('-final_result_id')
-    paginator = Paginator(final_results, 10)
+    paginator = Paginator(final_results, 50)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
  

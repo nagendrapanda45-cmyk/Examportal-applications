@@ -1,6 +1,7 @@
 from Role_based_Access.decorators import module_access_required
 # Role_based_Access/views.py
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import EmployeeForm, EmployeeEditForm
@@ -11,19 +12,23 @@ from django.db.models import Q
 @module_access_required('Manage Role')
 def manage_employees(request):
     search_query = request.GET.get('search_query', '')
-    employees = Employee.objects.all()
+    employees = Employee.objects.select_related('user').all()
     if search_query:
         employees = employees.filter(
             Q(name__icontains=search_query) | 
             Q(email__icontains=search_query) |
             Q(user__username__icontains=search_query) |
-            Q(department__icontains=search_query)  # Added department to search
+            Q(department__icontains=search_query)
         )
-
+    paginator = Paginator(employees, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, 'Role_based_Access/manage_employees.html', {
-        'employees': employees,
+        'employees': page_obj,
+        'page_obj': page_obj,
         'search_query': search_query
     })
+
 
 @login_required
 @module_access_required('Manage Role')

@@ -50,7 +50,7 @@ def question_list(request):
             questions = questions.filter(specialisation_name__iexact=specialisation_name)
 
     # Paginate the questions
-    paginator = Paginator(questions, 10)  # 10 questions per page
+    paginator = Paginator(questions, 50)  # 10 questions per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
