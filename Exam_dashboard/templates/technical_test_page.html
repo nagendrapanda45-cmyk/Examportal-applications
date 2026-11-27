@@ -809,9 +809,48 @@ async function submitTest(autoSubmit = false) {
     });
 
     document.addEventListener('keydown', e => {
-        if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || e.key === 'F12') {
+        const key = e.key ? e.key.toUpperCase() : '';
+        
+        // Block DevTools
+        if ((e.ctrlKey && e.shiftKey && (key === 'I' || key === 'J' || key === 'C')) || e.key === 'F12') {
             e.preventDefault();
-            showAlert("Opening developer tools is disabled during the test.", "error");
+            e.stopPropagation();
+            triggerCheat("Developer tools are strictly disabled during the exam.");
+            return false;
+        }
+
+        // Block Screenshots & Screen Recording (PrtScr, Win+Shift+S, Alt+PrtScr)
+        if (e.key === 'PrintScreen' || key === 'PRINTSCREEN' || (e.metaKey && e.shiftKey && key === 'S')) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(''); // Clear clipboard immediately
+            }
+            triggerCheat("Screenshots are strictly prohibited! Attempt recorded.");
+            return false;
+        }
+
+        // Block New Window / New Tab / Downloads / History shortcuts
+        if (e.ctrlKey && (key === 'T' || key === 'N' || key === 'W' || key === 'J' || key === 'H' || key === 'U' || key === 'S' || key === 'P')) {
+            e.preventDefault();
+            e.stopPropagation();
+            triggerCheat("Browser shortcut (Ctrl+" + key + ") is blocked.");
+            return false;
+        }
+
+        // Block Alt+Tab / Alt+F4 / Win keys
+        if (e.altKey || e.metaKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            triggerCheat("Window navigation and switching keys are prohibited.");
+            return false;
+        }
+
+        // Block Escape & F-keys (F5 refresh)
+        if (e.key === 'F5' || (e.ctrlKey && key === 'R')) {
+            e.preventDefault();
+            showAlert("Page refresh is disabled during the exam.", "error");
+            return false;
         }
     });
 
@@ -1139,11 +1178,76 @@ async function submitTest(autoSubmit = false) {
         }
     }, 2000);
 
+    // Fullscreen enforcement and minimize/window resize traps
+    function enforceFullscreen() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(() => {});
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+    }
+
+    document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement) {
+            triggerCheat("Exiting fullscreen or minimizing the screen is strictly prohibited!");
+        }
+    });
+    document.addEventListener("webkitfullscreenchange", () => {
+        if (!document.webkitFullscreenElement) {
+            triggerCheat("Exiting fullscreen or minimizing the screen is strictly prohibited!");
+        }
+    });
+
+    // Check if browser was minimized or restored below full resolution
+    window.addEventListener("resize", () => {
+        const widthDiff = Math.abs(window.screen.availWidth - window.innerWidth);
+        const heightDiff = Math.abs(window.screen.availHeight - window.innerHeight);
+        if (!document.fullscreenElement && (widthDiff > 100 || heightDiff > 180)) {
+            triggerCheat("Window resizing, minimization, or split screen detected!");
+        }
+    });
+
+    // Monitor audio output / earphone / headphone / Type-C peripheral connections
+    let knownAudioDevicesCount = -1;
+    async function checkAudioPeripherals() {
+        try {
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const currentCount = devices.length;
+                if (knownAudioDevicesCount !== -1 && currentCount !== knownAudioDevicesCount) {
+                    triggerCheat("External hardware device connected or disconnected (e.g., Earphones / Type-C / USB / Audio device).");
+                }
+                knownAudioDevicesCount = currentCount;
+            }
+        } catch(err) {}
+    }
+    setInterval(checkAudioPeripherals, 1500);
+
+    // Hardware device plug-in trap (USB, USB-C, Bluetooth, Audio jack, Video cables)
     if (navigator.mediaDevices && navigator.mediaDevices.ondevicechange !== undefined) {
         navigator.mediaDevices.ondevicechange = (event) => {
-            triggerCheat("Hardware change detected (e.g., new USB plugged in). This is strictly prohibited.");
+            triggerCheat("Hardware connection detected (USB cable / Type-C / Earphones / External Device). This is strictly prohibited.");
         };
     }
+
+    // Block WebUSB / WebHID / WebSerial connections if attempted
+    if (navigator.usb) {
+        navigator.usb.onconnect = () => { triggerCheat("USB connection detected!"); };
+        navigator.usb.ondisconnect = () => { triggerCheat("USB disconnection detected!"); };
+    }
+    if (navigator.hid) {
+        navigator.hid.onconnect = () => { triggerCheat("External hardware controller detected!"); };
+    }
+
+    // Request fullscreen on candidate first click
+    document.addEventListener('click', () => {
+        enforceFullscreen();
+    }, { once: true });
 
     async function init() {
         try {
