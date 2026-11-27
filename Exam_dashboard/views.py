@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib.sessions.models import Session
 from django.contrib import messages
-from home.users.models import Tests, TestCandidateQuestionAnswer, Candidate, Result, Question, Configuration, Instruction
+from home.users.models import Tests, TestCandidateQuestionAnswer, Candidate, Result, Question, Configuration, Instruction, FinalResult
 from django.http import JsonResponse, HttpResponseForbidden,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
@@ -197,6 +197,10 @@ def start_test(request):
         user = Candidate.objects.get(user_id=request.session['user_id'])
     except Candidate.DoesNotExist:
         return JsonResponse({'error': 'User not found. Please log in again.'}, status=400)
+
+    # Prevent access if disqualified
+    if getattr(user, 'is_disqualified', False):
+        return JsonResponse({'error': f'You are disqualified from taking tests. Reason: {user.disqualification_reason or "Anti-cheat violation"}.'}, status=403)
 
     # Prevent retake after submission
     if Tests.objects.filter(user=user, test_type='GT', is_submitted=True).exists():
@@ -766,6 +770,8 @@ def start_technical_test(request):
 
     try:
         user = Candidate.objects.get(user_id=request.session['user_id'])
+        if getattr(user, 'is_disqualified', False):
+            return JsonResponse({'error': f'You are disqualified from taking tests. Reason: {user.disqualification_reason or "Anti-cheat violation"}.'}, status=403)
         data = json.loads(request.body)
         selected_language = data.get('language')
     except Candidate.DoesNotExist:
@@ -1376,3 +1382,54 @@ def log_browser(request):
             return JsonResponse({'status': 'error', 'message': 'No active test found'}, status=404)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def disqualify_candidate(request):
+    """
+    Called when anti-cheat violation occurs (e.g. multiple persons detected, tab switch, etc.)
+    Permanently marks the candidate as disqualified in MySQL database and blocks test re-entry.
+    """
+    if request.method == 'POST':
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return JsonResponse({'status': 'error', 'message': 'User not authenticated'}, status=401)
+
+        try:
+            user = Candidate.objects.get(user_id=user_id)
+        except Candidate.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'User not found'}, status=404)
+
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            data = {}
+
+        reason = data.get('reason', 'Anti-cheat violation (Multiple persons detected / Unauthorized action)')
+
+        # Mark candidate disqualified in database
+        user.is_disqualified = True
+        user.disqualification_reason = reason
+        user.action_status = 'Disqualified'
+        user.save(update_fields=['is_disqualified', 'disqualification_reason', 'action_status'])
+
+        # Mark active tests as submitted and failed
+        Tests.objects.filter(user=user, is_submitted=False).update(
+            is_submitted=True,
+            is_active=False,
+            suspicious_activity_count=999
+        )
+
+        # Create or update FinalResult as fail
+        FinalResult.objects.update_or_create(
+            user=user,
+            defaults={'result_status': 'fail'}
+        )
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Candidate permanently disqualified.',
+            'redirect_url': '/candidates/dashboard/'
+        })
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)

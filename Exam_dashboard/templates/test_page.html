@@ -807,8 +807,14 @@ async function detectFrame() {
         }
     }
 
-    // Real-time status update on every frame
-    if (personCount === 1) {
+    // Immediate check: ONLY 1 PERSON ALLOWED.
+    // If 2 or more persons detected (2, 3, 4, 5, etc.), immediately disqualify candidate and redirect to profile dashboard.
+    if (personCount > 1) {
+        statusEl.textContent = "Multiple Persons Detected (" + personCount + ") - Disqualified!";
+        statusEl.style.color = "red";
+        triggerPermanentDisqualification("Multiple persons detected (" + personCount + " people in camera frame). Only 1 person is allowed! You are permanently disqualified from taking this exam.");
+        return;
+    } else if (personCount === 1) {
         statusEl.textContent = "Person Detected!";
         statusEl.style.color = "green";
         const alertContainer = document.getElementById('alertContainer');
@@ -816,9 +822,6 @@ async function detectFrame() {
             alertContainer.style.display = 'none';
             alertContainer.classList.remove('alert-show');
         }
-    } else if (personCount > 1) {
-        statusEl.textContent = "Multiple Persons Detected (" + personCount + ")";
-        statusEl.style.color = "red";
     } else {
         statusEl.textContent = "No Person Detected";
         statusEl.style.color = "red";
@@ -980,17 +983,36 @@ async function init() {
 }
 
 // ROBUST ANTI-CHEAT SYSTEM
-function triggerCheat(reason) {
+let isDisqualifiedState = false;
+function triggerPermanentDisqualification(reason) {
+    if (isDisqualifiedState) return;
+    isDisqualifiedState = true;
+    
+    // Call backend endpoint to permanently mark candidate disqualified in MySQL
+    fetch("{% url 'disqualify_candidate' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': initialData.csrf_token
+        },
+        body: JSON.stringify({ reason: reason })
+    }).catch(err => console.error(err));
+
     Swal.fire({
-        title: 'Anti-Cheat Violation!',
+        title: 'Exam Disqualification!',
         text: reason,
         icon: 'error',
         confirmButtonColor: '#e91e63',
+        confirmButtonText: 'Go to Profile',
         allowOutsideClick: false,
         allowEscapeKey: false
     }).then(() => {
-        window.location.href = "{% url 'user_login' %}";
+        window.location.href = "{% url 'user_dashboard' %}";
     });
+}
+
+function triggerCheat(reason) {
+    triggerPermanentDisqualification(reason);
 }
 
 document.addEventListener("visibilitychange", () => {

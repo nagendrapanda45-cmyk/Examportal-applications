@@ -16,4 +16,5 @@ urlpatterns = [
     # path('update_resolution_mismatch/', views.update_resolution_mismatch, name='update_resolution_mismatch'),
     path('capture_screenshot/', views.captureScreenshot, name='captureScreenshot'),
     path('log_browser/', views.log_browser, name='log_browser'),
+    path('disqualify_candidate/', views.disqualify_candidate, name='disqualify_candidate'),
 ]

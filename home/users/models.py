@@ -243,6 +243,8 @@ class Candidate(models.Model):
     deleted = models.BooleanField(default=False, db_index=True)
     registration_mail_sent = models.BooleanField(default=False)
     is_mail_sent = models.BooleanField(default=False)
+    is_disqualified = models.BooleanField(default=False, help_text="Set to True if candidate is disqualified for anti-cheat/multi-person violations")
+    disqualification_reason = models.CharField(max_length=255, blank=True, null=True, help_text="Reason for candidate disqualification")
     action_status = models.CharField(max_length=100, blank=True, null=True, default='pending')
     user_confirmation_status = models.IntegerField(
         choices=CONFIRMATION_STATUS_CHOICES,

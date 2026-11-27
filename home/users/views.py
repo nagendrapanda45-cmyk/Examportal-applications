@@ -889,6 +889,15 @@ def test_selection(request):
 
     try:
         user = Candidate.objects.get(user_id=user_id, is_active=True, deleted=False)
+        
+        # Check if candidate has been disqualified for anti-cheat/multiple persons
+        if getattr(user, 'is_disqualified', False):
+            messages.error(
+                request,
+                f"You have been disqualified from taking the examination. Reason: {user.disqualification_reason or 'Anti-cheat violation'}. You cannot restart the exam."
+            )
+            return redirect('user_dashboard')
+
         # Check if general test is completed in database
         general_test_completed = Tests.objects.filter(
             user=user, 
